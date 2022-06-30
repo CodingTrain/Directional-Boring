@@ -14,6 +14,10 @@ let drilling = true;
 let win = null;
 let fail = false;
 
+function preload() {
+  img = loadImage("assets/ground.png");
+}
+
 function setup() {
   createCanvas(600, 400);
   pos = createVector(0, 101);
@@ -51,16 +55,20 @@ function drill() {
 }
 
 function draw() {
-  background(51);
+  background(163,206,241);
   noStroke();
   rectMode(CORNER);
-  fill(139, 69, 19);
+  //fill(139, 69, 19);
+  
+  image(img, 0, 100);
+  noFill();
   rect(0, 100, width, height - 100);
   fill(30, 144, 255);
   arc(width / 2, 100, 400, 200, 0, PI);
-
-  stroke(0);
-  strokeWeight(2);
+  fill(129,105,82);
+  addObstacle();
+  stroke(59);
+  strokeWeight(4);
   noFill();
   beginShape();
   for (let i = 0; i < path.length; i++) {
@@ -93,9 +101,12 @@ function draw() {
   }
 }
 
-
 function outcome(x, y) {
   let e = isInEllipse(x, y);
+  let c1 = isInCircle(x, y, 175, 250, 30);
+  let c2 = isInCircle(x, y, 250, 275, 20);
+  let c3 = isInCircle(x, y, 475, 200, 40);
+
   if (y > 100 && e) {
     drilling = false;
     fail = true;
@@ -108,11 +119,21 @@ function outcome(x, y) {
     drilling = false;
     fail = true;
   }
+  else if ( c1 || c2 || c3 ) {
+    drilling = false;
+    fail = true;
+  }
   else if (x > 400 && y < 100) {
     drilling = false;
   }
 }
 
+function addObstacle() {
+  stroke(59);
+  circle(175, 250, 30);
+  circle(250, 275, 20);
+  circle(475, 200, 40);
+}
 
 //https://stackoverflow.com/questions/34731883/ellipse-mouse-collision-detection
 function isInEllipse(x, y) {
@@ -121,4 +142,14 @@ function isInEllipse(x, y) {
   let dx = x - 300;
   let dy = y - 100;
   return ((dx * dx) / (a * a) + (dy * dy) / (b * b) <= 1);
+}
+
+function isInCircle(x, y, a, b, r) {
+  let xsq = pow((x - a), 2);
+  let ysq = pow((y - b), 2);
+  if (xsq + ysq < r*r) {
+    return true;
+  }
+  //return intersect;
+  //return ((dx * dx) / (r*r) + (dy * dy) / (r*r) <= 1);
 }
