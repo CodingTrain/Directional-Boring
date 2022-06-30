@@ -1,5 +1,9 @@
 html, body {
+  color: black;
 }
 canvas {
   display: block;
+}
+p, div {
+  color: black;
 }
