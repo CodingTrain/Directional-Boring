@@ -1,62 +1,77 @@
-let pos, dir;
-let path = [];
+let pos;
+let dir;
 let bias = 1;
-let angle = 0.01;
-let biasButton;
+let path = [];
 
-let sliderSteps;
-let stepsSpan;
+const ground = [139, 69, 19];
+
+let state = 'PAUSED';
+
+let hddScene;
+
+let startButton;
 
 function setup() {
   createCanvas(600, 400);
-  pos = createVector(0, 100);
-  dir = createVector(1, 0);
-  createButton("toggle bias").mousePressed(function () {
-    bias *= -1;
-  });
-  createButton("advance").mousePressed(function () {
-    drill();
+  pos = createVector(10, 100);
+  dir = p5.Vector.fromAngle(0);
+
+  startButton = createButton('start').mousePressed(function () {
+    if (state == 'PAUSED') {
+      state = 'DRILLING';
+      this.html('pause');
+    } else if (state == 'DRILLING') {
+      state = 'PAUSED';
+      this.html('start');
+    }
   });
 
-  sliderSteps = createSlider(1, 50, 1);
-  stepsSpan = createSpan(sliderSteps.value());
+  createButton('toggle bias').mousePressed(function () {
+    bias *= -1;
+  });
+
+  hddScene = createGraphics(width, height);
+  hddScene.background(51);
+  hddScene.noStroke();
+  hddScene.rectMode(CORNER);
+  hddScene.fill(ground);
+  hddScene.rect(0, 100, width, height - 100);
+  hddScene.fill(30, 144, 255);
+  hddScene.arc(width / 2, 100, 400, 200, 0, PI);
 }
 
 function drill() {
+  const angle = 0.01;
+  dir.rotate(angle * bias);
+
   path.push(pos.copy());
-  const steps = 10;
-  for (let i = 0; i < sliderSteps.value(); i++) {
-    dir.rotate(bias * angle);
-    path.push(pos.copy());
-    pos.add(dir);
+  pos.add(dir);
+
+  const c = hddScene.get(pos.x, pos.y);
+  if (c[0] != ground[0] || c[1] !== ground[1] || c[2] !== ground[2]) {
+    state = 'LOSE';
+    startButton.html('try again');
   }
 }
 
 function draw() {
-  background(51);
-  noStroke();
-  rectMode(CORNER);
-  fill(139, 69, 19);
-  rect(0, 100, width, height - 100);
-  fill(30, 144, 255);
-  arc(width / 2, 100, 400, 200, 0, PI);
+  if (state == 'DRILLING') drill();
 
+  image(hddScene, 0, 0);
+  beginShape();
+  noFill();
   stroke(0);
   strokeWeight(2);
-  noFill();
-  beginShape();
-  for (let i = 0; i < path.length; i++) {
-    vertex(path[i].x, path[i].y);
+  for (let v of path) {
+    vertex(v.x, v.y);
   }
-  vertex(pos.x, pos.y);
   endShape();
+
+  stroke(255, 0, 0);
+  strokeWeight(4);
   push();
   translate(pos.x, pos.y);
-  strokeWeight(2);
-  stroke(200, 100, 0);
-  rotate(dir.heading() + (bias * PI) / 6);
+  rotate(dir.heading() + (PI / 6) * bias);
   line(0, 0, 10, 0);
   pop();
-
-  stepsSpan.html("steps: " + sliderSteps.value());
 }

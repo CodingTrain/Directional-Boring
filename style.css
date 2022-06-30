@@ -1,5 +1,10 @@
-html, body {
+html,
+body {
 }
 canvas {
   display: block;
+}
+
+button {
+  margin: 4px 4px 0px 0px;
 }
