@@ -2,4 +2,4 @@
 
 [Try it!](https://codingtrain.github.io/Directional-Boring/)
 
-!(demo GIF of simulation)[gifs/hdd-demo.gif]
+![demo GIF of simulation](gifs/hdd-demo.gif)
