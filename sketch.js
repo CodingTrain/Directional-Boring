@@ -31,12 +31,34 @@ function startDrill() {
   path = [];
   bias = 1;
   state = 'PAUSED';
+
+  // Draw a new scene
+  hddScene.background(51);
+  hddScene.noStroke();
+  hddScene.rectMode(CORNER);
+  hddScene.fill(groundColor);
+  hddScene.rect(0, groundLevel, width, height - groundLevel);
+  hddScene.fill(30, 144, 255);
+  hddScene.arc(width / 2, groundLevel, 300, 100, 0, PI);
+  for (let i = 0; i < 10; i++) {
+    let r = random(8, 36);
+    let x = random(0, width);
+    let y = random(groundLevel + 50, height);
+    hddScene.fill(30, 144, 255);
+    hddScene.circle(x, y, r * 2);
+  }
+  hddScene.fill(51);
+  hddScene.noStroke();
+  hddScene.rect(0, 0, width, groundLevel);
+
+  // Add the goal
+  hddScene.fill(0, 255, 0);
+  hddScene.rect(goal.x, groundLevel - goal.w, goal.w, goal.w);
 }
 
 function setup() {
   // Let's begin!
   createCanvas(600, 400);
-  startDrill();
 
   // Handle the start and stop button
   startButton = createButton('start').mousePressed(function () {
@@ -62,17 +84,7 @@ function setup() {
 
   // Draw the scene
   hddScene = createGraphics(width, height);
-  hddScene.background(51);
-  hddScene.noStroke();
-  hddScene.rectMode(CORNER);
-  hddScene.fill(groundColor);
-  hddScene.rect(0, groundLevel, width, height - groundLevel);
-  hddScene.fill(30, 144, 255);
-  hddScene.arc(width / 2, groundLevel, 400, 200, 0, PI);
-
-  // Add the goal
-  hddScene.fill(0, 255, 0);
-  hddScene.rect(goal.x, groundLevel - goal.w, goal.w, goal.w);
+  startDrill();
 }
 
 // One drill step
