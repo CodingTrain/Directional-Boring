@@ -2,6 +2,7 @@ let pos;
 let dir;
 let path;
 let bias;
+let state;
 
 // A measure of stability of ground, how much randomness is added
 let randomFactor = 5;
@@ -9,8 +10,6 @@ let randomFactor = 5;
 const groundColor = [139, 69, 19];
 const groundLevel = 100;
 const goal = { x: 540, w: 20 };
-
-let state = 'PAUSED';
 
 let hddScene;
 
@@ -21,6 +20,7 @@ function startDrill() {
   dir = p5.Vector.fromAngle(PI / 6);
   path = [];
   bias = 1;
+  state = 'PAUSED';
 }
 
 function setup() {
