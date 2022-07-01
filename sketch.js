@@ -1,3 +1,8 @@
+// Horizontal Directional Drilling Simulation
+// from The Coding Train (https://thecodingtrain.com/)
+// Inspired by Practical Engineering (https://practical.engineering/)
+// https://github.com/CodingTrain/Directional-Boring/
+
 // Vectors for current position and direction
 let pos, dir;
 // Bias of current drill (up or down, 1 or -1)
