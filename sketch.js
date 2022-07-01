@@ -44,7 +44,7 @@ function startDrill() {
     let r = random(8, 36);
     let x = random(0, width);
     let y = random(groundLevel + 50, height);
-    hddScene.fill(30, 144, 255);
+    hddScene.fill(255, 200, 100);
     hddScene.circle(x, y, r * 2);
   }
   hddScene.fill(51);
