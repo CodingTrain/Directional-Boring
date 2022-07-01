@@ -31,6 +31,7 @@ function startDrill() {
   path = [];
   bias = 1;
   state = 'PAUSED';
+  startButton.html('start');
 
   // Draw a new scene
   hddScene.background(51);
