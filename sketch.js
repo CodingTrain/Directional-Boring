@@ -3,6 +3,9 @@ let dir;
 let path;
 let bias;
 
+// A measure of stability of ground, how much randomness is added
+let randomFactor = 5;
+
 const groundColor = [139, 69, 19];
 const groundLevel = 100;
 const goal = { x: 540, w: 20 };
@@ -15,7 +18,7 @@ let startButton;
 
 function startDrill() {
   pos = createVector(10, 100);
-  dir = p5.Vector.fromAngle(0);
+  dir = p5.Vector.fromAngle(PI / 6);
   path = [];
   bias = 1;
 }
@@ -40,6 +43,9 @@ function setup() {
     bias *= -1;
   });
 
+  createSpan('randomness: ');
+  randomSlider = createSlider(0, 10, 0, 0.01);
+
   hddScene = createGraphics(width, height);
   hddScene.background(51);
   hddScene.noStroke();
@@ -57,6 +63,11 @@ function setup() {
 function drill() {
   const angle = 0.01;
   dir.rotate(angle * bias);
+
+  // Add some randomness
+  const randomFactor = randomSlider.value();
+  const r = random(-randomFactor, randomFactor) * angle;
+  dir.rotate(r);
 
   path.push(pos.copy());
   pos.add(dir);
@@ -79,6 +90,7 @@ function draw() {
   if (state == 'DRILLING') drill();
 
   image(hddScene, 0, 0);
+
   beginShape();
   noFill();
   stroke(0);
@@ -88,8 +100,14 @@ function draw() {
   }
   endShape();
 
+  // Draw something where drill starts
+  fill(255, 0, 0);
+  stroke(255);
+  strokeWeight(1);
+  circle(10, groundLevel, 4);
+
   stroke(255, 0, 0);
-  strokeWeight(4);
+  strokeWeight(2);
   push();
   translate(pos.x, pos.y);
   rotate(dir.heading() + (PI / 6) * bias);
