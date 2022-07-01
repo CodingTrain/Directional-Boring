@@ -4,7 +4,7 @@ let path;
 let bias;
 
 // A measure of stability of ground, how much randomness is added
-let randomFactor = 1;
+let randomFactor = 5;
 
 const groundColor = [139, 69, 19];
 const groundLevel = 100;
@@ -43,6 +43,9 @@ function setup() {
     bias *= -1;
   });
 
+  createSpan('randomness: ');
+  randomSlider = createSlider(0, 10, 0, 0.01);
+
   hddScene = createGraphics(width, height);
   hddScene.background(51);
   hddScene.noStroke();
@@ -62,6 +65,7 @@ function drill() {
   dir.rotate(angle * bias);
 
   // Add some randomness
+  const randomFactor = randomSlider.value();
   const r = random(-randomFactor, randomFactor) * angle;
   dir.rotate(r);
 
