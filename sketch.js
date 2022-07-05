@@ -59,7 +59,7 @@ function startDrill() {
 
 function setup() {
   // Let's begin!
-  createCanvas(600, 400);
+  createCanvas(1200, 800);
 
   // Handle the start and stop button
   startButton = createButton('start').mousePressed(function () {
