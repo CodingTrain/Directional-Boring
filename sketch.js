@@ -17,6 +17,10 @@ const groundColor = [139, 69, 19];
 const groundLevel = 100;
 // Position of the goal square box (relative to ground)
 let goal = { x: 540, w: 20 };
+// Angle the drill turns per step
+const angle = 0.01;
+const turnCircleLen = PI * 2 / angle;
+const turnCircleDiameter = turnCircleLen / PI;
 
 // Pixel map for scene
 let hddScene;
@@ -91,13 +95,11 @@ function setup() {
 
 // One drill step
 function drill() {
-  // Angle the drill turns per step
-  const angle = 0.01;
   dir.rotate(angle * bias);
 
   // Add some randomness
   const randomFactor = randomSlider.value();
-  const r = random(-randomFactor, randomFactor) * angle;
+  const r = random(-randomFactor, 0) * angle * bias;
   dir.rotate(r);
 
   // Save previous position
