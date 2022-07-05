@@ -16,7 +16,7 @@ let state;
 const groundColor = [139, 69, 19];
 const groundLevel = 100;
 // Position of the goal square box (relative to ground)
-const goal = { x: 540, w: 20 };
+let goal = { x: 540, w: 20 };
 
 // Pixel map for scene
 let hddScene;
@@ -54,6 +54,7 @@ function startDrill() {
 
   // Add the goal
   hddScene.fill(0, 255, 0);
+  goal.x = width / 6 * 5;
   hddScene.rect(goal.x, groundLevel - goal.w, goal.w, goal.w);
 }
 
