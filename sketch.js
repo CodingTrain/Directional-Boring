@@ -1,7 +1,10 @@
 // Horizontal Directional Drilling Simulation
+// https://thecodingtrain.com/challenges/172-directional-boring
 // from The Coding Train (https://thecodingtrain.com/)
 // Inspired by Practical Engineering (https://practical.engineering/)
-// https://github.com/CodingTrain/Directional-Boring/
+// CT video: https://youtu.be/FfCBNL6lWK0
+// Practical Engineering Video: https://youtu.be/JAhdb7dKQpU
+// Play the simulator: https://codingtrain.github.io/Directional-Boring/
 
 // Vectors for current position and direction
 let pos, dir;
