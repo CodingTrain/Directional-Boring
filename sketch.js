@@ -4,6 +4,7 @@
 // Inspired by Practical Engineering (https://practical.engineering/)
 // CT video: https://youtu.be/FfCBNL6lWK0
 // Practical Engineering Video: https://youtu.be/JAhdb7dKQpU
+
 // Play the simulator: https://codingtrain.github.io/Directional-Boring/
 
 // Vectors for current position and direction
@@ -58,7 +59,7 @@ function startDrill() {
 
   // Add the goal
   hddScene.fill(goalColor);
-  hddScene.rect(goal.x, groundLevel - goal.w, goal.w, goal.w);
+  hddScene.rect(goal.x, groundLevel - goal.w, goal.w + 4, goal.w + 4);
 }
 
 function setup() {
