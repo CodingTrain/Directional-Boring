@@ -13,10 +13,11 @@ let path;
 let state;
 
 // Groundcolor is used to determine win or lose state
-const groundColor = [139, 69, 19];
+const groundColor = [11, 106, 136];
 const groundLevel = 100;
 // Position of the goal square box (relative to ground)
 const goal = { x: 540, w: 20 };
+const goalColor = [252, 238, 33];
 
 // Pixel map for scene
 let hddScene;
@@ -34,26 +35,26 @@ function startDrill() {
   startButton.html('start');
 
   // Draw a new scene
-  hddScene.background(51);
+  hddScene.background(45, 197, 244);
   hddScene.noStroke();
   hddScene.rectMode(CORNER);
   hddScene.fill(groundColor);
   hddScene.rect(0, groundLevel, width, height - groundLevel);
-  hddScene.fill(30, 144, 255);
+  hddScene.fill(248, 158, 79);
   hddScene.arc(width / 2, groundLevel, 300, 100, 0, PI);
   for (let i = 0; i < 10; i++) {
     let r = random(8, 36);
     let x = random(0, width);
     let y = random(groundLevel + 50, height - 50);
-    hddScene.fill(255, 200, 100);
+    hddScene.fill(240, 99, 164);
     hddScene.circle(x, y, r * 2);
   }
-  hddScene.fill(51);
+  hddScene.fill(45, 197, 244);
   hddScene.noStroke();
   hddScene.rect(0, 0, width, groundLevel);
 
   // Add the goal
-  hddScene.fill(0, 255, 0);
+  hddScene.fill(goalColor);
   hddScene.rect(goal.x, groundLevel - goal.w, goal.w, goal.w);
 }
 
@@ -107,7 +108,7 @@ function drill() {
   const c = hddScene.get(pos.x, pos.y);
 
   // Green you win!
-  if (c[0] == 0 && c[1] == 255 && c[2] == 0) {
+  if (c[0] == goalColor[0] && c[1] == goalColor[1] && c[2] == goalColor[2]) {
     state = 'WIN';
     startButton.html('try again');
     // Anything else not the ground color you lose!
@@ -132,8 +133,8 @@ function draw() {
   // Draw the path
   beginShape();
   noFill();
-  stroke(0);
-  strokeWeight(2);
+  stroke(255);
+  strokeWeight(4);
   for (let v of path) {
     vertex(v.x, v.y);
   }
@@ -141,13 +142,13 @@ function draw() {
 
   // Draw something where drill starts
   fill(255, 0, 0);
-  stroke(255);
-  strokeWeight(1);
+  stroke(0);
+  strokeWeight(4);
   circle(10, groundLevel, 4);
 
   // Draw the drill bit
   stroke(252, 238, 33);
-  strokeWeight(2);
+  strokeWeight(8);
   push();
   translate(pos.x, pos.y);
   rotate(dir.heading() + (PI / 6) * bias);
