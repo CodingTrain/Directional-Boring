@@ -146,7 +146,7 @@ function draw() {
   circle(10, groundLevel, 4);
 
   // Draw the drill bit
-  stroke(255, 0, 0);
+  stroke(252, 238, 33);
   strokeWeight(2);
   push();
   translate(pos.x, pos.y);
