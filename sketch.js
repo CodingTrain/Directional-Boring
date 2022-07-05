@@ -40,7 +40,7 @@ function startDrill() {
   hddScene.fill(groundColor);
   hddScene.rect(0, groundLevel, width, height - groundLevel);
   hddScene.fill(30, 144, 255);
-  hddScene.arc(width / 2, groundLevel, 300, 100, 0, PI);
+  hddScene.arc(width / 2, groundLevel, width / 2, width / 6, 0, PI);
   for (let i = 0; i < 10; i++) {
     let r = random(8, 36);
     let x = random(0, width);
