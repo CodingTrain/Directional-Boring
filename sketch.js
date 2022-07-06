@@ -11,16 +11,15 @@ let bias;
 let path;
 // Current state of game
 let state;
+// The turning radius to be computed
+let turnCircleRadius;
 
 // Groundcolor is used to determine win or lose state
 const groundColor = [139, 69, 19];
 const groundLevel = 100;
 // Position of the goal square box (relative to ground)
 let goal = { x: 540, w: 20 };
-// Angle the drill turns per step
-const angle = 0.01;
-const turnCircleLen = PI * 2 / angle;
-const turnCircleRadius = turnCircleLen / PI / 2;
+
 
 // Pixel map for scene
 let hddScene;
@@ -95,6 +94,12 @@ function setup() {
 
 // One drill step
 function drill() {
+  // Angle the drill turns per step
+  const angle = 0.01;
+  // Related circle size
+  const turnCircleLen = PI * 2 / angle;
+  turnCircleRadius = turnCircleLen / PI / 2;
+
   dir.rotate(angle * bias);
 
   // Add some randomness
@@ -148,23 +153,27 @@ function draw() {
   strokeWeight(1);
   circle(10, groundLevel, 4);
   
-  // Start of the bit coordinate system
+  // Start of the aiming arcs 
   push();
   translate(pos.x, pos.y);
-  rotate(dir.heading() + (PI / 6) * bias);
+  rotate(dir.heading());
 
   // Draw the aiming lines
   stroke(125);
   strokeWeight(1);  
-  const maxAimAngle = 0.5;
-  arc(0, -turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, HALF_PI - maxAimAngle, HALF_PI);
-  arc(0,  turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, -HALF_PI, -HALF_PI + maxAimAngle);
+  noFill();
+  const maxAimAngle = QUARTER_PI * 1.2;
+  arc(0, -turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, HALF_PI - maxAimAngle, HALF_PI, OPEN);
+  arc(0,  turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, -HALF_PI, -HALF_PI + maxAimAngle, OPEN);
+  pop();
 
   // Draw the drill bit
+  push();
   stroke(252, 238, 33);
   strokeWeight(2);
+  translate(pos.x, pos.y);
+  rotate(dir.heading() + (PI / 6) * bias);
   line(0, 0, 10, 0);
-  // End of the bit coordinate system
   pop();
 
   // If you've lost!
