@@ -86,7 +86,7 @@ function startDrill() {
   }
   hddScene.pop();
 
-  // hddScene.noStroke();
+  hddScene.noStroke();
   // hddScene.rectMode(CORNER);
   // hddScene.fill(groundColor);
   // hddScene.rect(0, groundLevel, width, height - groundLevel);
