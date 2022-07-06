@@ -20,7 +20,7 @@ let goal = { x: 540, w: 20 };
 // Angle the drill turns per step
 const angle = 0.01;
 const turnCircleLen = PI * 2 / angle;
-const turnCircleDiameter = turnCircleLen / PI;
+const turnCircleRadius = turnCircleLen / PI / 2;
 
 // Pixel map for scene
 let hddScene;
@@ -147,14 +147,24 @@ function draw() {
   stroke(255);
   strokeWeight(1);
   circle(10, groundLevel, 4);
+  
+  // Start of the bit coordinate system
+  push();
+  translate(pos.x, pos.y);
+  rotate(dir.heading() + (PI / 6) * bias);
+
+  // Draw the aiming lines
+  stroke(125);
+  strokeWeight(1);  
+  const maxAimAngle = 0.5;
+  arc(0, -turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, HALF_PI - maxAimAngle, HALF_PI);
+  arc(0,  turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, -HALF_PI, -HALF_PI + maxAimAngle);
 
   // Draw the drill bit
   stroke(252, 238, 33);
   strokeWeight(2);
-  push();
-  translate(pos.x, pos.y);
-  rotate(dir.heading() + (PI / 6) * bias);
   line(0, 0, 10, 0);
+  // End of the bit coordinate system
   pop();
 
   // If you've lost!
