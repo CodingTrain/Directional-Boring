@@ -83,9 +83,9 @@ function setup() {
     bias *= -1;
   });
 
-  // A slider for adding some randomness
+  // A slider for adding some randomness (in %)
   createSpan('randomness: ');
-  randomSlider = createSlider(0, 10, 0, 0.01);
+  randomSlider = createSlider(0, 100, 0, 0.5);
 
   // Draw the scene
   hddScene = createGraphics(width, height);
@@ -104,7 +104,7 @@ function drill() {
 
   // Add some randomness
   const randomFactor = randomSlider.value();
-  const r = random(-randomFactor, 0) * angle * bias;
+  const r = random(-randomFactor, 0) * angle * bias / 100;
   dir.rotate(r);
 
   // Save previous position
