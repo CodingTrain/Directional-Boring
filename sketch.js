@@ -15,6 +15,8 @@ let bias;
 let path;
 // Current state of game
 let state;
+// The turning radius to be computed
+let turnCircleRadius;
 
 // Groundcolor is used to determine win or lose state
 const groundColor = [11, 106, 136];
@@ -23,11 +25,13 @@ const groundLevel = 100;
 const goal = { x: 540, w: 20 };
 const goalColor = [252, 238, 33];
 
+
 // Pixel map for scene
 let hddScene;
 
 // Button to start
 let startButton;
+let aimingCheckbox;
 
 // Reset the initial state
 function startDrill() {
@@ -45,7 +49,7 @@ function startDrill() {
   hddScene.fill(groundColor);
   hddScene.rect(0, groundLevel, width, height - groundLevel);
   hddScene.fill(248, 158, 79);
-  hddScene.arc(width / 2, groundLevel, 300, 100, 0, PI);
+  hddScene.arc(width / 2, groundLevel, width / 2, width / 6, 0, PI);
   for (let i = 0; i < 10; i++) {
     let r = random(8, 36);
     let x = random(0, width);
@@ -84,9 +88,12 @@ function setup() {
     bias *= -1;
   });
 
-  // A slider for adding some randomness
+  // A slider for adding some randomness (in %)
   createSpan('randomness: ');
-  randomSlider = createSlider(0, 10, 0, 0.01);
+  randomSlider = createSlider(0, 100, 0, 0.5);
+
+  // A button for previewing aiming bounds
+  aimingCheckbox = createCheckbox('Steering limits', false);
 
   // Draw the scene
   hddScene = createGraphics(width, height);
@@ -97,11 +104,15 @@ function setup() {
 function drill() {
   // Angle the drill turns per step
   const angle = 0.01;
+  // Related circle size
+  const turnCircleLen = PI * 2 / angle;
+  turnCircleRadius = turnCircleLen / PI / 2;
+
   dir.rotate(angle * bias);
 
   // Add some randomness
   const randomFactor = randomSlider.value();
-  const r = random(-randomFactor, randomFactor) * angle;
+  const r = random(-randomFactor, 0) * angle * bias / 100;
   dir.rotate(r);
 
   // Save previous position
@@ -149,11 +160,27 @@ function draw() {
   stroke(0);
   strokeWeight(4);
   circle(10, groundLevel, 4);
+  
+  if (aimingCheckbox.checked()){
+    // Start of the aiming arcs 
+    push();
+    translate(pos.x, pos.y);
+    rotate(dir.heading());
+
+    // Draw the aiming lines
+    stroke(125);
+    strokeWeight(1);  
+    noFill();
+    const maxAimAngle = QUARTER_PI * 1.2;
+    arc(0, -turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, HALF_PI - maxAimAngle, HALF_PI, OPEN);
+    arc(0,  turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, -HALF_PI, -HALF_PI + maxAimAngle, OPEN);
+    pop();
+  }
 
   // Draw the drill bit
+  push();
   stroke(252, 238, 33);
   strokeWeight(8);
-  push();
   translate(pos.x, pos.y);
   rotate(dir.heading() + (PI / 6) * bias);
   line(0, 0, 10, 0);
