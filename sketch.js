@@ -21,9 +21,13 @@ let turnCircleRadius;
 // Groundcolor is used to determine win or lose state
 const groundColor = [11, 106, 136];
 const groundLevel = 100;
+const boulderColor = [240, 99, 164];
+const riverColor = [248, 158, 79];
+const backgroundColor = [45, 197, 244];
 // Position of the goal square box (relative to ground)
 const goal = { x: 540, w: 20 };
 const goalColor = [252, 238, 33];
+const dirtLayers = 7;
 
 
 // Pixel map for scene
@@ -43,18 +47,56 @@ function startDrill() {
   startButton.html('start');
 
   // Draw a new scene
-  hddScene.background(45, 197, 244);
+  hddScene.background(backgroundColor);
+
+  // Generate the dirt layers
+  const landscapeIterations = 100;
+  let dirt = [];
+  for (let l = 0; l < dirtLayers; l++) {
+    noiseSeed(random(1000));
+    dirt.push([]);
+    for (let i = 0; i < landscapeIterations; i++) {
+      dirt[dirt.length - 1].push(noise(i*width/(landscapeIterations*100)));
+    }
+  }
+  
+  // Draw the dirt layers
+  hddScene.push();
+  hddScene.noFill();
+  hddScene.strokeWeight(3);
+  for (let l = 0; l < dirtLayers; l++) {
+    hddScene.noStroke();
+    hddScene.colorMode(HSB);
+    hddScene.fill(24, random(30, 90), 30);
+    hddScene.beginShape();
+    for (let x = 0; x < landscapeIterations; x++) {
+      // Calculate the y of the dirt
+      let y = 0;
+      for (let i = 0; i < l; i++){
+        y += 2.5*(height-groundLevel)/dirtLayers*dirt[i][x];
+      }
+      hddScene.vertex(x*width/landscapeIterations, groundLevel+y);
+    }
+    // Wrap around so the whole shape can be filled
+    hddScene.vertex(width, groundLevel);
+    hddScene.vertex(width, height);
+    hddScene.vertex(0, height);
+    hddScene.endShape(CLOSE);
+  }
+  hddScene.pop();
+
   hddScene.noStroke();
   hddScene.rectMode(CORNER);
   hddScene.fill(groundColor);
   hddScene.rect(0, groundLevel, width, height - groundLevel);
-  hddScene.fill(248, 158, 79);
+  hddScene.fill(riverColor);
   hddScene.arc(width / 2, groundLevel, width / 2, width / 6, 0, PI);
+
   for (let i = 0; i < 10; i++) {
     let r = random(8, 36);
     let x = random(0, width);
     let y = random(groundLevel + 50, height - 50);
-    hddScene.fill(240, 99, 164);
+    hddScene.fill(boulderColor);
     hddScene.circle(x, y, r * 2);
   }
   hddScene.fill(45, 197, 244);
@@ -120,17 +162,21 @@ function drill() {
   pos.add(dir);
 
   // Get pixel color under drill
-  const c = hddScene.get(pos.x, pos.y);
+  let c = hddScene.get(pos.x, pos.y);
+  // Remove the alpha component
+  c = c.splice(0, 3);
+  // Turn the colour into a string so we can compare it
+  c = c.toString();
 
   // Green you win!
-  if (c[0] == goalColor[0] && c[1] == goalColor[1] && c[2] == goalColor[2]) {
+  if (c == goalColor.toString()) {
     state = 'WIN';
     startButton.html('try again');
     // Anything else not the ground color you lose!
   } else if (
-    c[0] != groundColor[0] ||
-    c[1] !== groundColor[1] ||
-    c[2] !== groundColor[2]
+    c == boulderColor.toString() ||
+    c == backgroundColor.toString() ||
+    c == riverColor.toString()
   ) {
     state = 'LOSE';
     startButton.html('try again');
