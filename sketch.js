@@ -29,7 +29,6 @@ const goal = { x: 540, w: 20 };
 const goalColor = [252, 238, 33];
 const dirtLayers = 7;
 
-
 // Pixel map for scene
 let hddScene;
 
@@ -56,10 +55,12 @@ function startDrill() {
     noiseSeed(random(1000));
     dirt.push([]);
     for (let i = 0; i < landscapeIterations; i++) {
-      dirt[dirt.length - 1].push(noise(i*width/(landscapeIterations*100)));
+      dirt[dirt.length - 1].push(
+        noise((i * width) / (landscapeIterations * 100))
+      );
     }
   }
-  
+
   // Draw the dirt layers
   hddScene.push();
   hddScene.noFill();
@@ -72,10 +73,10 @@ function startDrill() {
     for (let x = 0; x < landscapeIterations; x++) {
       // Calculate the y of the dirt
       let y = 0;
-      for (let i = 0; i < l; i++){
-        y += 2.5*(height-groundLevel)/dirtLayers*dirt[i][x];
+      for (let i = 0; i < l; i++) {
+        y += ((2.5 * (height - groundLevel)) / dirtLayers) * dirt[i][x];
       }
-      hddScene.vertex(x*width/landscapeIterations, groundLevel+y);
+      hddScene.vertex((x * width) / landscapeIterations, groundLevel + y);
     }
     // Wrap around so the whole shape can be filled
     hddScene.vertex(width, groundLevel);
@@ -85,10 +86,10 @@ function startDrill() {
   }
   hddScene.pop();
 
-  hddScene.noStroke();
-  hddScene.rectMode(CORNER);
-  hddScene.fill(groundColor);
-  hddScene.rect(0, groundLevel, width, height - groundLevel);
+  // hddScene.noStroke();
+  // hddScene.rectMode(CORNER);
+  // hddScene.fill(groundColor);
+  // hddScene.rect(0, groundLevel, width, height - groundLevel);
   hddScene.fill(riverColor);
   hddScene.arc(width / 2, groundLevel, width / 2, width / 6, 0, PI);
 
@@ -147,14 +148,14 @@ function drill() {
   // Angle the drill turns per step
   const angle = 0.01;
   // Related circle size
-  const turnCircleLen = PI * 2 / angle;
+  const turnCircleLen = (PI * 2) / angle;
   turnCircleRadius = turnCircleLen / PI / 2;
 
   dir.rotate(angle * bias);
 
   // Add some randomness
   const randomFactor = randomSlider.value();
-  const r = random(-randomFactor, 0) * angle * bias / 100;
+  const r = (random(-randomFactor, 0) * angle * bias) / 100;
   dir.rotate(r);
 
   // Save previous position
@@ -206,20 +207,36 @@ function draw() {
   stroke(0);
   strokeWeight(4);
   circle(10, groundLevel, 4);
-  
-  if (aimingCheckbox.checked()){
-    // Start of the aiming arcs 
+
+  if (aimingCheckbox.checked()) {
+    // Start of the aiming arcs
     push();
     translate(pos.x, pos.y);
     rotate(dir.heading());
 
     // Draw the aiming lines
     stroke(125);
-    strokeWeight(1);  
+    strokeWeight(1);
     noFill();
     const maxAimAngle = QUARTER_PI * 1.2;
-    arc(0, -turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, HALF_PI - maxAimAngle, HALF_PI, OPEN);
-    arc(0,  turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, -HALF_PI, -HALF_PI + maxAimAngle, OPEN);
+    arc(
+      0,
+      -turnCircleRadius,
+      turnCircleRadius * 2,
+      turnCircleRadius * 2,
+      HALF_PI - maxAimAngle,
+      HALF_PI,
+      OPEN
+    );
+    arc(
+      0,
+      turnCircleRadius,
+      turnCircleRadius * 2,
+      turnCircleRadius * 2,
+      -HALF_PI,
+      -HALF_PI + maxAimAngle,
+      OPEN
+    );
     pop();
   }
 
