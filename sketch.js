@@ -31,6 +31,7 @@ let hddScene;
 
 // Button to start
 let startButton;
+let aimingCheckbox;
 
 // Reset the initial state
 function startDrill() {
@@ -90,6 +91,9 @@ function setup() {
   // A slider for adding some randomness (in %)
   createSpan('randomness: ');
   randomSlider = createSlider(0, 100, 0, 0.5);
+
+  // A button for previewing aiming bounds
+  aimingCheckbox = createCheckbox('Steering limits', false);
 
   // Draw the scene
   hddScene = createGraphics(width, height);
@@ -157,19 +161,21 @@ function draw() {
   strokeWeight(4);
   circle(10, groundLevel, 4);
   
-  // Start of the aiming arcs 
-  push();
-  translate(pos.x, pos.y);
-  rotate(dir.heading());
+  if (aimingCheckbox.checked()){
+    // Start of the aiming arcs 
+    push();
+    translate(pos.x, pos.y);
+    rotate(dir.heading());
 
-  // Draw the aiming lines
-  stroke(125);
-  strokeWeight(1);  
-  noFill();
-  const maxAimAngle = QUARTER_PI * 1.2;
-  arc(0, -turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, HALF_PI - maxAimAngle, HALF_PI, OPEN);
-  arc(0,  turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, -HALF_PI, -HALF_PI + maxAimAngle, OPEN);
-  pop();
+    // Draw the aiming lines
+    stroke(125);
+    strokeWeight(1);  
+    noFill();
+    const maxAimAngle = QUARTER_PI * 1.2;
+    arc(0, -turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, HALF_PI - maxAimAngle, HALF_PI, OPEN);
+    arc(0,  turnCircleRadius, turnCircleRadius * 2, turnCircleRadius * 2, -HALF_PI, -HALF_PI + maxAimAngle, OPEN);
+    pop();
+  }
 
   // Draw the drill bit
   push();
