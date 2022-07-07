@@ -31,13 +31,45 @@ const dirtLayers = 7;
 
 // Pixel map for scene
 let hddScene;
-let fogOfWar;
+let fogOfUncertinty;
 
 // Button to start
 let startButton;
 let aimingCheckbox;
 
+function setGradient(image, x, y, w, h, c1, c2, axis) {
+  image.noFill();
+
+  if (axis === 1) {
+    // Top to bottom gradient
+    for (let i = y; i <= y + h; i++) {
+      let inter = map(i, y, y + h, 0, 1);
+      let c = lerpColor(c1, c2, inter);
+      image.stroke(c);
+      image.line(x, i, x + w, i);
+    }
+  } else if (axis === 0) {
+    // Left to right gradient
+    for (let i = x; i <= x + w; i++) {
+      let inter = map(i, x, x + w, 0, 1);
+      let c = lerpColor(c1, c2, inter);
+      image.stroke(c);
+      image.line(i, y, i, y + h);
+    }
+  }
+}
+
+function drawRiver(hddScene){
+  hddScene.noStroke();
+  // hddScene.rectMode(CORNER);
+  // hddScene.fill(groundColor);
+  // hddScene.rect(0, groundLevel, width, height - groundLevel);
+  hddScene.fill(riverColor);
+  hddScene.arc(width / 2, groundLevel, width / 2, width / 6, 0, PI);
+}
+
 function createHddScene(){
+  hddScene = createGraphics(width, height);
   // Draw a new scene
   hddScene.background(backgroundColor);
 
@@ -79,12 +111,7 @@ function createHddScene(){
   }
   hddScene.pop();
 
-  hddScene.noStroke();
-  // hddScene.rectMode(CORNER);
-  // hddScene.fill(groundColor);
-  // hddScene.rect(0, groundLevel, width, height - groundLevel);
-  hddScene.fill(riverColor);
-  hddScene.arc(width / 2, groundLevel, width / 2, width / 6, 0, PI);
+  drawRiver(hddScene);
 
   for (let i = 0; i < 10; i++) {
     let r = random(8, 36);
@@ -103,7 +130,17 @@ function createHddScene(){
   hddScene.triangle(goal.x - 6, groundLevel - goal.w - 2, 
                     goal.x + goal.w + 6, groundLevel - goal.w - 2,
                     goal.x + goal.w / 2, groundLevel - goal.w * 1.8);
+}
 
+function createFogOfUncertainty(){
+  fogOfUncertinty = createGraphics(width, height);
+  // Draw a new scene
+  fogOfUncertinty.background(0, 0);
+  setGradient(fogOfUncertinty, 0, groundLevel, width, goal.w*2, color(255), color(0), 1);
+  fogOfUncertinty.fill(0);
+  fogOfUncertinty.noStroke();
+  fogOfUncertinty.rect(0, groundLevel + goal.w*2, width, height);
+  drawRiver(fogOfUncertinty);
 }
 
 // Reset the initial state
@@ -116,7 +153,10 @@ function startDrill() {
   startButton.html('start');
 
   createHddScene();
+  createFogOfUncertainty();
 }
+
+
 
 function setup() {
   // Let's begin!
@@ -148,7 +188,7 @@ function setup() {
   aimingCheckbox = createCheckbox('Steering limits', false);
 
   // Draw the scene
-  hddScene = createGraphics(width, height);
+
   startDrill();
 }
 
@@ -169,6 +209,10 @@ function drill() {
 
   // Save previous position
   path.push(pos.copy());
+  // Reduce uncertainty
+  fogOfUncertinty.noStroke();
+  fogOfUncertinty.fill(255);
+  fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
   pos.add(dir);
 
   // Get pixel color under drill
@@ -200,6 +244,9 @@ function draw() {
 
   // Draw the scene
   image(hddScene, 0, 0);
+  blendMode(MULTIPLY);
+  image(fogOfUncertinty, 0, 0);
+  blendMode(BLEND);
 
   // Draw the path
   beginShape();
