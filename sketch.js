@@ -17,7 +17,7 @@ let path;
 let state;
 // The turning radius to be computed
 let turnCircleRadius;
-let boulders = [];
+let boulders;
 
 // Groundcolor is used to determine win or lose state
 const groundColor = [11, 106, 136];
@@ -159,6 +159,7 @@ function startDrill() {
   pos = createVector(10, 100);
   dir = p5.Vector.fromAngle(PI / 6);
   path = [];
+  boulders = [];
   bias = 1;
   state = 'PAUSED';
   startButton.html('start');
