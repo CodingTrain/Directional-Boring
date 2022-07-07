@@ -252,7 +252,7 @@ function setup() {
   aimingCheckbox = createCheckbox('Steering limits', true);
   fogCheckbox = createCheckbox('Fog of uncertainty', true);
 
-  // Draw the scene
+  createDiv('Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>');
 
   startDrill();
 }
