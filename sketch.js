@@ -14,6 +14,7 @@ let bias;
 // All the points along the drill path so far
 let path;
 let pathPosition;
+let oldPaths;
 // Current state of game
 let state;
 // The turning radius to be computed
@@ -35,6 +36,7 @@ let connectionCountDown = 0;
 
 // simulations constants
 const angle = 0.01;
+const pipeLength = 60;
 
 // Pixel map for scene
 let hddScene;
@@ -46,7 +48,8 @@ let startButton;
 let aimingCheckbox;
 let fogCheckbox;
 let randomSlider;
-let direcitonSlider;
+// let direcitonSlider;
+let pullBackButton;
 
 
 function setGradient(image, x, y, w, h, c1, c2, axis) {
@@ -168,6 +171,7 @@ function startDrill() {
   pos = createVector(10, 100);
   dir = p5.Vector.fromAngle(PI / 6);
   path = [];
+  oldPaths = [];
   pathPosition = -1;
   boulders = [];
   bias = 1;
@@ -203,6 +207,19 @@ function setup() {
     }
   });
 
+  pullBackButton = createButton('Pull back');
+  pullBackButton.mousePressed(function(){
+    state = "PAUSED";
+    let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
+    if (prevPosition > 0){
+      oldPaths.push(path.slice(prevPosition));
+      path = path.slice(0, prevPosition);
+      pathPosition = path.length - 1;
+      pos = path[pathPosition][0].copy();
+      dir = path[pathPosition][1].copy();
+    }
+  });
+
   // Handle the toggle bias button
   createButton('toggle bias').mousePressed(function () {
     bias *= -1;
@@ -211,8 +228,8 @@ function setup() {
   // A slider for adding some randomness (in %)
   createSpan('randomness: ');
   randomSlider = createSlider(0, 100, 50, 0.5);
-  createSpan('direction: ');  
-  direcitonSlider = createSlider(-1, 1, 1, 2);
+  // createSpan('direction: ');  
+  // direcitonSlider = createSlider(-1, 1, 1, 2);
 
   // A button for previewing aiming bounds
   aimingCheckbox = createCheckbox('Steering limits', true);
@@ -233,37 +250,23 @@ function drill() {
   const r = (random(-randomFactor, 0) * angle * bias) / 100;
   dir.rotate(r);
 
-  if (direcitonSlider.value() > 0){
-    // Drilling mode
-    // Save previous position
-    let pipeLength = 1;
-    if (pathPosition >= 0){
-      pipeLength = path[pathPosition][2] + 1;
-    }
-    path.push([pos.copy(), dir.copy(), pipeLength, pathPosition]);
-    pathPosition = path.length - 1;
-    if (path.length % 60 == 0) {
-      state = "CONNECTION";
-      connectionCountDown = 60;
-    }
-    // Reduce uncertainty
-    fogOfUncertinty.noStroke();
-    fogOfUncertinty.fill(255);
-    fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
-    pos.add(dir);
-    if (pos.x < 0 || pos.x > width || pos.y > height){
-      state = 'LOSE';
-      startButton.html('try again');
-    }
-  } else {
-    // Pulling mode
-    pos = path[pathPosition][0];
-    dir = path[pathPosition][1];
-    pathPosition = path[pathPosition][3];
-    if (pathPosition % 60 == 0) {
-      state = "CONNECTION";
-      connectionCountDown = 60;
-    }
+
+  // Drilling mode
+  // Save previous position
+  path.push([pos.copy(), dir.copy()]);
+  pathPosition = path.length - 1;
+  if (path.length % pipeLength == 0) {
+    state = "CONNECTION";
+    connectionCountDown = 2;
+  }
+  // Reduce uncertainty
+  fogOfUncertinty.noStroke();
+  fogOfUncertinty.fill(255);
+  fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
+  pos.add(dir);
+  if (pos.x < 0 || pos.x > width || pos.y > height){
+    state = 'LOSE';
+    startButton.html('try again');
   }
 
   // Get pixel color under drill
@@ -357,7 +360,20 @@ function draw() {
     blendMode(BLEND);
   }
   image(reflections, 0, 0);
-  // Draw the path
+  // Draw the paths
+  // abandoned paths first
+  for (let oldPath of oldPaths){
+    beginShape();
+    noFill();
+    stroke(125);
+    strokeWeight(2);
+    for (let vPair of oldPath) {
+      let v = vPair[0]
+      vertex(v.x, v.y);
+    }
+    endShape();
+  }
+  // the newest well
   beginShape();
   noFill();
   stroke(255);
@@ -367,6 +383,7 @@ function draw() {
     vertex(v.x, v.y);
   }
   endShape();
+
 
   // Draw something where drill starts
   fill(255, 0, 0);
