@@ -203,7 +203,7 @@ function setup() {
 
   // A slider for adding some randomness (in %)
   createSpan('randomness: ');
-  randomSlider = createSlider(0, 100, 0, 0.5);
+  randomSlider = createSlider(0, 100, 50, 0.5);
 
   // A button for previewing aiming bounds
   aimingCheckbox = createCheckbox('Steering limits', true);
