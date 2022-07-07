@@ -15,6 +15,7 @@ let bias;
 let path;
 let pathPosition;
 let oldPaths;
+let stuckCount;
 // Current state of game
 let state;
 // The turning radius to be computed
@@ -173,6 +174,7 @@ function startDrill() {
   path = [];
   oldPaths = [];
   pathPosition = -1;
+  stuckCount = 0;
   boulders = [];
   bias = 1;
   state = 'PAUSED';
@@ -189,10 +191,10 @@ function startDrill() {
 }
 
 function updateStartButtonText(){
-  if (state == 'DRILLING'){
+  if (state == 'DRILLING' || state == 'CONNECTION'){
     startButton.html('pause');
   } 
-  if (state == 'PAUSED'){
+  if (state == 'PAUSED' || state == 'STUCK'){
     startButton.html('drill');
   } 
   if (state == "WIN" || state == "LOSE"){
@@ -206,7 +208,7 @@ function setup() {
 
   // Handle the start and stop button
   startButton = createButton('start').mousePressed(function () {
-    if (state == 'PAUSED') {
+    if (state == 'PAUSED' || state == 'STUCK') {
       state = 'DRILLING';
       this.html('pause');
     } else if (state == 'DRILLING') {
@@ -220,7 +222,7 @@ function setup() {
 
   pullBackButton = createButton('pull back');
   pullBackButton.mousePressed(function(){
-      if (state == "PAUSED" || state == "DRILLING"){
+      if (state == "PAUSED" || state == "DRILLING" || state == "STUCK"){
       state = 'PAUSED';
       let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
       if (prevPosition > 0){
@@ -295,8 +297,11 @@ function drill() {
     state = 'WIN';
     startButton.html('try again');
     // Anything else not the ground color you lose!
+  } else if (c == boulderColor.toString()){
+    state = 'STUCK';
+    stuckCount++;
+    updateStartButtonText();
   } else if (
-    c == boulderColor.toString() ||
     c == backgroundColor.toString() ||
     c == riverColor.toString() ||
     c == boundaryColor.toString()
@@ -459,6 +464,15 @@ function draw() {
     }
   }
 
+  if (state == 'STUCK'){
+    textAlign(CENTER, TOP);
+    noStroke();
+    fill(255);
+    textSize(50);
+    textFont('courier');
+    text('STUCK '+stuckCount+'!', width / 2, groundLevel / 2);
+  }
+
   // If you've lost!
   if (state == 'LOSE') {
     background(255, 0, 0, 150);
@@ -483,8 +497,8 @@ function draw() {
     for (let oldPath of oldPaths){
       length += oldPath.length;
     }
-
     text(`drilling length: ${length}`, width / 2, height / 2 + 96);
     text(`pipe length: ${path.length}`, width / 2, height / 2 + 96 + 24);
+    text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 24 + 24);
   }
 }
