@@ -228,6 +228,10 @@ function drill() {
   fogOfUncertinty.fill(255);
   fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
   pos.add(dir);
+  if (pos.x < 0 || pos.x > width || pos.y > height){
+    state = 'LOSE';
+    startButton.html('try again');
+  }
 
   // Get pixel color under drill
   let c = hddScene.get(pos.x, pos.y);
