@@ -30,6 +30,7 @@ const boundaryColor = [0, 0, 0];
 const goal = { x: 540, w: 20 };
 const goalColor = [252, 238, 33];
 const dirtLayers = 7;
+let connectionCountDown = 0;
 
 // simulations constants
 const angle = 0.01;
@@ -227,6 +228,10 @@ function drill() {
 
   // Save previous position
   path.push(pos.copy());
+  if (path.length % 60 == 0) {
+    state = "CONNECTION";
+    connectionCountDown = 120;
+  }
   // Reduce uncertainty
   fogOfUncertinty.noStroke();
   fogOfUncertinty.fill(255);
@@ -318,7 +323,7 @@ function computeReflextionTimeSinglePoint(x0, x1){
 // Draw loop
 function draw() {
   // Dril!
-  if (state == 'DRILLING') drill();
+  if (state == "DRILLING") drill();
 
   // Draw the scene
   image(hddScene, 0, 0);
@@ -384,6 +389,19 @@ function draw() {
   rotate(dir.heading() + (PI / 6) * bias);
   line(0, 0, 10, 0);
   pop();
+
+  if (state == "CONNECTION"){
+    textAlign(CENTER, TOP);
+    noStroke();
+    fill(255);
+    textSize(50);
+    textFont('courier');
+    text('Adding a pipe', width / 2, groundLevel / 2);
+    connectionCountDown--;
+    if (connectionCountDown <= 0){
+      state = "DRILLING";
+    }
+  }
 
   // If you've lost!
   if (state == 'LOSE') {
