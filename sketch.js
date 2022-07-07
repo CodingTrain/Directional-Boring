@@ -256,15 +256,19 @@ function drill() {
 }
 
 function drawReflection(reflectionImage){
-  const spacing = goal.w * 2;
-  const visualRad = 10;
-  for (let x = 0; x < width - spacing; x+=visualRad){
+  const spacing = goal.w;
+  const step = 1;
+  const visualRad = 3;
+  const errorPercent = 10;
+  for (let x = 0; x < width - spacing; x+=step){
     let minTravelDist = computeReflextionTimeSinglePoint(x, x + spacing);
+    let distToObjWithNoize = (100 + random(-10, 10)) / 100. * minTravelDist / 2;
     let xMid = x + spacing / 2;
-    reflectionImage.fill(255);
+    reflectionImage.fill(125);
     reflectionImage.noStroke();
-    reflectionImage.circle(xMid, minTravelDist / 2 + groundLevel, visualRad);
+    reflectionImage.circle(xMid, distToObjWithNoize + groundLevel, visualRad);
   }
+  drawRiver(reflectionImage);
 }
 
 function computeReflextionTimeSinglePoint(x0, x1){
@@ -313,13 +317,12 @@ function draw() {
 
   // Draw the scene
   image(hddScene, 0, 0);
-  if (fogCheckbox.checked()){
+  if (!(state == "WIN" || state == "LOSE")  && fogCheckbox.checked()){
     blendMode(MULTIPLY);
     image(fogOfUncertinty, 0, 0);
     blendMode(BLEND);
-    image(reflections, 0, 0);
   }
-
+  image(reflections, 0, 0);
   // Draw the path
   beginShape();
   noFill();
