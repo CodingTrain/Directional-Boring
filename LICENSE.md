@@ -1,6 +1,7 @@
 MIT License
 
 Copyright (c) 2022 Coding Train
+
 Copyright (c) 2022 Sergey Alyaev, NORCE Norwegian Research Centre AS
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
