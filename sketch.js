@@ -22,7 +22,7 @@ let turnCircleRadius;
 const groundColor = [11, 106, 136];
 const groundLevel = 100;
 const boulderColor = [220, 150, 130];
-const riverColor = 'blue';
+const riverColor = [0, 0, 255];
 const backgroundColor = [45, 197, 244];
 // Position of the goal square box (relative to ground)
 const goal = { x: 540, w: 20 };
