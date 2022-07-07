@@ -17,6 +17,7 @@ let path;
 let state;
 // The turning radius to be computed
 let turnCircleRadius;
+let boulders = [];
 
 // Groundcolor is used to determine win or lose state
 const groundColor = [11, 106, 136];
@@ -32,6 +33,7 @@ const dirtLayers = 7;
 // Pixel map for scene
 let hddScene;
 let fogOfUncertinty;
+let reflections;
 
 // Button to start
 let startButton;
@@ -118,6 +120,7 @@ function createHddScene(){
     let r = random(8, 36);
     let x = random(0, width);
     let y = random(groundLevel + 50, height - 50);
+    boulders.push([x, y, r]);
     hddScene.fill(boulderColor);
     hddScene.circle(x, y, r * 2);
   }
@@ -141,7 +144,14 @@ function createFogOfUncertainty(){
   fogOfUncertinty.fill(0);
   fogOfUncertinty.noStroke();
   fogOfUncertinty.rect(0, groundLevel + goal.w*2, width, height);
+
   drawRiver(fogOfUncertinty);
+}
+
+function createReflections(){
+  reflections = createGraphics(width, height);
+  reflections.background(0, 0);
+  drawReflection(reflections);
 }
 
 // Reset the initial state
@@ -155,6 +165,7 @@ function startDrill() {
 
   createHddScene();
   createFogOfUncertainty();
+  createReflections();
 }
 
 
@@ -239,6 +250,57 @@ function drill() {
   }
 }
 
+function drawReflection(reflectionImage){
+  const spacing = goal.w * 2;
+  const visualRad = 10;
+  for (let x = 0; x < width - spacing; x+=visualRad){
+    let minTravelDist = computeReflextionTimeSinglePoint(x, x + spacing);
+    let xMid = x + spacing / 2;
+    reflectionImage.fill(255);
+    reflectionImage.noStroke();
+    reflectionImage.circle(xMid, minTravelDist / 2 + groundLevel, visualRad);
+  }
+}
+
+function computeReflextionTimeSinglePoint(x0, x1){
+  let minArrivalDist = height * 2;
+  //const maxSteps = height * 2;
+  console.log('point '+ x0);
+  for (let j = 0; j < boulders.length; j++) {
+    for (let i = 0; i < 360; i+= 10){
+      // looping angles on the boulder
+      let boulderDir = i * PI / 180;
+      let boulderPoint = createVector(boulders[j][0], boulders[j][1]);
+      boulderPoint.add(p5.Vector.fromAngle(boulderDir, boulders[j][2]));
+      if (boulderPoint.x > x1 || boulderPoint.x < x0){
+        continue;
+      }
+      let distDown = dist(x0, groundLevel, boulderPoint.x, boulderPoint.y);
+      let distUp = dist(x1, groundLevel, boulderPoint.x, boulderPoint.y);
+      let totalDist = distDown + distUp;
+      if (totalDist < minArrivalDist){
+        minArrivalDist = totalDist;
+        console.log('boulder '+ boulderPoint);
+      }
+    }
+  }
+  return minArrivalDist;
+  // for (let i = 1; i < 180; i++){
+  //   let dir = p5.Vector.fromAngle(i * PI / 180);
+  //   let pos = createVector(x0, groundLevel);
+  //   let step = 0;
+  //   while (step < maxSteps){
+  //     pos.add(dir);
+  //     step++;
+  //     for (let j = 0; j < boulders.length; j++) {
+  //       if (dist(pos.x, pos.y, boulders[j][0], boulders[j][1]) <= boulders[j][2]){
+  //         // collision detected, reflect
+  //       }
+  //     }
+  //   }
+  // }
+}
+
 // Draw loop
 function draw() {
   // Dril!
@@ -250,6 +312,7 @@ function draw() {
     blendMode(MULTIPLY);
     image(fogOfUncertinty, 0, 0);
     blendMode(BLEND);
+    image(reflections, 0, 0);
   }
 
   // Draw the path
