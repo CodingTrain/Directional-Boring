@@ -31,20 +31,13 @@ const dirtLayers = 7;
 
 // Pixel map for scene
 let hddScene;
+let fogOfWar;
 
 // Button to start
 let startButton;
 let aimingCheckbox;
 
-// Reset the initial state
-function startDrill() {
-  pos = createVector(10, 100);
-  dir = p5.Vector.fromAngle(PI / 6);
-  path = [];
-  bias = 1;
-  state = 'PAUSED';
-  startButton.html('start');
-
+function createHddScene(){
   // Draw a new scene
   hddScene.background(backgroundColor);
 
@@ -110,6 +103,19 @@ function startDrill() {
   hddScene.triangle(goal.x - 6, groundLevel - goal.w - 2, 
                     goal.x + goal.w + 6, groundLevel - goal.w - 2,
                     goal.x + goal.w / 2, groundLevel - goal.w * 1.8);
+
+}
+
+// Reset the initial state
+function startDrill() {
+  pos = createVector(10, 100);
+  dir = p5.Vector.fromAngle(PI / 6);
+  path = [];
+  bias = 1;
+  state = 'PAUSED';
+  startButton.html('start');
+
+  createHddScene();
 }
 
 function setup() {
