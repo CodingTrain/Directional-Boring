@@ -38,6 +38,7 @@ let connectionCountDown = 0;
 // simulations constants
 const angle = 0.01;
 const pipeLength = 60;
+const maxStuckTimes = 3;
 
 // Pixel map for scene
 let hddScene;
@@ -273,7 +274,7 @@ function drill() {
   pathPosition = path.length - 1;
   if (path.length % pipeLength == 0) {
     state = "CONNECTION";
-    connectionCountDown = 2;
+    connectionCountDown = 4;
   }
   // Reduce uncertainty
   fogOfUncertinty.noStroke();
@@ -300,6 +301,9 @@ function drill() {
   } else if (c == boulderColor.toString()){
     state = 'STUCK';
     stuckCount++;
+    if (stuckCount >= maxStuckTimes){
+      state = 'LOSE';
+    }
     updateStartButtonText();
   } else if (
     c == backgroundColor.toString() ||
@@ -455,7 +459,7 @@ function draw() {
     textAlign(CENTER, TOP);
     noStroke();
     fill(255);
-    textSize(50);
+    textSize(24);
     textFont('courier');
     text('*pipe handling*', width / 2, groundLevel / 2);
     connectionCountDown--;
@@ -468,9 +472,9 @@ function draw() {
     textAlign(CENTER, TOP);
     noStroke();
     fill(255);
-    textSize(50);
+    textSize(24);
     textFont('courier');
-    text('STUCK '+stuckCount+'!', width / 2, groundLevel / 2);
+    text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', width / 2, groundLevel / 2);
   }
 
   // If you've lost!
@@ -482,6 +486,13 @@ function draw() {
     textSize(96);
     textFont('courier-bold');
     text('YOU LOSE', width / 2, height / 2);
+    textSize(24);
+    let length = path.length;
+    for (let oldPath of oldPaths){
+      length += oldPath.length;
+    }
+    text(`drilling length: ${length}`, width / 2, height / 2 + 96);
+    text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 24);
     // If you've won!
   } else if (state == 'WIN') {
     background(0, 255, 0, 150);
