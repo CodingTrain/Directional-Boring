@@ -36,6 +36,7 @@ let fogOfUncertinty;
 // Button to start
 let startButton;
 let aimingCheckbox;
+let fogCheckbox;
 
 function setGradient(image, x, y, w, h, c1, c2, axis) {
   image.noFill();
@@ -186,6 +187,7 @@ function setup() {
 
   // A button for previewing aiming bounds
   aimingCheckbox = createCheckbox('Steering limits', false);
+  fogCheckbox = createCheckbox('Fog of uncertainty', true);
 
   // Draw the scene
 
@@ -244,9 +246,11 @@ function draw() {
 
   // Draw the scene
   image(hddScene, 0, 0);
-  blendMode(MULTIPLY);
-  image(fogOfUncertinty, 0, 0);
-  blendMode(BLEND);
+  if (fogCheckbox.checked()){
+    blendMode(MULTIPLY);
+    image(fogOfUncertinty, 0, 0);
+    blendMode(BLEND);
+  }
 
   // Draw the path
   beginShape();
