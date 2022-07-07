@@ -188,7 +188,17 @@ function startDrill() {
   createReflections();
 }
 
-
+function updateStartButtonText(){
+  if (state == 'DRILLING'){
+    startButton.html('pause');
+  } 
+  if (state == 'PAUSED'){
+    startButton.html('drill');
+  } 
+  if (state == "WIN" || state == "LOSE"){
+    startButton.html("try again");
+  }
+}
 
 function setup() {
   // Let's begin!
@@ -201,22 +211,26 @@ function setup() {
       this.html('pause');
     } else if (state == 'DRILLING') {
       state = 'PAUSED';
-      this.html('start');
+      this.html('drill');
     } else if (state == 'WIN' || state == 'LOSE') {
       startDrill();
     }
+    updateStartButtonText();
   });
 
-  pullBackButton = createButton('Pull back');
+  pullBackButton = createButton('pull back');
   pullBackButton.mousePressed(function(){
-    state = "PAUSED";
-    let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
-    if (prevPosition > 0){
-      oldPaths.push(path.slice(prevPosition));
-      path = path.slice(0, prevPosition);
-      pathPosition = path.length - 1;
-      pos = path[pathPosition][0].copy();
-      dir = path[pathPosition][1].copy();
+      if (state == "PAUSED" || state == "DRILLING"){
+      state = 'PAUSED';
+      let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
+      if (prevPosition > 0){
+        oldPaths.push(path.slice(prevPosition));
+        path = path.slice(0, prevPosition);
+        pathPosition = path.length - 1;
+        pos = path[pathPosition][0].copy();
+        dir = path[pathPosition][1].copy();
+      }
+      updateStartButtonText();
     }
   });
 
