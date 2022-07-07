@@ -13,6 +13,7 @@ let pos, dir;
 let bias;
 // All the points along the drill path so far
 let path;
+let pathPosition;
 // Current state of game
 let state;
 // The turning radius to be computed
@@ -167,6 +168,7 @@ function startDrill() {
   pos = createVector(10, 100);
   dir = p5.Vector.fromAngle(PI / 6);
   path = [];
+  pathPosition = -1;
   boulders = [];
   bias = 1;
   state = 'PAUSED';
@@ -231,20 +233,37 @@ function drill() {
   const r = (random(-randomFactor, 0) * angle * bias) / 100;
   dir.rotate(r);
 
-  // Save previous position
-  path.push(pos.copy());
-  if (path.length % 60 == 0) {
-    state = "CONNECTION";
-    connectionCountDown = 60;
-  }
-  // Reduce uncertainty
-  fogOfUncertinty.noStroke();
-  fogOfUncertinty.fill(255);
-  fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
-  pos.add(dir);
-  if (pos.x < 0 || pos.x > width || pos.y > height){
-    state = 'LOSE';
-    startButton.html('try again');
+  if (direcitonSlider.value() > 0){
+    // Drilling mode
+    // Save previous position
+    let pipeLength = 1;
+    if (pathPosition >= 0){
+      pipeLength = path[pathPosition][2] + 1;
+    }
+    path.push([pos.copy(), dir.copy(), pipeLength, pathPosition]);
+    pathPosition = path.length - 1;
+    if (path.length % 60 == 0) {
+      state = "CONNECTION";
+      connectionCountDown = 60;
+    }
+    // Reduce uncertainty
+    fogOfUncertinty.noStroke();
+    fogOfUncertinty.fill(255);
+    fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
+    pos.add(dir);
+    if (pos.x < 0 || pos.x > width || pos.y > height){
+      state = 'LOSE';
+      startButton.html('try again');
+    }
+  } else {
+    // Pulling mode
+    pos = path[pathPosition][0];
+    dir = path[pathPosition][1];
+    pathPosition = path[pathPosition][3];
+    if (pathPosition % 60 == 0) {
+      state = "CONNECTION";
+      connectionCountDown = 60;
+    }
   }
 
   // Get pixel color under drill
@@ -343,7 +362,8 @@ function draw() {
   noFill();
   stroke(255);
   strokeWeight(4);
-  for (let v of path) {
+  for (let vPair of path) {
+    let v = vPair[0]
     vertex(v.x, v.y);
   }
   endShape();
@@ -401,7 +421,7 @@ function draw() {
     fill(255);
     textSize(50);
     textFont('courier');
-    text('Adding a pipe', width / 2, groundLevel / 2);
+    text('*pipe handling*', width / 2, groundLevel / 2);
     connectionCountDown--;
     if (connectionCountDown <= 0){
       state = "DRILLING";
