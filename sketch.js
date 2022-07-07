@@ -21,8 +21,8 @@ let turnCircleRadius;
 // Groundcolor is used to determine win or lose state
 const groundColor = [11, 106, 136];
 const groundLevel = 100;
-const boulderColor = [240, 99, 164];
-const riverColor = [248, 158, 79];
+const boulderColor = [220, 150, 130];
+const riverColor = 'blue';
 const backgroundColor = [45, 197, 244];
 // Position of the goal square box (relative to ground)
 const goal = { x: 540, w: 20 };
@@ -106,7 +106,10 @@ function startDrill() {
 
   // Add the goal
   hddScene.fill(goalColor);
-  hddScene.rect(goal.x, groundLevel - goal.w, goal.w + 4, goal.w + 4);
+  hddScene.rect(goal.x - 2, groundLevel - goal.w - 2, goal.w + 4, goal.w + 4);
+  hddScene.triangle(goal.x - 6, groundLevel - goal.w - 2, 
+                    goal.x + goal.w + 6, groundLevel - goal.w - 2,
+                    goal.x + goal.w / 2, groundLevel - goal.w * 1.8);
 }
 
 function setup() {
