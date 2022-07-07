@@ -8,3 +8,6 @@ This project is a collaboration with [Grady Hillhouse](https://practical.enginee
 
 Give it a try at [codingtrain.github.io/Directional-Boring](https://codingtrain.github.io/Directional-Boring)
 
+## DOI for citing the current version
+[![DOI](https://zenodo.org/badge/510763430.svg)](https://zenodo.org/badge/latestdoi/510763430)
+
