@@ -2,7 +2,9 @@
 
 /* CSS Reset */
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -12,10 +14,11 @@
 
 body {
   font-family: 'Roboto Mono', monospace;
+  color: #3C3C3C;
   font-size: 0.9rem;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr; 
-  grid-template-rows: 450px 1fr 3rem; 
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-rows: 450px 1fr 1.7rem 1.7rem;
   align-items: center;
   justify-items: center;
   margin: 0 calc(50% - 300px);
@@ -33,7 +36,21 @@ canvas {
 }
 
 /* The check box */
+#steer-lim-box {
+  grid-row-start: 3;
+  grid-row-end: 4;
+  grid-column-start: 1;
+  grid-column-end: 6;
+  align-self: end;
+}
 
+#fog-box {
+  grid-row-start: 4;
+  grid-row-end: 5;
+  grid-column-start: 1;
+  grid-column-end: 6;
+  align-self: end;
+}
 
 input[type='checkbox'] {
   margin-right: 0.5rem;
@@ -47,11 +64,28 @@ button {
   width: 9em;
   padding-top: 0.3rem;
   padding-bottom: 0.3rem;
+  border: 0.1rem solid #666666;
+  color: #3C3C3C;
+  background-color: #EDEDED;
+}
 
+button:hover,
+button:focus {
+  background-color: #D8D8D8;
+  color: #727272;
+  border: 0.1rem solid #8F8F8F;
 }
 
 /* The "randomness" span */
 
-body>span:not([class]) {
+span#slider-label {
   justify-self: end;
+}
+
+/* Cursor for buttons, sliders and checkboxes*/
+
+button,
+input[type='range'],
+input[type='checkbox'] {
+  cursor: pointer;
 }

@@ -203,12 +203,12 @@ function setup() {
   });
 
   // A slider for adding some randomness (in %)
-  createSpan('randomness: ');
+  createSpan('randomness: ').id('slider-label');
   randomSlider = createSlider(0, 100, 50, 0.5);
 
   // A button for previewing aiming bounds
-  aimingCheckbox = createCheckbox('Steering limits', true);
-  fogCheckbox = createCheckbox('Fog of uncertainty', true);
+  aimingCheckbox = createCheckbox('Steering limits', false).id("steer-lim-box");
+  fogCheckbox = createCheckbox('Fog of uncertainty', true).id("fog-box");
 
   // Draw the scene
 
