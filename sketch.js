@@ -465,6 +465,12 @@ function draw() {
     text('YOU WIN', width / 2, height / 2);
     textSize(24);
     // Starting idea for a score
-    text(`pipe length: ${path.length}`, width / 2, height / 2 + 96);
+    let length = path.length;
+    for (let oldPath of oldPaths){
+      length += oldPath.length;
+    }
+
+    text(`drilling length: ${length}`, width / 2, height / 2 + 96);
+    text(`pipe length: ${path.length}`, width / 2, height / 2 + 96 + 24);
   }
 }
