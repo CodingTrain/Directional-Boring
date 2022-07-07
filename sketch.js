@@ -65,13 +65,13 @@ function setGradient(image, x, y, w, h, c1, c2, axis) {
   }
 }
 
-function drawRiver(hddScene){
+function drawRiver(hddScene, riverColor){
   hddScene.noStroke();
   // hddScene.rectMode(CORNER);
   // hddScene.fill(groundColor);
   // hddScene.rect(0, groundLevel, width, height - groundLevel);
   hddScene.fill(riverColor);
-  hddScene.arc(width / 2, groundLevel, width / 2, width / 6, 0, PI);
+  hddScene.arc(width / 2, groundLevel, width / 2, width / 4, 0, PI);
 }
 
 function createHddScene(){
@@ -117,7 +117,7 @@ function createHddScene(){
   }
   hddScene.pop();
 
-  drawRiver(hddScene);
+  drawRiver(hddScene, riverColor);
 
   for (let i = 0; i < 10; i++) {
     let r = random(8, 36);
@@ -148,7 +148,7 @@ function createFogOfUncertainty(){
   fogOfUncertinty.noStroke();
   fogOfUncertinty.rect(0, groundLevel + goal.w*2, width, height);
 
-  drawRiver(fogOfUncertinty);
+  drawRiver(fogOfUncertinty, color(255));
 }
 
 function createReflections(){
@@ -271,7 +271,7 @@ function drawReflection(reflectionImage){
     reflectionImage.noStroke();
     reflectionImage.circle(xMid, distToObjWithNoize + groundLevel, visualRad);
   }
-  drawRiver(reflectionImage);
+  // drawRiver(reflectionImage);
 }
 
 function computeReflextionTimeSinglePoint(x0, x1){
