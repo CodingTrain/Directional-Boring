@@ -44,6 +44,9 @@ let reflections;
 let startButton;
 let aimingCheckbox;
 let fogCheckbox;
+let randomSlider;
+let direcitonSlider;
+
 
 function setGradient(image, x, y, w, h, c1, c2, axis) {
   image.noFill();
@@ -206,6 +209,8 @@ function setup() {
   // A slider for adding some randomness (in %)
   createSpan('randomness: ');
   randomSlider = createSlider(0, 100, 50, 0.5);
+  createSpan('direction: ');  
+  direcitonSlider = createSlider(-1, 1, 1, 2);
 
   // A button for previewing aiming bounds
   aimingCheckbox = createCheckbox('Steering limits', true);
@@ -230,7 +235,7 @@ function drill() {
   path.push(pos.copy());
   if (path.length % 60 == 0) {
     state = "CONNECTION";
-    connectionCountDown = 120;
+    connectionCountDown = 60;
   }
   // Reduce uncertainty
   fogOfUncertinty.noStroke();
