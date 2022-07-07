@@ -30,6 +30,9 @@ const goal = { x: 540, w: 20 };
 const goalColor = [252, 238, 33];
 const dirtLayers = 7;
 
+// simulations constants
+const angle = 0.01;
+
 // Pixel map for scene
 let hddScene;
 let fogOfUncertinty;
@@ -164,6 +167,11 @@ function startDrill() {
   state = 'PAUSED';
   startButton.html('start');
 
+  // Related circle size
+  const turnCircleLen = (PI * 2) / angle;
+  turnCircleRadius = turnCircleLen / PI / 2;
+  
+
   createHddScene();
   createFogOfUncertainty();
   createReflections();
@@ -198,7 +206,7 @@ function setup() {
   randomSlider = createSlider(0, 100, 0, 0.5);
 
   // A button for previewing aiming bounds
-  aimingCheckbox = createCheckbox('Steering limits', false);
+  aimingCheckbox = createCheckbox('Steering limits', true);
   fogCheckbox = createCheckbox('Fog of uncertainty', true);
 
   // Draw the scene
@@ -208,11 +216,6 @@ function setup() {
 
 // One drill step
 function drill() {
-  // Angle the drill turns per step
-  const angle = 0.01;
-  // Related circle size
-  const turnCircleLen = (PI * 2) / angle;
-  turnCircleRadius = turnCircleLen / PI / 2;
 
   dir.rotate(angle * bias);
 
