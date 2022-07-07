@@ -25,6 +25,7 @@ const groundLevel = 100;
 const boulderColor = [220, 150, 130];
 const riverColor = [0, 0, 255];
 const backgroundColor = [45, 197, 244];
+const boundaryColor = [0, 0, 0];
 // Position of the goal square box (relative to ground)
 const goal = { x: 540, w: 20 };
 const goalColor = [252, 238, 33];
@@ -251,7 +252,8 @@ function drill() {
   } else if (
     c == boulderColor.toString() ||
     c == backgroundColor.toString() ||
-    c == riverColor.toString()
+    c == riverColor.toString() ||
+    c == boundaryColor.toString()
   ) {
     state = 'LOSE';
     startButton.html('try again');
