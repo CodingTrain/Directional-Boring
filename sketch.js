@@ -289,7 +289,7 @@ function setup() {
   fogCheckbox = createCheckbox('Fog of uncertainty', true).id("fog-box");
 
   div3 = createDiv('<a href="instructions/instructions-slide.png">Visual instructions</a>').id('instructions');
-  div4 = createDiv('Copyright (c) 2022 Daniel Shiffman;/n Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>').id('license');
+  div4 = createDiv('Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>').id('license');
 
   let params = getURLParams();
   if (params) {
