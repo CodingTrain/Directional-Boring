@@ -51,6 +51,38 @@ canvas {
   align-self: end;
 }
 
+#slider-label {
+  grid-row-start: 5;
+  grid-row-end: 6;
+  grid-column-start: 1;
+  grid-column-end: 6;
+  align-self: end;
+}
+
+#level-label {
+  grid-row-start: 6;
+  grid-row-end: 7;
+  grid-column-start: 1;
+  grid-column-end: 6;
+  align-self: end;
+}
+
+#instructions {
+  grid-row-start: 7;
+  grid-row-end: 8;
+  grid-column-start: 1;
+  grid-column-end: 6;
+  align-self: end;
+}
+
+#license {
+  grid-row-start: 8;
+  grid-row-end: 9;
+  grid-column-start: 1;
+  grid-column-end: 6;
+  align-self: end;
+}
+
 input[type='checkbox'] {
   margin-right: 0.5rem;
 }

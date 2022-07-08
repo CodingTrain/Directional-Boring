@@ -13,20 +13,20 @@ let pos, dir;
 let bias;
 // All the points along the drill path so far
 let path;
-let pathPosition;
-let oldPaths;
-let stuckCount;
 // Current state of game
 let state;
-let currentSeed = undefined;
-let seedDiv;
+// Option to reverse direction of drill
+let reverse;
+// Track time
+let mytime;
+// level of difficulty
+//const level = 5;
+// Track best (lowest) score
+let score;
+let bestScore = 2000;
 // The turning radius to be computed
 let turnCircleRadius;
 let boulders;
-// Scoring 
-let mytime;
-let score;
-let bestScore;
 
 // Groundcolor is used to determine win or lose state
 const groundColor = [11, 106, 136];
@@ -36,30 +36,30 @@ const riverColor = [0, 0, 255];
 const backgroundColor = [45, 197, 244];
 const boundaryColor = [0, 0, 0];
 // Position of the goal square box (relative to ground)
-const goal = { x: 540, w: 20 };
+const goal = {
+  x: 540,
+  w: 20
+};
 const goalColor = [252, 238, 33];
 const dirtLayers = 7;
-let connectionCountDown = 0;
 
 // simulations constants
 const angle = 0.01;
-const pipeLength = 60;
-const maxStuckTimes = 3;
 
 // Pixel map for scene
 let hddScene;
 let fogOfUncertinty;
 let reflections;
 
-// Button to start
+// Game controls
 let startButton;
+let toggleButton;
+let reverseButton;
 let aimingCheckbox;
 let fogCheckbox;
-let randomSlider;
-// let direcitonSlider;
-let pullBackButton;
+let buttonDiv;
+let controlDiv;
 let levelSlider;
-
 
 function setGradient(image, x, y, w, h, c1, c2, axis) {
   image.noFill();
@@ -83,7 +83,7 @@ function setGradient(image, x, y, w, h, c1, c2, axis) {
   }
 }
 
-function drawRiver(hddScene, riverColor){
+function drawRiver(hddScene, riverColor) {
   hddScene.noStroke();
   // hddScene.rectMode(CORNER);
   // hddScene.fill(groundColor);
@@ -92,7 +92,7 @@ function drawRiver(hddScene, riverColor){
   hddScene.arc(width / 2, groundLevel, width / 2, width / 4, 0, PI);
 }
 
-function createHddScene(){
+function createHddScene() {
   hddScene = createGraphics(width, height);
   // Draw a new scene
   hddScene.background(backgroundColor);
@@ -152,24 +152,24 @@ function createHddScene(){
   // Add the goal
   hddScene.fill(goalColor);
   hddScene.rect(goal.x - 2, groundLevel - goal.w - 2, goal.w + 4, goal.w + 4);
-  hddScene.triangle(goal.x - 6, groundLevel - goal.w - 2, 
-                    goal.x + goal.w + 6, groundLevel - goal.w - 2,
-                    goal.x + goal.w / 2, groundLevel - goal.w * 1.8);
+  hddScene.triangle(goal.x - 6, groundLevel - goal.w - 2,
+    goal.x + goal.w + 6, groundLevel - goal.w - 2,
+    goal.x + goal.w / 2, groundLevel - goal.w * 1.8);
 }
 
-function createFogOfUncertainty(){
+function createFogOfUncertainty() {
   fogOfUncertinty = createGraphics(width, height);
   // Draw a new scene
   fogOfUncertinty.background(0, 0);
-  setGradient(fogOfUncertinty, 0, groundLevel, width, goal.w*2, color(255), color(0), 1);
+  setGradient(fogOfUncertinty, 0, groundLevel, width, goal.w * 2, color(255), color(0), 1);
   fogOfUncertinty.fill(0);
   fogOfUncertinty.noStroke();
-  fogOfUncertinty.rect(0, groundLevel + goal.w*2, width, height);
+  fogOfUncertinty.rect(0, groundLevel + goal.w * 2, width, height);
 
   drawRiver(fogOfUncertinty, color(255));
 }
 
-function createReflections(){
+function createReflections() {
   reflections = createGraphics(width, height);
   reflections.background(0, 0);
   drawReflection(reflections);
@@ -180,39 +180,23 @@ function startDrill() {
   pos = createVector(10, 100);
   dir = p5.Vector.fromAngle(PI / 6);
   path = [];
-  oldPaths = [];
-  pathPosition = -1;
-  stuckCount = 0;
   boulders = [];
   bias = 1;
   state = 'PAUSED';
+  reverse = 'FALSE';
   startButton.html('start');
 
   // Related circle size
   const turnCircleLen = (PI * 2) / angle;
   turnCircleRadius = turnCircleLen / PI / 2;
-  
+
 
   createHddScene();
   createFogOfUncertainty();
   createReflections();
 }
 
-function updateDivWithLinkToThisLevel(){
-  seedDiv.html('<a href="?seed='+currentSeed+'">Persistent link to THIS level</a>');
-}
 
-function updateStartButtonText(){
-  if (state == 'DRILLING' || state == 'CONNECTION'){
-    startButton.html('pause');
-  } 
-  if (state == 'PAUSED' || state == 'STUCK'){
-    startButton.html('drill');
-  } 
-  if (state == "WIN" || state == "LOSE"){
-    startButton.html("try again");
-  }
-}
 
 function setup() {
   // Let's begin!
@@ -220,34 +204,14 @@ function setup() {
 
   // Handle the start and stop button
   startButton = createButton('start').mousePressed(function () {
-    if (state == 'PAUSED' || state == 'STUCK') {
+    if (state == 'PAUSED') {
       state = 'DRILLING';
       this.html('pause');
     } else if (state == 'DRILLING') {
       state = 'PAUSED';
-      this.html('drill');
+      this.html('start');
     } else if (state == 'WIN' || state == 'LOSE') {
-      currentSeed = Math.floor(Math.random() * 999998)+1;
-      updateDivWithLinkToThisLevel();
-      randomSeed(currentSeed);
       startDrill();
-    }
-    updateStartButtonText();
-  });
-
-  pullBackButton = createButton('pull back');
-  pullBackButton.mousePressed(function(){
-      if (state == "PAUSED" || state == "DRILLING" || state == "STUCK"){
-      state = 'PAUSED';
-      let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
-      if (prevPosition > 0){
-        oldPaths.push(path.slice(prevPosition));
-        path = path.slice(0, prevPosition);
-        pathPosition = path.length - 1;
-        pos = path[pathPosition][0].copy();
-        dir = path[pathPosition][1].copy();
-      }
-      updateStartButtonText();
     }
   });
 
@@ -255,14 +219,29 @@ function setup() {
   createButton('toggle bias').mousePressed(function () {
     bias *= -1;
   });
-  let div1 = createDiv().id('slider');
+
+  // Handle the toggle bias button
+  reverseButton = createButton('reverse').mousePressed(function () {
+    if (reverse == 'FALSE') {
+      reverse = 'TRUE';
+      this.html('forward');
+    } else if (reverse == 'TRUE') {
+      reverse = 'FALSE';
+      this.html('reverse');
+    }
+  });
+
+  // Add checkboxes for previewing aiming bounds and adding fog of uncertainty
+  aimingCheckbox = createCheckbox('Steering limits', false).id("steer-lim-box");
+  fogCheckbox = createCheckbox('Fog of uncertainty', true).id("fog-box");
+
+  let div1 = createDiv().id('random');
+  let div2 = createDiv().id('level');
   // A slider for adding some randomness (in %)
   let span1 = createSpan('randomness: ').id('slider-label');
   randomSlider = createSlider(0, 100, 50, 0.5);
-  span1.parent(div1);
   randomSlider.parent(div1);
-
-  let div2 = createDiv().id('level');
+  span1.parent(div1);
   // A slider to add difficulty level based on number of boulders
   let span2 = createSpan('level: ').id('level-label');
   levelSlider = createSlider(1, 10, 5, 1);
@@ -273,32 +252,11 @@ function setup() {
     levelSlider.value(level);
   }
   levelSlider.changed(storeLevel);
- 
-  // A button for previewing aiming bounds
-  aimingCheckbox = createCheckbox('Steering limits', true).id("steer-lim-box");
-  fogCheckbox = createCheckbox('Fog of uncertainty', true).id("fog-box");
 
-  div3 = createDiv('<a href="instructions/instructions-slide.png">Visual instructions</a>').id('instructions');
-  div4 = createDiv('Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>').id('license');
-  
-  let params = getURLParams();
-  if (params){
-    if (params["seed"]){
-      currentSeed = params["seed"];
-      randomSeed(currentSeed);
-    }
-  }
-  if (!currentSeed){
-    currentSeed = Math.floor(Math.random() * 999999);
-  }
+  // Get previous best score
+  bestScore = getItem("bestScore");
 
-  seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>');
-  updateDivWithLinkToThisLevel();
-  bestScore = getItem('bestScore');
-  if (bestScore === null) {
-    bestScore = 2000;
-    storeItem('bestScore', bestScore);
-  }
+  // Draw the scene
   startDrill();
   mytime = millis();
 }
@@ -313,21 +271,22 @@ function drill() {
   const r = (random(-randomFactor, 0) * angle * bias) / 100;
   dir.rotate(r);
 
-
-  // Drilling mode
   // Save previous position
-  path.push([pos.copy(), dir.copy()]);
-  pathPosition = path.length - 1;
-  if (path.length % pipeLength == 0) {
-    state = "CONNECTION";
-    connectionCountDown = 4;
+  path.push(pos.copy());
+
+  // Allow player to reverse direction
+  if (reverse == 'TRUE') {
+    pos.sub(dir);
+  } else {
+    pos.add(dir);
   }
+
   // Reduce uncertainty
   fogOfUncertinty.noStroke();
   fogOfUncertinty.fill(255);
-  fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
-  pos.add(dir);
-  if (pos.x < 0 || pos.x > width || pos.y > height){
+  fogOfUncertinty.circle(pos.x, pos.y, goal.w * 2);
+  //pos.add(dir);
+  if (pos.x < 0 || pos.x > width || pos.y > height) {
     state = 'LOSE';
     startButton.html('try again');
   }
@@ -344,14 +303,8 @@ function drill() {
     state = 'WIN';
     startButton.html('try again');
     // Anything else not the ground color you lose!
-  } else if (c == boulderColor.toString()){
-    state = 'STUCK';
-    stuckCount++;
-    if (stuckCount >= maxStuckTimes){
-      state = 'LOSE';
-    }
-    updateStartButtonText();
   } else if (
+    c == boulderColor.toString() ||
     c == backgroundColor.toString() ||
     c == riverColor.toString() ||
     c == boundaryColor.toString()
@@ -361,12 +314,12 @@ function drill() {
   }
 }
 
-function drawReflection(reflectionImage){
+function drawReflection(reflectionImage) {
   const spacing = goal.w;
   const step = 1;
   const visualRad = 3;
   const errorPercent = 10;
-  for (let x = 0; x < width - spacing; x+=step){
+  for (let x = 0; x < width - spacing; x += step) {
     let minTravelDist = computeReflextionTimeSinglePoint(x, x + spacing);
     let distToObjWithNoize = (100 + random(-10, 10)) / 100. * minTravelDist / 2;
     let xMid = x + spacing / 2;
@@ -377,25 +330,25 @@ function drawReflection(reflectionImage){
   // drawRiver(reflectionImage);
 }
 
-function computeReflextionTimeSinglePoint(x0, x1){
+function computeReflextionTimeSinglePoint(x0, x1) {
   let minArrivalDist = height * 2;
   //const maxSteps = height * 2;
-  console.log('point '+ x0);
+  console.log('point ' + x0);
   for (let j = 0; j < boulders.length; j++) {
-    for (let i = 0; i < 360; i+= 10){
+    for (let i = 0; i < 360; i += 10) {
       // looping angles on the boulder
       let boulderDir = i * PI / 180;
       let boulderPoint = createVector(boulders[j][0], boulders[j][1]);
       boulderPoint.add(p5.Vector.fromAngle(boulderDir, boulders[j][2]));
-      if (boulderPoint.x > x1 || boulderPoint.x < x0){
+      if (boulderPoint.x > x1 || boulderPoint.x < x0) {
         continue;
       }
       let distDown = dist(x0, groundLevel, boulderPoint.x, boulderPoint.y);
       let distUp = dist(x1, groundLevel, boulderPoint.x, boulderPoint.y);
       let totalDist = distDown + distUp;
-      if (totalDist < minArrivalDist){
+      if (totalDist < minArrivalDist) {
         minArrivalDist = totalDist;
-        console.log('boulder '+ boulderPoint);
+        console.log('boulder ' + boulderPoint);
       }
     }
   }
@@ -418,41 +371,26 @@ function computeReflextionTimeSinglePoint(x0, x1){
 
 // Draw loop
 function draw() {
-  // Dril!
-  if (state == "DRILLING") drill();
+  // Drill!
+  if (state == 'DRILLING') drill();
 
   // Draw the scene
   image(hddScene, 0, 0);
-  if (!(state == "WIN" || state == "LOSE")  && fogCheckbox.checked()){
+  if (!(state == "WIN" || state == "LOSE") && fogCheckbox.checked()) {
     blendMode(MULTIPLY);
     image(fogOfUncertinty, 0, 0);
     blendMode(BLEND);
   }
   image(reflections, 0, 0);
-  // Draw the paths
-  // abandoned paths first
-  for (let oldPath of oldPaths){
-    beginShape();
-    noFill();
-    stroke(125);
-    strokeWeight(2);
-    for (let vPair of oldPath) {
-      let v = vPair[0]
-      vertex(v.x, v.y);
-    }
-    endShape();
-  }
-  // the newest well
+  // Draw the path
   beginShape();
   noFill();
   stroke(255);
   strokeWeight(4);
-  for (let vPair of path) {
-    let v = vPair[0]
+  for (let v of path) {
     vertex(v.x, v.y);
   }
   endShape();
-
 
   // Draw something where drill starts
   fill(255, 0, 0);
@@ -460,7 +398,7 @@ function draw() {
   strokeWeight(4);
   circle(10, groundLevel, 4);
 
-  if (aimingCheckbox.checked()) {
+  if (aimingCheckbox.checked() && reverse == "FALSE") {
     // Start of the aiming arcs
     push();
     translate(pos.x, pos.y);
@@ -497,31 +435,14 @@ function draw() {
   stroke(252, 238, 33);
   strokeWeight(8);
   translate(pos.x, pos.y);
-  rotate(dir.heading() + (PI / 6) * bias);
+  if (!reverse) {
+    rotate(dir.heading() + (PI / 6) * bias);
+  } else {
+    rotate(dir.heading(TWO_PI));
+  }
+  //rotate(dir.heading() + (PI / 6) * bias);
   line(0, 0, 10, 0);
   pop();
-
-  if (state == "CONNECTION"){
-    textAlign(CENTER, TOP);
-    noStroke();
-    fill(255);
-    textSize(24);
-    textFont('courier');
-    text('*pipe handling*', width / 2, groundLevel / 2);
-    connectionCountDown--;
-    if (connectionCountDown <= 0){
-      state = "DRILLING";
-    }
-  }
-
-  if (state == 'STUCK'){
-    textAlign(CENTER, TOP);
-    noStroke();
-    fill(255);
-    textSize(24);
-    textFont('courier');
-    text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', width / 2, groundLevel / 2);
-  }
 
   // If you've lost!
   if (state == 'LOSE') {
@@ -532,13 +453,6 @@ function draw() {
     textSize(96);
     textFont('courier-bold');
     text('YOU LOSE', width / 2, height / 2);
-    textSize(24);
-    let length = path.length;
-    for (let oldPath of oldPaths){
-      length += oldPath.length;
-    }
-    text(`drilling length: ${length}`, width / 2, height / 2 + 96);
-    text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 24);
     // If you've won!
   } else if (state == 'WIN') {
     background(0, 255, 0, 150);
@@ -547,31 +461,27 @@ function draw() {
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    text('YOU WIN', width / 2, height / 3);
+    text('YOU WIN', width / 2, height / 2);
     textSize(24);
+
     // Starting idea for a score
-    let length = path.length;
-    for (let oldPath of oldPaths){
-      length += oldPath.length;
-    }
-    score = int(mytime + length + 50 * stuckCount);
+    score = int(0.5 * mytime + 0.5 * path.length);
     if (score < bestScore) {
-      console.log(score, bestScore);
-      bestScore = score;
-      storeItem("bestScore", bestScore);
+      bestScore = updateBestScore(score);
       text(`New best score: ${bestScore}`, width / 2, height / 2 + 96);
-      text(`drilling length: ${length}`, width / 2, height / 2 + 96 + 24);
-      text(`pipe length: ${path.length}`, width / 2, height / 2 + 96 + 48);
-      text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 72);
-    } else  {
+    } else {
       text(`Score: ${score}`, width / 2, height / 2 + 96);
-      text(`drilling length: ${length}`, width / 2, height / 2 + 96 + 24);
-      text(`pipe length: ${path.length}`, width / 2, height / 2 + 96 + 48);
-      text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 72);
       // text(`pipe length: ${path.length}`, width / 2, height / 2 + 96);
     }
-   
   }
+}
+
+function updateBestScore(score) {
+  //let bestScore = getItem('bestScore');
+  if (score < bestScore) {
+    bestScore = score;
+  }
+  storeItem("bestScore", bestScore);
 }
 
 function storeLevel() {
