@@ -81,7 +81,7 @@ canvas {
   grid-column-start: 1;
   grid-column-end: 6;
   align-self: end;
-  max-width: 100px;
+  max-width: 150px;
 }
 
 #seed{
