@@ -18,6 +18,8 @@ let oldPaths;
 let stuckCount;
 // Current state of game
 let state;
+let currentSeed;
+let seedDiv;
 // The turning radius to be computed
 let turnCircleRadius;
 let boulders;
@@ -191,6 +193,10 @@ function startDrill() {
   createReflections();
 }
 
+function updateDivWithLinkToThisLevel(){
+  seedDiv.html('<a href="?seed='+currentSeed+'">Persistent link to THIS level</a>');
+}
+
 function updateStartButtonText(){
   if (state == 'DRILLING' || state == 'CONNECTION'){
     startButton.html('pause');
@@ -216,6 +222,9 @@ function setup() {
       state = 'PAUSED';
       this.html('drill');
     } else if (state == 'WIN' || state == 'LOSE') {
+      currentSeed = Math.floor(Math.random() * 999999);
+      updateDivWithLinkToThisLevel();
+      randomSeed(currentSeed);
       startDrill();
     }
     updateStartButtonText();
@@ -254,6 +263,17 @@ function setup() {
 
   createDiv('<a href="instructions/instructions-slide.png">Visual instructions</a>')
   createDiv('Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>');
+  
+  let params = getURLParams();
+  if (params){
+    if (params["seed"]){
+      currentSeed = params["seed"];
+      randomSeed(currentSeed);
+    }
+  }
+
+  seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>');
+  updateDivWithLinkToThisLevel();
 
   startDrill();
 }
