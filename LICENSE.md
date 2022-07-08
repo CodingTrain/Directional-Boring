@@ -1,7 +1,7 @@
 MIT License
 
 Copyright (c) 2022 Coding Train
-Copyright (c) 2022 Sergey Alyaev, NORCE Norwegian Research Centre AS
+Copyright (c) 2022 Daniel Shiffman, Coding Train; Sergey Alyaev, NORCE Norwegian Research Centre AS; ArztKlein; Rishi; tyomka896
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
