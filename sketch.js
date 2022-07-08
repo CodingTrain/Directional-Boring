@@ -36,7 +36,10 @@ const riverColor = [0, 0, 255];
 const backgroundColor = [45, 197, 244];
 const boundaryColor = [0, 0, 0];
 // Position of the goal square box (relative to ground)
-const goal = { x: 540, w: 20 };
+const goal = {
+  x: 540,
+  w: 20
+};
 const goalColor = [252, 238, 33];
 const dirtLayers = 7;
 let connectionCountDown = 0;
@@ -83,7 +86,7 @@ function setGradient(image, x, y, w, h, c1, c2, axis) {
   }
 }
 
-function drawRiver(hddScene, riverColor){
+function drawRiver(hddScene, riverColor) {
   hddScene.noStroke();
   // hddScene.rectMode(CORNER);
   // hddScene.fill(groundColor);
@@ -92,7 +95,7 @@ function drawRiver(hddScene, riverColor){
   hddScene.arc(width / 2, groundLevel, width / 2, width / 4, 0, PI);
 }
 
-function createHddScene(){
+function createHddScene() {
   hddScene = createGraphics(width, height);
   // Draw a new scene
   hddScene.background(backgroundColor);
@@ -152,24 +155,24 @@ function createHddScene(){
   // Add the goal
   hddScene.fill(goalColor);
   hddScene.rect(goal.x - 2, groundLevel - goal.w - 2, goal.w + 4, goal.w + 4);
-  hddScene.triangle(goal.x - 6, groundLevel - goal.w - 2, 
-                    goal.x + goal.w + 6, groundLevel - goal.w - 2,
-                    goal.x + goal.w / 2, groundLevel - goal.w * 1.8);
+  hddScene.triangle(goal.x - 6, groundLevel - goal.w - 2,
+    goal.x + goal.w + 6, groundLevel - goal.w - 2,
+    goal.x + goal.w / 2, groundLevel - goal.w * 1.8);
 }
 
-function createFogOfUncertainty(){
+function createFogOfUncertainty() {
   fogOfUncertinty = createGraphics(width, height);
   // Draw a new scene
   fogOfUncertinty.background(0, 0);
-  setGradient(fogOfUncertinty, 0, groundLevel, width, goal.w*2, color(255), color(0), 1);
+  setGradient(fogOfUncertinty, 0, groundLevel, width, goal.w * 2, color(255), color(0), 1);
   fogOfUncertinty.fill(0);
   fogOfUncertinty.noStroke();
-  fogOfUncertinty.rect(0, groundLevel + goal.w*2, width, height);
+  fogOfUncertinty.rect(0, groundLevel + goal.w * 2, width, height);
 
   drawRiver(fogOfUncertinty, color(255));
 }
 
-function createReflections(){
+function createReflections() {
   reflections = createGraphics(width, height);
   reflections.background(0, 0);
   drawReflection(reflections);
@@ -191,25 +194,25 @@ function startDrill() {
   // Related circle size
   const turnCircleLen = (PI * 2) / angle;
   turnCircleRadius = turnCircleLen / PI / 2;
-  
+
 
   createHddScene();
   createFogOfUncertainty();
   createReflections();
 }
 
-function updateDivWithLinkToThisLevel(){
-  seedDiv.html('<a href="?seed='+currentSeed+'">Persistent link to THIS level</a>');
+function updateDivWithLinkToThisLevel() {
+  seedDiv.html('<a href="?seed=' + currentSeed + '">Persistent link to THIS level</a>');
 }
 
-function updateStartButtonText(){
-  if (state == 'DRILLING' || state == 'CONNECTION'){
+function updateStartButtonText() {
+  if (state == 'DRILLING' || state == 'CONNECTION') {
     startButton.html('pause');
-  } 
-  if (state == 'PAUSED' || state == 'STUCK'){
+  }
+  if (state == 'PAUSED' || state == 'STUCK') {
     startButton.html('drill');
-  } 
-  if (state == "WIN" || state == "LOSE"){
+  }
+  if (state == "WIN" || state == "LOSE") {
     startButton.html("try again");
   }
 }
@@ -238,7 +241,7 @@ function setup() {
       state = 'PAUSED';
       this.html('drill');
     } else if (state == 'WIN' || state == 'LOSE') {
-      currentSeed = Math.floor(Math.random() * 999998)+1;
+      currentSeed = Math.floor(Math.random() * 999998) + 1;
       updateDivWithLinkToThisLevel();
       randomSeed(currentSeed);
       startDrill();
@@ -247,11 +250,11 @@ function setup() {
   });
 
   pullBackButton = createButton('pull back');
-  pullBackButton.mousePressed(function(){
-      if (state == "PAUSED" || state == "DRILLING" || state == "STUCK"){
+  pullBackButton.mousePressed(function () {
+    if (state == "PAUSED" || state == "DRILLING" || state == "STUCK") {
       state = 'PAUSED';
       let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
-      if (prevPosition > 0){
+      if (prevPosition > 0) {
         oldPaths.push(path.slice(prevPosition));
         path = path.slice(0, prevPosition);
         pathPosition = path.length - 1;
@@ -279,28 +282,28 @@ function setup() {
   span2.parent(div2);
   levelSlider = createSlider(1, 10, 5, 1);
   levelSlider.parent(div2);
-  
+
   level = getItem("level");
   if (level !== null) {
     levelSlider.value(level);
   }
   levelSlider.changed(storeLevel);
- 
+
   // A button for previewing aiming bounds
   aimingCheckbox = createCheckbox('Steering limits', true).id("steer-lim-box");
   fogCheckbox = createCheckbox('Fog of uncertainty', true).id("fog-box");
 
   div3 = createDiv('<a href="instructions/instructions-slide.png">Visual instructions</a>').id('instructions');
   div4 = createDiv('Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>').id('license');
-  
+
   let params = getURLParams();
-  if (params){
-    if (params["seed"]){
+  if (params) {
+    if (params["seed"]) {
       currentSeed = params["seed"];
       randomSeed(currentSeed);
     }
   }
-  if (!currentSeed){
+  if (!currentSeed) {
     currentSeed = Math.floor(Math.random() * 999999);
   }
 
@@ -309,7 +312,6 @@ function setup() {
   bestScore = getItem('bestScore');
   if (bestScore === null) {
     bestScore = 2000;
-    storeItem('bestScore', bestScore);
   }
   startDrill();
   mytime = millis();
@@ -337,9 +339,9 @@ function drill() {
   // Reduce uncertainty
   fogOfUncertinty.noStroke();
   fogOfUncertinty.fill(255);
-  fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
+  fogOfUncertinty.circle(pos.x, pos.y, goal.w * 2);
   pos.add(dir);
-  if (pos.x < 0 || pos.x > width || pos.y > height){
+  if (pos.x < 0 || pos.x > width || pos.y > height) {
     state = 'LOSE';
     startButton.html('try again');
   }
@@ -356,10 +358,10 @@ function drill() {
     state = 'WIN';
     startButton.html('try again');
     // Anything else not the ground color you lose!
-  } else if (c == boulderColor.toString()){
+  } else if (c == boulderColor.toString()) {
     state = 'STUCK';
     stuckCount++;
-    if (stuckCount >= maxStuckTimes){
+    if (stuckCount >= maxStuckTimes) {
       state = 'LOSE';
     }
     updateStartButtonText();
@@ -373,12 +375,12 @@ function drill() {
   }
 }
 
-function drawReflection(reflectionImage){
+function drawReflection(reflectionImage) {
   const spacing = goal.w;
   const step = 1;
   const visualRad = 3;
   const errorPercent = 10;
-  for (let x = 0; x < width - spacing; x+=step){
+  for (let x = 0; x < width - spacing; x += step) {
     let minTravelDist = computeReflextionTimeSinglePoint(x, x + spacing);
     let distToObjWithNoize = (100 + random(-10, 10)) / 100. * minTravelDist / 2;
     let xMid = x + spacing / 2;
@@ -389,25 +391,25 @@ function drawReflection(reflectionImage){
   // drawRiver(reflectionImage);
 }
 
-function computeReflextionTimeSinglePoint(x0, x1){
+function computeReflextionTimeSinglePoint(x0, x1) {
   let minArrivalDist = height * 2;
   //const maxSteps = height * 2;
-  console.log('point '+ x0);
+  console.log('point ' + x0);
   for (let j = 0; j < boulders.length; j++) {
-    for (let i = 0; i < 360; i+= 10){
+    for (let i = 0; i < 360; i += 10) {
       // looping angles on the boulder
       let boulderDir = i * PI / 180;
       let boulderPoint = createVector(boulders[j][0], boulders[j][1]);
       boulderPoint.add(p5.Vector.fromAngle(boulderDir, boulders[j][2]));
-      if (boulderPoint.x > x1 || boulderPoint.x < x0){
+      if (boulderPoint.x > x1 || boulderPoint.x < x0) {
         continue;
       }
       let distDown = dist(x0, groundLevel, boulderPoint.x, boulderPoint.y);
       let distUp = dist(x1, groundLevel, boulderPoint.x, boulderPoint.y);
       let totalDist = distDown + distUp;
-      if (totalDist < minArrivalDist){
+      if (totalDist < minArrivalDist) {
         minArrivalDist = totalDist;
-        console.log('boulder '+ boulderPoint);
+        console.log('boulder ' + boulderPoint);
       }
     }
   }
@@ -435,7 +437,7 @@ function draw() {
 
   // Draw the scene
   image(hddScene, 0, 0);
-  if (!(state == "WIN" || state == "LOSE")  && fogCheckbox.checked()){
+  if (!(state == "WIN" || state == "LOSE") && fogCheckbox.checked()) {
     blendMode(MULTIPLY);
     image(fogOfUncertinty, 0, 0);
     blendMode(BLEND);
@@ -443,7 +445,7 @@ function draw() {
   image(reflections, 0, 0);
   // Draw the paths
   // abandoned paths first
-  for (let oldPath of oldPaths){
+  for (let oldPath of oldPaths) {
     beginShape();
     noFill();
     stroke(125);
@@ -513,7 +515,7 @@ function draw() {
   line(0, 0, 10, 0);
   pop();
 
-  if (state == "CONNECTION"){
+  if (state == "CONNECTION") {
     textAlign(CENTER, TOP);
     noStroke();
     fill(255);
@@ -521,18 +523,18 @@ function draw() {
     textFont('courier');
     text('*pipe handling*', width / 2, groundLevel / 2);
     connectionCountDown--;
-    if (connectionCountDown <= 0){
+    if (connectionCountDown <= 0) {
       state = "DRILLING";
     }
   }
 
-  if (state == 'STUCK'){
+  if (state == 'STUCK') {
     textAlign(CENTER, TOP);
     noStroke();
     fill(255);
     textSize(24);
     textFont('courier');
-    text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', width / 2, groundLevel / 2);
+    text('STUCK! (' + stuckCount + '/' + maxStuckTimes + ' times)', width / 2, groundLevel / 2);
   }
 
   // If you've lost!
@@ -546,7 +548,7 @@ function draw() {
     text('YOU LOSE', width / 2, height / 2);
     textSize(24);
     let length = path.length;
-    for (let oldPath of oldPaths){
+    for (let oldPath of oldPaths) {
       length += oldPath.length;
     }
     text(`drilling length: ${length}`, width / 2, height / 2 + 96);
@@ -563,28 +565,28 @@ function draw() {
     textSize(24);
     // Starting idea for a score
     let length = path.length;
-    for (let oldPath of oldPaths){
+    for (let oldPath of oldPaths) {
       length += oldPath.length;
     }
     score = int(mytime + length + 50 * stuckCount);
-    if (score < bestScore) {
-      console.log(score, bestScore);
-      bestScore = score;
-      storeItem("bestScore", bestScore);
-      text(`New best score: ${bestScore}`, width / 2, height / 2 + 96);
-      text(`drilling length: ${length}`, width / 2, height / 2 + 96 + 24);
-      text(`pipe length: ${path.length}`, width / 2, height / 2 + 96 + 48);
-      text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 72);
-    } else  {
+    if (score > bestScore) {
       text(`Score: ${score}`, width / 2, height / 2 + 96);
       text(`drilling length: ${length}`, width / 2, height / 2 + 96 + 24);
       text(`pipe length: ${path.length}`, width / 2, height / 2 + 96 + 48);
       text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 72);
-      // text(`pipe length: ${path.length}`, width / 2, height / 2 + 96);
+    } else {
+      bestScore = score;
+      storeItem("bestScore", bestScore);
+      text(`New Best Score!`, width / 2, height / 2);
+      text(`Score: ${bestScore}`, width / 2, height / 2 + 96);
+      text(`drilling length: ${length}`, width / 2, height / 2 + 96 + 24);
+      text(`pipe length: ${path.length}`, width / 2, height / 2 + 96 + 48);
+      text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 72);
     }
-   
+    // text(`pipe length: ${path.length}`, width / 2, height / 2 + 96);
   }
 }
+
 
 function storeLevel() {
   let level = levelSlider.value();

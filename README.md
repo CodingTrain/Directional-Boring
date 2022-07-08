@@ -18,7 +18,7 @@ The Fog of uncertainty hides the large boulders. The fog clears away as you dril
 
 If you hit a boulder, you can **pull back** the pipe (several times) and try drilling in another direction. Your drill bit will get broken after three collisions. 
 
-The score shows the total length drilled, the final length of the well and the number of times you got stuck. 
+The score is based on the total elasped time plus the length drilled, with a 50 point penalty for each time stuck.  The final length of the path and the number of times you got stuck is also displayed. 
 
 ![visual instructions](instructions/instructions-slide.png)
 
