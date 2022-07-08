@@ -271,7 +271,7 @@ function setup() {
       randomSeed(currentSeed);
     }
   }
-  if (!currentSeed){
+  if (!Number.isInteger(currentSeed)){
     currentSeed = Math.floor(Math.random() * 999999);
   }
 
