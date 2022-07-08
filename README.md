@@ -22,7 +22,9 @@ The score shows the total length drilled, the final length of the well and the n
 
 ![visual instructions](instructions/instructions-slide.png)
 
+Give the alin256 version a try [al-digital.no/Directional-Boring](https://al-digital.no/Directional-Boring)
+
 ## DOI for citing one of the latest releases:
 [![DOI](https://zenodo.org/badge/510763430.svg)](https://zenodo.org/badge/latestdoi/510763430)
 
-Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>
+Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev (alin256); ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>
