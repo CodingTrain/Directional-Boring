@@ -222,7 +222,7 @@ function setup() {
       state = 'PAUSED';
       this.html('drill');
     } else if (state == 'WIN' || state == 'LOSE') {
-      currentSeed = Math.floor(Math.random() * 999999);
+      currentSeed = Math.floor(Math.random() * 999998)+1;
       updateDivWithLinkToThisLevel();
       randomSeed(currentSeed);
       startDrill();
