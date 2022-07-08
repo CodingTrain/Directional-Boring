@@ -243,14 +243,14 @@ function setup() {
   });
 
   // A slider for adding some randomness (in %)
-  createSpan('randomness: ');
+  createSpan('randomness: ').id('slider-label');
   randomSlider = createSlider(0, 100, 50, 0.5);
   // createSpan('direction: ');  
   // direcitonSlider = createSlider(-1, 1, 1, 2);
 
   // A button for previewing aiming bounds
-  aimingCheckbox = createCheckbox('Steering limits', true);
-  fogCheckbox = createCheckbox('Fog of uncertainty', true);
+  aimingCheckbox = createCheckbox('Steering limits', false).id("steer-lim-box");
+  fogCheckbox = createCheckbox('Fog of uncertainty', true).id("fog-box");
 
   createDiv('<a href="instructions/instructions-slide.png">Visual instructions</a>')
   createDiv('Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>');
