@@ -217,16 +217,11 @@ function updateStartButtonText() {
   }
 }
 
-//let score = 0;
 let scoreSpan;
 
 let drilling = true;
 let win = null;
 let fail = false;
-
-function preload() {
-  img = loadImage("assets/ground.png");
-}
 
 function setup() {
   // Let's begin!
