@@ -51,7 +51,7 @@ canvas {
   align-self: end;
 }
 
-#slider-label {
+#slider {
   grid-row-start: 5;
   grid-row-end: 6;
   grid-column-start: 1;
@@ -59,7 +59,7 @@ canvas {
   align-self: end;
 }
 
-#level-label {
+#level {
   grid-row-start: 6;
   grid-row-end: 7;
   grid-column-start: 1;
@@ -78,6 +78,15 @@ canvas {
 #license {
   grid-row-start: 8;
   grid-row-end: 9;
+  grid-column-start: 1;
+  grid-column-end: 6;
+  align-self: end;
+  max-width: 100px;
+}
+
+#seed{
+  grid-row-start: 9;
+  grid-row-end: 10;
   grid-column-start: 1;
   grid-column-end: 6;
   align-self: end;

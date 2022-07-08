@@ -214,6 +214,17 @@ function updateStartButtonText(){
   }
 }
 
+//let score = 0;
+let scoreSpan;
+
+let drilling = true;
+let win = null;
+let fail = false;
+
+function preload() {
+  img = loadImage("assets/ground.png");
+}
+
 function setup() {
   // Let's begin!
   createCanvas(600, 400);
@@ -265,9 +276,10 @@ function setup() {
   let div2 = createDiv().id('level');
   // A slider to add difficulty level based on number of boulders
   let span2 = createSpan('level: ').id('level-label');
+  span2.parent(div2);
   levelSlider = createSlider(1, 10, 5, 1);
   levelSlider.parent(div2);
-  span2.parent(div2);
+  
   level = getItem("level");
   if (level !== null) {
     levelSlider.value(level);
@@ -292,7 +304,7 @@ function setup() {
     currentSeed = Math.floor(Math.random() * 999999);
   }
 
-  seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>');
+  seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>').id('seed');
   updateDivWithLinkToThisLevel();
   bestScore = getItem('bestScore');
   if (bestScore === null) {
