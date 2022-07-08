@@ -18,7 +18,7 @@ let oldPaths;
 let stuckCount;
 // Current state of game
 let state;
-let currentSeed;
+let currentSeed = undefined;
 let seedDiv;
 // The turning radius to be computed
 let turnCircleRadius;
@@ -271,7 +271,7 @@ function setup() {
       randomSeed(currentSeed);
     }
   }
-  if (!Number.isInteger(currentSeed)){
+  if (!currentSeed){
     currentSeed = Math.floor(Math.random() * 999999);
   }
 
