@@ -249,7 +249,7 @@ function setup() {
   // direcitonSlider = createSlider(-1, 1, 1, 2);
 
   // A button for previewing aiming bounds
-  aimingCheckbox = createCheckbox('Steering limits', false).id("steer-lim-box");
+  aimingCheckbox = createCheckbox('Steering limits', true).id("steer-lim-box");
   fogCheckbox = createCheckbox('Fog of uncertainty', true).id("fog-box");
 
   createDiv('<a href="instructions/instructions-slide.png">Visual instructions</a>')
