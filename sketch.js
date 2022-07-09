@@ -24,6 +24,10 @@ let seedDiv;
 let turnCircleRadius;
 let boulders;
 
+// images of the drilling machine
+let machineBack;
+let machineFront;
+
 // Groundcolor is used to determine win or lose state
 const groundColor = [11, 106, 136];
 const groundLevel = 100;
@@ -39,6 +43,9 @@ let connectionCountDown = 0;
 
 // simulations constants
 const angle = 0.01;
+const startingAngle = 0.2967; // that is 17 degrees 
+const startingDepth = 4;
+const startingX = 90;
 const pipeLength = 60;
 const maxStuckTimes = 3;
 
@@ -84,7 +91,7 @@ function drawRiver(hddScene, riverColor){
   // hddScene.fill(groundColor);
   // hddScene.rect(0, groundLevel, width, height - groundLevel);
   hddScene.fill(riverColor);
-  hddScene.arc(width / 2, groundLevel, width / 2, width / 4, 0, PI);
+  hddScene.arc(width / 2 + startingX / 2, groundLevel, width / 2, width / 4, 0, PI);
 }
 
 function createHddScene(){
@@ -172,8 +179,8 @@ function createReflections(){
 
 // Reset the initial state
 function startDrill() {
-  pos = createVector(10, 100);
-  dir = p5.Vector.fromAngle(PI / 6);
+  pos = createVector(startingX, groundLevel + startingDepth);
+  dir = p5.Vector.fromAngle(startingAngle);
   path = [];
   oldPaths = [];
   pathPosition = -1;
@@ -277,6 +284,9 @@ function setup() {
 
   seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>');
   updateDivWithLinkToThisLevel();
+
+  machineBack = loadImage('assets/drilling-machine-small.png');
+  machineFront = loadImage('assets/machine-foreground-small.png');
 
   startDrill();
 }
@@ -470,12 +480,14 @@ function draw() {
     pop();
   }
 
+  image(machineBack, 0, groundLevel - 43, 80, 45);
+
   // Draw the drill bit
   push();
   stroke(252, 238, 33);
   strokeWeight(8);
   translate(pos.x, pos.y);
-  rotate(dir.heading() + (PI / 6) * bias);
+  rotate(dir.heading() + (startingAngle) * bias);
   line(0, 0, 10, 0);
   pop();
 
