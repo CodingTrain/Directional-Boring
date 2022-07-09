@@ -24,6 +24,10 @@ let seedDiv;
 let turnCircleRadius;
 let boulders;
 
+// images of the drilling machine
+let machineBack;
+let machineFront;
+
 // Groundcolor is used to determine win or lose state
 const groundColor = [11, 106, 136];
 const groundLevel = 100;
@@ -34,13 +38,25 @@ const boundaryColor = [0, 0, 0];
 // Position of the goal square box (relative to ground)
 const goal = { x: 540, w: 20 };
 const goalColor = [252, 238, 33];
+const surfacePipeColor = [103, 88, 76];
 const dirtLayers = 7;
 let connectionCountDown = 0;
 
 // simulations constants
 const angle = 0.01;
-const pipeLength = 60;
+const startingAngle = 0.2967; // that is 17 degrees 
+const machineWidth = 80;
+const machineHeight = machineWidth * 9 / 16; // proportions according to the image
+const pipeLengthMult = 0.87688219663; // relative to drilling machine width
+const pipeLength = Math.floor(pipeLengthMult * machineWidth)- 2; // -2 accounts for the rounding of the pipe
+
+const startingDepth = 2;
+const startingX = 90;
+
+const pipeOffset = 22; 
 const maxStuckTimes = 3;
+
+const verticalPipeMovement = 5; // this is used to initialize the connection time
 
 // Pixel map for scene
 let hddScene;
@@ -84,7 +100,7 @@ function drawRiver(hddScene, riverColor){
   // hddScene.fill(groundColor);
   // hddScene.rect(0, groundLevel, width, height - groundLevel);
   hddScene.fill(riverColor);
-  hddScene.arc(width / 2, groundLevel, width / 2, width / 4, 0, PI);
+  hddScene.arc(width / 2 + startingX / 2, groundLevel, width / 2, width / 4, 0, PI);
 }
 
 function createHddScene(){
@@ -172,8 +188,8 @@ function createReflections(){
 
 // Reset the initial state
 function startDrill() {
-  pos = createVector(10, 100);
-  dir = p5.Vector.fromAngle(PI / 6);
+  pos = createVector(startingX, groundLevel + startingDepth);
+  dir = p5.Vector.fromAngle(startingAngle);
   path = [];
   oldPaths = [];
   pathPosition = -1;
@@ -212,6 +228,7 @@ function updateStartButtonText(){
 function setup() {
   // Let's begin!
   createCanvas(600, 400);
+  // frameRate(10);
 
   // Handle the start and stop button
   startButton = createButton('start').mousePressed(function () {
@@ -278,6 +295,9 @@ function setup() {
   seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>');
   updateDivWithLinkToThisLevel();
 
+  machineBack = loadImage('assets/drilling-machine-small.png');
+  machineFront = loadImage('assets/machine-foreground-small.png');
+
   startDrill();
 }
 
@@ -298,7 +318,7 @@ function drill() {
   pathPosition = path.length - 1;
   if (path.length % pipeLength == 0) {
     state = "CONNECTION";
-    connectionCountDown = 4;
+    connectionCountDown = verticalPipeMovement;
   }
   // Reduce uncertainty
   fogOfUncertinty.noStroke();
@@ -394,6 +414,26 @@ function computeReflextionTimeSinglePoint(x0, x1){
   // }
 }
 
+function drawSurfacePipe(){
+  let visibleLength = pipeLength - path.length % pipeLength + pipeOffset;
+  push();
+  translate(startingX, groundLevel + startingDepth);
+  rotate(startingAngle);
+  strokeWeight(3);
+  stroke(surfacePipeColor);
+  if (state == "CONNECTION"){
+    // loading the pipe 
+    line(-pipeLength-pipeOffset, -connectionCountDown, -pipeOffset, -connectionCountDown);
+    line(-pipeOffset, 0, 0, 0);
+  } else {
+    line(-visibleLength, 0, 0, 0);
+  }
+  noStroke();
+  fill('black');
+  rect(-visibleLength-4, -5, 4, 9); // top drive / pusher for the pipe constants are hard coded to look nice
+  pop();
+}
+
 // Draw loop
 function draw() {
   // Dril!
@@ -407,6 +447,12 @@ function draw() {
     blendMode(BLEND);
   }
   image(reflections, 0, 0);
+
+  // draw the machine
+  image(machineBack, 0, groundLevel - machineHeight + 2, machineWidth, machineHeight);
+  drawSurfacePipe();
+  image(machineFront, 0, groundLevel - machineHeight + 2, machineWidth, machineHeight);
+
   // Draw the paths
   // abandoned paths first
   for (let oldPath of oldPaths){
@@ -431,12 +477,10 @@ function draw() {
   }
   endShape();
 
-
   // Draw something where drill starts
   fill(255, 0, 0);
   stroke(0);
   strokeWeight(4);
-  circle(10, groundLevel, 4);
 
   if (aimingCheckbox.checked()) {
     // Start of the aiming arcs
@@ -475,7 +519,7 @@ function draw() {
   stroke(252, 238, 33);
   strokeWeight(8);
   translate(pos.x, pos.y);
-  rotate(dir.heading() + (PI / 6) * bias);
+  rotate(dir.heading() + (startingAngle) * bias);
   line(0, 0, 10, 0);
   pop();
 
