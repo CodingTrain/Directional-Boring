@@ -56,6 +56,7 @@ let reflections;
 
 // Button to start
 let startButton;
+let toggleButton;
 let aimingCheckbox;
 let fogCheckbox;
 let randomSlider;
@@ -226,7 +227,11 @@ let fail = false;
 function setup() {
   // Let's begin!
   createCanvas(600, 400);
-
+  
+  let drillDiv = createDiv().id('drillbit');
+  
+  let para1 = createP('Drill controls:').id('para').style('font-size','1.3rem');
+  para1.parent(drillDiv);
   // Handle the start and stop button
   startButton = createButton('start').mousePressed(function () {
     if (state == 'PAUSED' || state == 'STUCK') {
@@ -242,7 +247,9 @@ function setup() {
       startDrill();
     }
     updateStartButtonText();
+    
   });
+  startButton.parent(drillDiv);
 
   pullBackButton = createButton('pull back');
   pullBackButton.mousePressed(function () {
@@ -259,37 +266,51 @@ function setup() {
       updateStartButtonText();
     }
   });
+  pullBackButton.parent(drillDiv);
 
   // Handle the toggle bias button
-  createButton('toggle bias').mousePressed(function () {
+  toggleButton = createButton('toggle bias').mousePressed(function () {
     bias *= -1;
   });
-  let div1 = createDiv().id('slider');
-  // A slider for adding some randomness (in %)
-  let span1 = createSpan('randomness: ').id('slider-label');
-  randomSlider = createSlider(0, 100, 50, 0.5);
-  span1.parent(div1);
-  randomSlider.parent(div1);
+  toggleButton.parent(drillDiv);
 
-  let div2 = createDiv().id('level');
+  // Controls for difficulty of play
+  levelDiv = createDiv().id('level');
+  let para2 = createP('Difficulty controls:').style('font-size','1.3rem');
+  para2.parent(levelDiv);
+  
+  // A slider for adding some randomness (in %)
+  let span1 = createSpan('Randomness: ');
+  randomSlider = createSlider(0, 100, 50, 0.5);
+  span1.parent(levelDiv);
+  randomSlider.parent(levelDiv);
+
   // A slider to add difficulty level based on number of boulders
-  let span2 = createSpan('level: ').id('level-label');
-  span2.parent(div2);
-  levelSlider = createSlider(1, 10, 5, 1);
-  levelSlider.parent(div2);
+  let span2 = createSpan('Number of boulders: ').style('margin-left: 1.0rem');
+  span2.parent(levelDiv);
+  levelSlider = createSlider(1, 20, 10, 1);
+  levelSlider.parent(levelDiv);
 
   level = getItem("level");
   if (level !== null) {
     levelSlider.value(level);
   }
   levelSlider.changed(storeLevel);
-
+  
+ 
   // A button for previewing aiming bounds
-  aimingCheckbox = createCheckbox('Steering limits', true).id("steer-lim-box");
-  fogCheckbox = createCheckbox('Fog of uncertainty', true).id("fog-box");
+  aimingCheckbox = createCheckbox('Steering limits', true).id('steer-lim-box');
+  aimingCheckbox.parent(levelDiv);
+  fogCheckbox = createCheckbox('Fog of uncertainty', true).id('fog-box');
+  fogCheckbox.parent(levelDiv);
 
-  div3 = createDiv('<a href="instructions/instructions-slide.png">Visual instructions</a>').id('instructions');
-  div4 = createDiv('Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>').id('license');
+  linksDiv = createDiv().id('links');
+  para3 = createP('Links:').style('font-size','1.3rem');
+  para3.parent(linksDiv);
+  link1 = createP('<a href="instructions/instructions-slide.png">Visual instructions</a>').id('instructions');
+  link1.parent(linksDiv);
+  link2 = createP('Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>').id('license');
+  link2.parent(linksDiv);
 
   let params = getURLParams();
   if (params) {
@@ -303,13 +324,14 @@ function setup() {
   }
 
   seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>').id('seed');
+  seedDiv.parent(linksDiv);
   updateDivWithLinkToThisLevel();
   bestScore = getItem('bestScore');
   if (bestScore === null) {
     bestScore = 2000;
   }
   startDrill();
-  mytime = millis();
+  //mytime = millis();
 }
 
 // One drill step
@@ -563,7 +585,7 @@ function draw() {
     for (let oldPath of oldPaths) {
       length += oldPath.length;
     }
-    score = int(mytime + length + 50 * stuckCount);
+    score = int(length + 10 * stuckCount);
     if (score > bestScore) {
       text(`Score: ${score}`, width / 2, height / 2 + 96);
       text(`drilling length: ${length}`, width / 2, height / 2 + 96 + 24);

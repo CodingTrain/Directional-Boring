@@ -14,13 +14,16 @@
 body {
   font-family: 'Roboto Mono', monospace;
   color: #3C3C3C;
+  background-color: #666666;
   font-size: 0.9rem;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
-  grid-template-rows: 450px 1fr 1.7rem 1.7rem;
+  /* grid-template-rows: 450px 1fr 1.7rem 1.7rem; */
+  grid-template-rows: 450px 1fr 2.5rem 1.7rem;
   align-items: center;
-  justify-items: center;
+  /* justify-items: center; */
   margin: 0 calc(50% - 300px);
+
 }
 
 /* main only contains canvas */
@@ -34,16 +37,15 @@ canvas {
   display: block;
 }
 
-/* The check box */
-#steer-lim-box {
-  grid-row-start: 3;
-  grid-row-end: 4;
-  grid-column-start: 1;
-  grid-column-end: 6;
-  align-self: end;
-}
+ p {
+  font-size: 1.0rem;
+}  
 
-#fog-box {
+#drillbit {
+  background-color: #fcf5c7;
+  border-style:solid;
+  border-width: 0.2rem;
+  padding: 0.5em;
   grid-row-start: 4;
   grid-row-end: 5;
   grid-column-start: 1;
@@ -51,46 +53,52 @@ canvas {
   align-self: end;
 }
 
-#slider {
-  grid-row-start: 5;
-  grid-row-end: 6;
-  grid-column-start: 1;
-  grid-column-end: 6;
-  align-self: end;
-}
-
 #level {
+  background-color: #fcf5c7;
+  border-style:solid;
+  border-width: 0.2rem;
+  padding: 1em;
   grid-row-start: 6;
   grid-row-end: 7;
   grid-column-start: 1;
   grid-column-end: 6;
-  align-self: end;
+  align-self: start;
+}
+/* The check box */
+#steer-lim-box {
+  margin-top: 1em;
+  grid-column-start: 1;
+  grid-column-end: 3;
+  align-self: start;
 }
 
-#instructions {
+#fog-box {
+  margin-top: 1em;
+  grid-column-start: 3;
+  grid-column-end: 6;
+  align-self: start;
+}
+
+#links {
+  border-style:solid;
+  background-color: #fcf5c7;
+  padding: 0.3rem;
   grid-row-start: 7;
   grid-row-end: 8;
   grid-column-start: 1;
   grid-column-end: 6;
-  align-self: end;
+  align-self: start;
 }
 
-#license {
-  grid-row-start: 8;
-  grid-row-end: 9;
-  grid-column-start: 1;
+/* #seed{
+  border-style:solid;
+  background-color: #EDEDED;
+  grid-row-start: 7;
+  grid-row-end: 8;
+  grid-column-start: 3;
   grid-column-end: 6;
   align-self: end;
-  max-width: 175px;
-}
-
-#seed{
-  grid-row-start: 9;
-  grid-row-end: 10;
-  grid-column-start: 1;
-  grid-column-end: 6;
-  align-self: end;
-}
+} */
 
 input[type='checkbox'] {
   margin-right: 0.5rem;
@@ -101,12 +109,14 @@ input[type='checkbox'] {
 button {
   font-family: inherit;
   font-size: inherit;
-  width: 9em;
+  width: 8em;
   padding-top: 0.3rem;
   padding-bottom: 0.3rem;
+  margin-top: 0.3rem;
+  margin-bottom: 0.3rem;
   border: 0.1rem solid #666666;
   color: #3C3C3C;
-  background-color: #EDEDED;
+  background-color: #fff;
 }
 
 button:hover,
