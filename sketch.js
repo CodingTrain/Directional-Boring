@@ -38,15 +38,22 @@ const boundaryColor = [0, 0, 0];
 // Position of the goal square box (relative to ground)
 const goal = { x: 540, w: 20 };
 const goalColor = [252, 238, 33];
+const surfacePipeColor = [103, 88, 76];
 const dirtLayers = 7;
 let connectionCountDown = 0;
 
 // simulations constants
 const angle = 0.01;
 const startingAngle = 0.2967; // that is 17 degrees 
+const machineWidth = 80;
+const machineHaight = machineWidth * 9 / 16; // proportions according to the image
+const pipeLengthMult = 0.87688219663; // relative to drilling machine width
+const pipeLength = Math.floor(pipeLengthMult * machineWidth);
+
 const startingDepth = 4;
-const startingX = 90;
-const pipeLength = 60;
+const startingX = 93;
+
+const pipeOffset = 25;
 const maxStuckTimes = 3;
 
 // Pixel map for scene
@@ -404,6 +411,20 @@ function computeReflextionTimeSinglePoint(x0, x1){
   // }
 }
 
+function drawSurfacePipe(){
+  let visibleLength = pipeLength - path.length % pipeLength + pipeOffset;
+  push();
+  translate(startingX, groundLevel + startingDepth);
+  rotate(startingAngle);
+  strokeWeight(3);
+  stroke(surfacePipeColor);
+  line(-visibleLength, 0, 0, 0);
+  noStroke();
+  fill('black');
+  rect(-visibleLength-4, -5, 4, 7);
+  pop();
+}
+
 // Draw loop
 function draw() {
   // Dril!
@@ -481,6 +502,7 @@ function draw() {
   }
 
   image(machineBack, 0, groundLevel - 43, 80, 45);
+  drawSurfacePipe();
 
   // Draw the drill bit
   push();
