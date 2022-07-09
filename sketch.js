@@ -331,7 +331,6 @@ function setup() {
     bestScore = 2000;
   }
   startDrill();
-  //mytime = millis();
 }
 
 // One drill step
@@ -585,7 +584,10 @@ function draw() {
     for (let oldPath of oldPaths) {
       length += oldPath.length;
     }
-    score = int(length + 10 * stuckCount);
+    // Give credit for higher randonness
+    // Give higher penalty for lower number of boulders when stuck
+    let df = 0.9*(1 - (100-randomSlider.value())/100);
+    score = int(df*length + ( 20 / level) * stuckCount);
     if (score > bestScore) {
       text(`Score: ${score}`, width / 2, height / 2 + 96);
       text(`drilling length: ${length}`, width / 2, height / 2 + 96 + 24);
