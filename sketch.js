@@ -596,7 +596,7 @@ function draw() {
     } else {
       bestScore = score;
       storeItem("bestScore", bestScore);
-      text(`New Best Score!`, width / 2, height / 2);
+      text(`New Best Score!`, width / 2, height / 2 + 24);
       text(`Score: ${bestScore}`, width / 2, height / 2 + 96);
       text(`drilling length: ${length}`, width / 2, height / 2 + 96 + 24);
       text(`pipe length: ${path.length}`, width / 2, height / 2 + 96 + 48);
