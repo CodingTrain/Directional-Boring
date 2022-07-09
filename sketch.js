@@ -56,7 +56,7 @@ const startingX = 90;
 const pipeOffset = 22; 
 const maxStuckTimes = 3;
 
-const verticalPipeMovement = 6; // this is used to initialize the connection time
+const verticalPipeMovement = 5; // this is used to initialize the connection time
 
 // Pixel map for scene
 let hddScene;
