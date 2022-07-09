@@ -46,14 +46,14 @@ let connectionCountDown = 0;
 const angle = 0.01;
 const startingAngle = 0.2967; // that is 17 degrees 
 const machineWidth = 80;
-const machineHaight = machineWidth * 9 / 16; // proportions according to the image
+const machineHeight = machineWidth * 9 / 16; // proportions according to the image
 const pipeLengthMult = 0.87688219663; // relative to drilling machine width
 const pipeLength = Math.floor(pipeLengthMult * machineWidth);
 
-const startingDepth = 4;
-const startingX = 93;
+const startingDepth = 2;
+const startingX = 90;
 
-const pipeOffset = 25;
+const pipeOffset = 19;
 const maxStuckTimes = 3;
 
 // Pixel map for scene
@@ -438,6 +438,12 @@ function draw() {
     blendMode(BLEND);
   }
   image(reflections, 0, 0);
+
+  // draw the machine
+  image(machineBack, 0, groundLevel - machineHeight + 2, machineWidth, machineHeight);
+  drawSurfacePipe();
+  image(machineFront, 0, groundLevel - machineHeight + 2, machineWidth, machineHeight);
+
   // Draw the paths
   // abandoned paths first
   for (let oldPath of oldPaths){
@@ -462,12 +468,10 @@ function draw() {
   }
   endShape();
 
-
   // Draw something where drill starts
   fill(255, 0, 0);
   stroke(0);
   strokeWeight(4);
-  circle(10, groundLevel, 4);
 
   if (aimingCheckbox.checked()) {
     // Start of the aiming arcs
@@ -500,9 +504,6 @@ function draw() {
     );
     pop();
   }
-
-  image(machineBack, 0, groundLevel - 43, 80, 45);
-  drawSurfacePipe();
 
   // Draw the drill bit
   push();
