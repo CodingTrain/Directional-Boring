@@ -586,8 +586,8 @@ function draw() {
     }
     // Give credit for higher randonness
     // Give higher penalty for lower number of boulders when stuck
-    let df = 0.99*(1 - (100-randomSlider.value())/100);
-    score = int(df*length + ( 20 / level) * stuckCount);
+    let df = 0.01*(randomSlider.value()/100);
+    score = int((1-df)*length + ( 20 / level ) * stuckCount);
     if (score > bestScore) {
       text(`Score: ${score}`, width / 2, height / 2 + 96);
       text(`drilling length: ${length}`, width / 2, height / 2 + 96 + 24);
