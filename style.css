@@ -42,7 +42,7 @@ canvas {
 }  
 
 #drillbit {
-  background-color: #fcf5c7;
+  background-color: #fcf8e0;
   border-style:solid;
   border-width: 0.2rem;
   padding: 0.5em;
@@ -54,7 +54,7 @@ canvas {
 }
 
 #level {
-  background-color: #fcf5c7;
+  background-color: #fcf8e0;
   border-style:solid;
   border-width: 0.2rem;
   padding: 1em;
@@ -81,7 +81,7 @@ canvas {
 
 #links {
   border-style:solid;
-  background-color: #fcf5c7;
+  background-color: #fcf8e0;
   padding: 0.3rem;
   grid-row-start: 7;
   grid-row-end: 8;
@@ -110,13 +110,11 @@ button {
   font-family: inherit;
   font-size: inherit;
   width: 8em;
-  padding-top: 0.3rem;
-  padding-bottom: 0.3rem;
-  margin-top: 0.3rem;
-  margin-bottom: 0.3rem;
-  border: 0.1rem solid #666666;
+  padding: 0.3rem;
+  margin: 0.2rem;
+  border: 0.2rem solid #666666;
   color: #3C3C3C;
-  background-color: #fff;
+  background-color: #ccc6c6;
 }
 
 button:hover{
