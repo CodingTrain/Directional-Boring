@@ -48,15 +48,15 @@ const startingAngle = 0.2967; // that is 17 degrees
 const machineWidth = 80;
 const machineHeight = machineWidth * 9 / 16; // proportions according to the image
 const pipeLengthMult = 0.87688219663; // relative to drilling machine width
-const pipeLength = Math.floor(pipeLengthMult * machineWidth) - 4; // 4 accounts for the rounding of the pipe
+const pipeLength = Math.floor(pipeLengthMult * machineWidth)- 2; // -2 accounts for the rounding of the pipe
 
 const startingDepth = 2;
 const startingX = 90;
 
-const pipeOffset = 19;
+const pipeOffset = 22; 
 const maxStuckTimes = 3;
 
-const verticalPipeMovement = 10; // this is used to initialize the connection time
+const verticalPipeMovement = 6; // this is used to initialize the connection time
 
 // Pixel map for scene
 let hddScene;
@@ -228,7 +228,7 @@ function updateStartButtonText(){
 function setup() {
   // Let's begin!
   createCanvas(600, 400);
-  frameRate(10);
+  // frameRate(10);
 
   // Handle the start and stop button
   startButton = createButton('start').mousePressed(function () {
@@ -424,11 +424,13 @@ function drawSurfacePipe(){
   if (state == "CONNECTION"){
     // loading the pipe 
     line(-pipeLength-pipeOffset, -connectionCountDown, -pipeOffset, -connectionCountDown);
+    line(-pipeOffset, 0, 0, 0);
+  } else {
+    line(-visibleLength, 0, 0, 0);
   }
-  line(-visibleLength, 0, 0, 0);
   noStroke();
   fill('black');
-  rect(-visibleLength-4, -5, 4, 7);
+  rect(-visibleLength-4, -5, 4, 9); // top drive / pusher for the pipe constants are hard coded to look nice
   pop();
 }
 
