@@ -604,6 +604,17 @@ function draw() {
     text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', width / 2, groundLevel / 2);
   }
 
+  if (state != "DRILLING"){
+    textAlign(LEFT, TOP);
+    noStroke();
+    fill(255);
+    textSize(16);
+    textFont('courier');
+    text('Click the machine \nto start / pause', 3, 3);
+    text('Click anywehere else\nto toggle bias', width/2, 3)
+  }
+
+
   // If you've lost!
   if (state == 'LOSE') {
     background(255, 0, 0, 150);
