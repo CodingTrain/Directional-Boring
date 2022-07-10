@@ -98,7 +98,32 @@ function toggleBias() {
   bias *= -1;
 }
 
+let xTouch, yTouch;
+
+function touchStarted() {
+  // ellipse(mouseX, mouseY, 5, 5);
+  // prevent default\
+  if (mouseX <= machineWidth && 
+      mouseY <= groundLevel &&
+      mouseY >= groundLevel - machineHeight){
+    if (state == "WIN" || state == "LOSE") {
+      startDrill();
+    } else if (state == "PAUSED") {
+      state = "DRILLING";
+    } else {
+      state = "PAUSED";
+    }
+  }
+  else{
+    toggleBias();
+  }
+  xTouch = mouseX;
+  yTouch = mouseY;
+  return false;
+}
+
 function keyPressed() {
+  // TODO reformat to a single function
   if (key == " ") {
     toggleBias();
   } else if (keyCode == ESCAPE) {
@@ -559,7 +584,7 @@ function draw() {
   line(0, 0, 10, 0);
   pop();
 
-  circle(mouseX, mouseY, 10);
+  circle(xTouch, yTouch, 10);
 
   if (state == "CONNECTION"){
     textAlign(CENTER, TOP);
