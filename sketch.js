@@ -78,6 +78,25 @@ function setGradient(image, x, y, w, h, c1, c2, axis) {
   }
 }
 
+function toggleBias(){
+  bias *= -1;
+}
+
+function keyPressed(){
+  if (key == " ") {
+    toggleBias();
+  } else if(keyCode == ESCAPE) {
+    if (["WIN", "LOSE"].includes(state)) {
+      startDrill();
+    } else if (state == "PAUSED") {
+      state = "DRILLING";
+    } else {
+      state = "PAUSED";
+    }
+    updateStartButtonText();
+  }
+}
+
 function drawRiver(hddScene, riverColor){
   hddScene.noStroke();
   // hddScene.rectMode(CORNER);
@@ -248,7 +267,7 @@ function setup() {
 
   // Handle the toggle bias button
   createButton('toggle bias').mousePressed(function () {
-    bias *= -1;
+    toggleBias();
   });
 
   // A slider for adding some randomness (in %)
