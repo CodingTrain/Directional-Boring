@@ -331,12 +331,13 @@ function setup() {
 
 // One drill step
 function drill() {
-  // update bias based on mouse input
-  if (mouseY < pos.y){
-    bias = -1;
-  } else{
-    bias = 1;
-  }
+  // update bias based on mouse input 
+  // scrapped for now
+  // if (mouseY < pos.y){
+  //   bias = -1;
+  // } else{
+  //   bias = 1;
+  // }
 
   dir.rotate(angle * bias);
 
