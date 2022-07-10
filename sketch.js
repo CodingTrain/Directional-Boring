@@ -264,7 +264,7 @@ function pullBack() {
 
 function setup() {
   // Let's begin!
-  createCanvas(600, 400);
+  let canvas = createCanvas(600, 400);
   // frameRate(10);
 
   // Handle the start and stop button
@@ -331,6 +331,12 @@ function setup() {
 
 // One drill step
 function drill() {
+  // update bias based on mouse input
+  if (mouseY < pos.y){
+    bias = -1;
+  } else{
+    bias = 1;
+  }
 
   dir.rotate(angle * bias);
 
@@ -464,6 +470,7 @@ function drawSurfacePipe() {
 
 // Draw loop
 function draw() {
+
   // Dril!
   if (state == "DRILLING") drill();
 
@@ -551,7 +558,9 @@ function draw() {
   line(0, 0, 10, 0);
   pop();
 
-  if (state == "CONNECTION") {
+  circle(mouseX, mouseY, 10);
+
+  if (state == "CONNECTION"){
     textAlign(CENTER, TOP);
     noStroke();
     fill(255);
