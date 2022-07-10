@@ -438,7 +438,7 @@ function draw() {
   strokeWeight(4);
   circle(10, groundLevel, 4);
 
-  if (aimingCheckbox.checked()) {
+  if (aimingCheckbox.checked() && !(state == "WIN" || state == "LOSE")) {
     // Start of the aiming arcs
     push();
     translate(pos.x, pos.y);
