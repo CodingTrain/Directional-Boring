@@ -100,8 +100,10 @@ function toggleBias() {
 
 function touchStarted() {
   // ellipse(mouseX, mouseY, 5, 5);
-  // prevent default\
-  if (mouseX <= machineWidth && 
+  if (mouseY > height){
+    return;
+  }
+  else if (mouseX <= machineWidth && 
       mouseY <= groundLevel &&
       mouseY >= groundLevel - machineHeight){
     if (state == "WIN" || state == "LOSE") {
@@ -115,6 +117,7 @@ function touchStarted() {
   else{
     toggleBias();
   }
+  // prevent default
   return false;
 }
 
