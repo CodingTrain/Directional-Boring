@@ -98,8 +98,6 @@ function toggleBias() {
   bias *= -1;
 }
 
-let xTouch, yTouch;
-
 function touchStarted() {
   // ellipse(mouseX, mouseY, 5, 5);
   // prevent default\
@@ -117,8 +115,6 @@ function touchStarted() {
   else{
     toggleBias();
   }
-  xTouch = mouseX;
-  yTouch = mouseY;
   return false;
 }
 
@@ -584,7 +580,7 @@ function draw() {
   line(0, 0, 10, 0);
   pop();
 
-  circle(xTouch, yTouch, 10);
+  // circle(xTouch, yTouch, 10);
 
   if (state == "CONNECTION"){
     textAlign(CENTER, TOP);
