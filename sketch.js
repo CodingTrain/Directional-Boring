@@ -111,6 +111,8 @@ function keyPressed() {
     }
     // Update the button text
     updateStartButtonText();
+  } else if (keyCode == BACKSPACE) {
+    pullBack();
   }
 }
 
@@ -245,6 +247,21 @@ function updateStartButtonText() {
   }
 }
 
+function pullBack() {
+  if (state == "PAUSED" || state == "DRILLING" || state == "STUCK") {
+    state = 'PAUSED';
+    let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
+    if (prevPosition > 0) {
+      oldPaths.push(path.slice(prevPosition));
+      path = path.slice(0, prevPosition);
+      pathPosition = path.length - 1;
+      pos = path[pathPosition][0].copy();
+      dir = path[pathPosition][1].copy();
+    }
+    updateStartButtonText();
+  }
+}
+
 function setup() {
   // Let's begin!
   createCanvas(600, 400);
@@ -268,20 +285,11 @@ function setup() {
   });
 
   pullBackButton = createButton('pull back');
-  pullBackButton.mousePressed(function() {
-      if (state == "PAUSED" || state == "DRILLING" || state == "STUCK") {
-      state = 'PAUSED';
-      let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
-      if (prevPosition > 0) {
-        oldPaths.push(path.slice(prevPosition));
-        path = path.slice(0, prevPosition);
-        pathPosition = path.length - 1;
-        pos = path[pathPosition][0].copy();
-        dir = path[pathPosition][1].copy();
-      }
-      updateStartButtonText();
+  pullBackButton.mousePressed(
+    function(){
+      pullBack();
     }
-  });
+  );
 
   // Handle the toggle bias button
   createButton('toggle bias').mousePressed(function () {
