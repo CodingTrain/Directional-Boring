@@ -270,7 +270,7 @@ function updateStartButtonText() {
     startButton.html('drill');
   } 
   if (state == "WIN" || state == "LOSE") {
-    startButton.html("try again");
+    startButton.html("new game");
   }
 }
 
@@ -376,7 +376,7 @@ function drill() {
   pos.add(dir);
   if (pos.x < 0 || pos.x > width || pos.y > height) {
     state = 'LOSE';
-    startButton.html('try again');
+    updateStartButtonText();
   }
 
   // Get pixel color under drill
@@ -389,7 +389,7 @@ function drill() {
   // Green you win!
   if (c == goalColor.toString()) {
     state = 'WIN';
-    startButton.html('try again');
+    updateStartButtonText();
     // Anything else not the ground color you lose!
   } else if (c == boulderColor.toString()) {
     state = 'STUCK';
@@ -404,7 +404,7 @@ function drill() {
     c == boundaryColor.toString()
   ) {
     state = 'LOSE';
-    startButton.html('try again');
+    updateStartButtonText();
   }
 }
 
