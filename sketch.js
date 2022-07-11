@@ -136,7 +136,7 @@ function keyPressed() {
   // TODO reformat to a single function
   if (key == " ") {
     toggleBias();
-  } else if (keyCode == ESCAPE) {
+  } else if (keyCode == ESCAPE || keyCode == RETURN || keyCode == ENTER) {
     startStopAction();
   } else if (keyCode == BACKSPACE) {
     pullBack();
