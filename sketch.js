@@ -331,7 +331,8 @@ function setup() {
     }
   }
   if (!currentSeed) {
-    currentSeed = Math.floor(Math.random() * 999999);
+    currentSeed = Math.floor(Math.random() * 999998)+1;
+    randomSeed(currentSeed);
   }
 
   seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>');
