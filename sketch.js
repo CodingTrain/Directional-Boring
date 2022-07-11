@@ -99,14 +99,18 @@ function toggleBias() {
 }
 
 function startStopAction(){
-  if (state == "WIN" || state == "LOSE") {
+  if (state == 'PAUSED' || state == 'STUCK') {
+    state = 'DRILLING';
+    this.html('pause');
+  } else if (state == 'DRILLING') {
+    state = 'PAUSED';
+    this.html('drill');
+  } else if (state == 'WIN' || state == 'LOSE') {
+    currentSeed = Math.floor(Math.random() * 999998)+1;
+    updateDivWithLinkToThisLevel();
+    randomSeed(currentSeed);
     startDrill();
-  } else if (state == "PAUSED") {
-    state = "DRILLING";
-  } else {
-    state = "PAUSED";
   }
-  // Update the button text
   updateStartButtonText();
 }
 
@@ -290,21 +294,7 @@ function setup() {
   // frameRate(10);
 
   // Handle the start and stop button
-  startButton = createButton('start').mousePressed(function () {
-    if (state == 'PAUSED' || state == 'STUCK') {
-      state = 'DRILLING';
-      this.html('pause');
-    } else if (state == 'DRILLING') {
-      state = 'PAUSED';
-      this.html('drill');
-    } else if (state == 'WIN' || state == 'LOSE') {
-      currentSeed = Math.floor(Math.random() * 999998)+1;
-      updateDivWithLinkToThisLevel();
-      randomSeed(currentSeed);
-      startDrill();
-    }
-    updateStartButtonText();
-  });
+  startButton = createButton('start').mousePressed(startStopAction);
 
   pullBackButton = createButton('pull back');
   pullBackButton.mousePressed(
