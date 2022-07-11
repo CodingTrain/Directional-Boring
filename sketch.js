@@ -98,6 +98,18 @@ function toggleBias() {
   bias *= -1;
 }
 
+function startStopAction(){
+  if (state == "WIN" || state == "LOSE") {
+    startDrill();
+  } else if (state == "PAUSED") {
+    state = "DRILLING";
+  } else {
+    state = "PAUSED";
+  }
+  // Update the button text
+  updateStartButtonText();
+}
+
 function touchStarted() {
   // ellipse(mouseX, mouseY, 5, 5);
   if (mouseY > height){
@@ -106,13 +118,7 @@ function touchStarted() {
   else if (mouseX <= machineWidth && 
       mouseY <= groundLevel &&
       mouseY >= groundLevel - machineHeight){
-    if (state == "WIN" || state == "LOSE") {
-      startDrill();
-    } else if (state == "PAUSED") {
-      state = "DRILLING";
-    } else {
-      state = "PAUSED";
-    }
+    startStopAction();
   }
   else{
     toggleBias();
@@ -126,15 +132,7 @@ function keyPressed() {
   if (key == " ") {
     toggleBias();
   } else if (keyCode == ESCAPE) {
-    if (state == "WIN" || state == "LOSE") {
-      startDrill();
-    } else if (state == "PAUSED") {
-      state = "DRILLING";
-    } else {
-      state = "PAUSED";
-    }
-    // Update the button text
-    updateStartButtonText();
+    startStopAction();
   } else if (keyCode == BACKSPACE) {
     pullBack();
   }
