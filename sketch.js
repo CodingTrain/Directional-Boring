@@ -23,6 +23,7 @@ let seedDiv;
 // The turning radius to be computed
 let turnCircleRadius;
 let boulders;
+let canvas;
 
 // images of the drilling machine
 let machineBack;
@@ -117,7 +118,7 @@ function startStopAction(){
 function touchStarted() {
   // ellipse(mouseX, mouseY, 5, 5);
   if (mouseY > height){
-    return;
+    return true;
   }
   else if (mouseX <= machineWidth && 
       mouseY <= groundLevel &&
@@ -290,7 +291,8 @@ function pullBack() {
 
 function setup() {
   // Let's begin!
-  let canvas = createCanvas(600, 400);
+  canvas = createCanvas(600, 400);
+  // canvas.touchStarted(sceneOnTouchStarted);
   // frameRate(10);
 
   // Handle the start and stop button
