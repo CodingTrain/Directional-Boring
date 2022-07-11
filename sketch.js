@@ -117,7 +117,7 @@ function startStopAction(){
 
 function touchStarted() {
   // ellipse(mouseX, mouseY, 5, 5);
-  if (mouseY > height){
+  if (mouseY > height || mouseX < 0 || mouseX > width){
     return true;
   }
   else if (mouseX <= machineWidth && 
