@@ -427,7 +427,6 @@ function drawReflection(reflectionImage) {
 function computeReflextionTimeSinglePoint(x0, x1) {
   let minArrivalDist = height * 2;
   //const maxSteps = height * 2;
-  console.log('point '+ x0);
   for (let j = 0; j < boulders.length; j++) {
     for (let i = 0; i < 360; i+= 10) {
       // looping angles on the boulder
@@ -442,7 +441,6 @@ function computeReflextionTimeSinglePoint(x0, x1) {
       let totalDist = distDown + distUp;
       if (totalDist < minArrivalDist) {
         minArrivalDist = totalDist;
-        console.log('boulder '+ boulderPoint);
       }
     }
   }
