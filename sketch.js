@@ -113,6 +113,21 @@ function startStopAction(){
   updateStartButtonText();
 }
 
+function pullBack() {
+  if (state == "PAUSED" || state == "DRILLING" || state == "STUCK") {
+    state = 'PAUSED';
+    let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
+    if (prevPosition > 0) {
+      oldPaths.push(path.slice(prevPosition));
+      path = path.slice(0, prevPosition);
+      pathPosition = path.length - 1;
+      pos = path[pathPosition][0].copy();
+      dir = path[pathPosition][1].copy();
+    }
+    updateStartButtonText();
+  }
+}
+
 function touchStarted() {
   // ellipse(mouseX, mouseY, 5, 5);
   if (mouseY > height || mouseX < 0 || mouseX > width){
@@ -269,21 +284,6 @@ function updateStartButtonText() {
   } 
   if (state == "WIN" || state == "LOSE") {
     startButton.html("new game");
-  }
-}
-
-function pullBack() {
-  if (state == "PAUSED" || state == "DRILLING" || state == "STUCK") {
-    state = 'PAUSED';
-    let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
-    if (prevPosition > 0) {
-      oldPaths.push(path.slice(prevPosition));
-      path = path.slice(0, prevPosition);
-      pathPosition = path.length - 1;
-      pos = path[pathPosition][0].copy();
-      dir = path[pathPosition][1].copy();
-    }
-    updateStartButtonText();
   }
 }
 
