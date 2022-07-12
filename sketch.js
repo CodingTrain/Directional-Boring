@@ -16,6 +16,8 @@ let path;
 let pathPosition;
 let oldPaths;
 let stuckCount;
+let sideTrackCount;
+let startCount;
 // Current state of game
 let state;
 let currentSeed = undefined;
@@ -102,6 +104,23 @@ function toggleBias() {
 function startStopAction(){
   if (state == 'PAUSED' || state == 'STUCK') {
     state = 'DRILLING';
+    let prevPath = undefined;
+    if (oldPaths.length > 0){
+      prevPath = oldPaths[oldPaths.length - 1];
+    }
+    let oldPathPoint = undefined;
+    if (prevPath && prevPath.length > 0) {
+      // taking the first element of the last path (closest to the current bit position)
+      oldPathPoint = prevPath[0];
+    }
+    // check if the previous segment drilled is near by and we are 'side-tracking'
+    if (oldPathPoint && 
+        dist(pos.x, pos.y, oldPathPoint[0].x, oldPathPoint[0].y) < 1.5){
+      sideTrackCount++;
+      console.log("Side-track count" + sideTrackCount);
+    } //else {
+    startCount++;
+    console.log("Start count" + startCount);
   } else if (state == 'DRILLING') {
     state = 'PAUSED';
   } else if (state == 'WIN' || state == 'LOSE') {
@@ -256,6 +275,8 @@ function startDrill() {
   oldPaths = [];
   pathPosition = -1;
   stuckCount = 0;
+  startCount = 0;
+  sideTrackCount = 0;
   boulders = [];
   bias = 1;
   state = 'PAUSED';
