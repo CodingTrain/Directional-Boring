@@ -501,6 +501,34 @@ function drawSurfacePipe() {
   pop();
 }
 
+function drawEndGameStatsAtY(textY){
+  textAlign(CENTER, CENTER);
+  noStroke();
+  fill(255);
+  textFont('courier-bold');
+  const fontSize = 24;
+  textSize(fontSize);
+  if (state == "WIN"){
+    text(`final pipe length: ${path.length}`, width / 2, textY);
+  } else{
+    let remainingDistance = Math.ceil(dist(pos.x, pos.y, goal.x + goal.w/2, groundLevel));
+    text(`remaining distance: ${remainingDistance}`, width / 2, textY);
+  }
+  textY += fontSize;
+
+  let length = path.length;
+  for (let oldPath of oldPaths) {
+    length += oldPath.length;
+  }
+  text(`drilled length: ${length}`, width / 2, textY);
+  textY += fontSize;
+  text(`start count: ${startCount}`, width / 2, textY);
+  textY += fontSize;
+  text(`side-track count: ${sideTrackCount}`, width / 2, textY);
+  textY += fontSize;
+  text(`stuck count: ${stuckCount}`, width / 2, textY);
+}
+
 // Draw loop
 function draw() {
 
@@ -634,31 +662,18 @@ function draw() {
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    text('YOU LOSE', width / 2, height / 2);
-    textSize(24);
-    let length = path.length;
-    for (let oldPath of oldPaths) {
-      length += oldPath.length;
-    }
-    text(`drilling length: ${length}`, width / 2, height / 2 + 96);
-    text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 24);
-    // If you've won!
-  } else if (state == 'WIN') {
+    text('YOU LOSE', width / 2, height / 2 - 96/2);
+    drawEndGameStatsAtY(height/2 + 96/2);
+  } // If you've won!
+  else if (state == 'WIN') {
     background(0, 255, 0, 150);
     textAlign(CENTER, CENTER);
     noStroke();
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    text('YOU WIN', width / 2, height / 2);
-    textSize(24);
+    text('YOU WIN', width / 2, height / 2 - 96/2);
     // Starting idea for a score
-    let length = path.length;
-    for (let oldPath of oldPaths) {
-      length += oldPath.length;
-    }
-    text(`drilling length: ${length}`, width / 2, height / 2 + 96);
-    text(`pipe length: ${path.length}`, width / 2, height / 2 + 96 + 24);
-    text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 24 + 24);
+    drawEndGameStatsAtY(height/2 + 96/2);
   }
 }
