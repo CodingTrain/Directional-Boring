@@ -501,18 +501,35 @@ function drawSurfacePipe() {
   pop();
 }
 
+function padNumber(num){
+  return String(num).padStart(5, ' ')
+}
+
 function drawEndGameStatsAtY(textY){
-  textAlign(CENTER, CENTER);
+  textAlign(RIGHT, TOP);
   noStroke();
   fill(255);
   textFont('courier-bold');
   const fontSize = 24;
+  const textX = width - fontSize;
   textSize(fontSize);
+  
+  let reward = 0;
   if (state == "WIN"){
-    text(`final pipe length: ${path.length}`, width / 2, textY);
+    reward = 5000;
+    text(`mission reward = ${padNumber(reward)}+`, textX, textY);
+  } else {
+    reward = 1000;
+    text(`partial reward = ${padNumber(reward)}+`, textX, textY);
+  }
+  textY += fontSize;
+  if (state == "WIN"){
+    text(`final pipe length = ${padNumber(path.length)}-`, textX, textY);
+    reward -= path.length;
   } else{
     let remainingDistance = Math.ceil(dist(pos.x, pos.y, goal.x + goal.w/2, groundLevel));
-    text(`remaining distance: ${remainingDistance}`, width / 2, textY);
+    text(`remaining distance = ${padNumber(remainingDistance)}-`, textX, textY);
+    reward -= remainingDistance;
   }
   textY += fontSize;
 
@@ -520,13 +537,30 @@ function drawEndGameStatsAtY(textY){
   for (let oldPath of oldPaths) {
     length += oldPath.length;
   }
-  text(`drilled length: ${length}`, width / 2, textY);
+  text(`drilled length = ${padNumber(length)}-`, textX, textY);
+  reward -= length;
+  
   textY += fontSize;
-  text(`start count: ${startCount}`, width / 2, textY);
+  const startMult = Math.ceil(pipeLength/40) * 10;
+  let startCost = startCount * startMult;
+  text(`starts: ${startCount} *${startMult} = ${padNumber(startCost)}-`, textX, textY);
+  reward -= startCost;
+
   textY += fontSize;
-  text(`side-track count: ${sideTrackCount}`, width / 2, textY);
+  const sideTrackMult = Math.ceil(pipeLength/20) * 10;
+  let sideTrackCost = sideTrackCount * sideTrackMult;
+  text(`side-tracks: ${sideTrackCount} *${sideTrackMult} = ${padNumber(sideTrackCost)}-`, textX, textY);
+  reward -= sideTrackCost;
+
   textY += fontSize;
-  text(`stuck count: ${stuckCount}`, width / 2, textY);
+  const stuckMult = Math.ceil(pipeLength/50) * 50;
+  let stuckCost = stuckCount * stuckMult;
+  text(`stuck count: ${stuckCount} *${stuckMult} = ${padNumber(stuckCost)}-`, textX, textY);
+  reward -= stuckCost;
+
+  textY += fontSize * 1.5;
+  text(`FINAL SCORE = ${padNumber(reward)} `, textX, textY);
+  return reward;
 }
 
 // Draw loop
@@ -657,23 +691,23 @@ function draw() {
   // If you've lost!
   if (state == 'LOSE') {
     background(255, 0, 0, 150);
-    textAlign(CENTER, CENTER);
+    textAlign(CENTER, TOP);
     noStroke();
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    text('YOU LOSE', width / 2, height / 2 - 96/2);
-    drawEndGameStatsAtY(height/2 + 96/2);
+    text('YOU LOSE', width / 2, groundLevel);
+    drawEndGameStatsAtY(groundLevel + 96);
   } // If you've won!
   else if (state == 'WIN') {
     background(0, 255, 0, 150);
-    textAlign(CENTER, CENTER);
+    textAlign(CENTER, TOP);
     noStroke();
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    text('YOU WIN', width / 2, height / 2 - 96/2);
+    text('YOU WIN', width / 2, groundLevel);
     // Starting idea for a score
-    drawEndGameStatsAtY(height/2 + 96/2);
+    drawEndGameStatsAtY(groundLevel + 96);
   }
 }
