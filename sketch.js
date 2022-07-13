@@ -317,32 +317,51 @@ function setup() {
   // Handle the start and stop button
   startButton = createButton('start').mousePressed(startStopAction);
 
-  pullBackButton = createButton('pull back');
-  pullBackButton.mousePressed(
-    function(){
-      pullBack();
-    }
-  );
+    // Handle the toggle bias button
+    createButton("toggle bias").mousePressed(function () {
+        toggleBias();
+    });
 
-  // Handle the toggle bias button
-  createButton('toggle bias').mousePressed(function () {
-    toggleBias();
-  });
+    pullBackButton = createButton("pull back");
+    pullBackButton.mousePressed(function () {
+        pullBack();
+    });
 
-  // A slider for adding some randomness (in %)
-  createSpan('randomness: ').id('slider-label');
-  randomSlider = createSlider(0, 100, 50, 0.5);
-  // createSpan('direction: ');  
-  // direcitonSlider = createSlider(-1, 1, 1, 2);
+    // A slider for adding some randomness (in %)
 
-  // A button for previewing aiming bounds
-  aimingCheckbox = createCheckbox('Steering limits', true).id("steer-lim-box");
-  fogCheckbox = createCheckbox('Fog of uncertainty', true).id("fog-box");
+    const slider = document.createElement("input");
+    slider.setAttribute("id", "rand-slider");
+    slider.setAttribute("type", "range");
+    slider.setAttribute("min", "0");
+    slider.setAttribute("max", "100");
+    slider.setAttribute("value", "50");
+    slider.setAttribute("step", "0.5");
+    const sliderLabel = document.createElement("label");
+    sliderLabel.innerHTML = "randomness: ";
+    sliderLabel.setAttribute("for", "rand-slider");
+    const sliderContainer = document.createElement("div");
+    sliderContainer.setAttribute("id", "rand-slider-container");
+    sliderContainer.appendChild(sliderLabel);
+    sliderContainer.appendChild(slider);
+    document.querySelector("body").appendChild(sliderContainer);
 
-  createDiv('<a href="instructions/instructions-slide.png">Visual instructions</a>')
-  createDiv('Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>');
-  
-  let params = getURLParams();
+    randomSlider = document.getElementById("rand-slider");
+
+    // createSpan('direction: ');
+    // direcitonSlider = createSlider(-1, 1, 1, 2);
+
+    // A button for previewing aiming bounds
+    aimingCheckbox = createCheckbox("Steering Aim", true).id("steer-lim-box");
+    fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
+
+    createDiv(
+        '<a href="instructions/instructions-slide.png">Visual instructions</a>'
+    ).id("visual-instructions");
+    createDiv(
+        'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
+    ).id("copyright");
+
+    let params = getURLParams();
   if (params) {
     if (params["seed"]) {
       currentSeed = params["seed"];
@@ -354,7 +373,7 @@ function setup() {
     randomSeed(currentSeed);
   }
 
-  seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>');
+  seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>').id('seed-div');
   updateDivWithLinkToThisLevel();
 
   machineBack = loadImage('assets/drilling-machine-small.png');
@@ -376,7 +395,7 @@ function drill() {
   dir.rotate(angle * bias);
 
   // Add some randomness
-  const randomFactor = randomSlider.value();
+  const randomFactor = randomSlider.value;
   const r = (random(-randomFactor, 0) * angle * bias) / 100;
   dir.rotate(r);
 
