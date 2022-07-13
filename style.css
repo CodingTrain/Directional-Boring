@@ -1,4 +1,3 @@
-
 /* CSS Reset */
 
 *,
@@ -16,7 +15,7 @@ body {
   color: #3C3C3C;
   font-size: 0.9rem;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 450px 1fr 1.7rem 1.7rem;
   align-items: center;
   justify-items: center;
@@ -27,7 +26,7 @@ body {
 
 main {
   grid-column-start: 1;
-  grid-column-end: 6;
+  grid-column-end: 4;
 }
 
 canvas {
@@ -35,7 +34,7 @@ canvas {
 }
 
 /* The check box */
-#steer-lim-box {
+/* #steer-lim-box {
   grid-row-start: 3;
   grid-row-end: 4;
   grid-column-start: 1;
@@ -49,7 +48,7 @@ canvas {
   grid-column-start: 1;
   grid-column-end: 6;
   align-self: end;
-}
+} */
 
 input[type='checkbox'] {
   margin-right: 0.5rem;
@@ -77,9 +76,6 @@ button:focus {
 
 /* The "randomness" span */
 
-span#slider-label {
-  justify-self: end;
-}
 
 /* Cursor for buttons, sliders and checkboxes*/
 

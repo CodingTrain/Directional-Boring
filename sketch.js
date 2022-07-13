@@ -230,6 +230,11 @@ function setup() {
     updateStartButtonText();
   });
 
+  // Handle the toggle bias button
+  createButton('toggle bias').mousePressed(function () {
+    bias *= -1;
+  });
+
   pullBackButton = createButton('pull back');
   pullBackButton.mousePressed(function(){
       if (state == "PAUSED" || state == "DRILLING" || state == "STUCK"){
@@ -246,14 +251,25 @@ function setup() {
     }
   });
 
-  // Handle the toggle bias button
-  createButton('toggle bias').mousePressed(function () {
-    bias *= -1;
-  });
-
   // A slider for adding some randomness (in %)
-  createSpan('randomness: ').id('slider-label');
-  randomSlider = createSlider(0, 100, 50, 0.5);
+
+  const slider = document.createElement('input');
+  slider.setAttribute('id', 'rand-slider');
+  slider.setAttribute('type', 'range');
+  slider.setAttribute('min', '0');
+  slider.setAttribute('max', '100');
+  slider.setAttribute('value', '50');
+  slider.setAttribute('step', '0.5');
+  const sliderLabel = document.createElement('span');
+  sliderLabel.innerHTML = "randomness: ";
+  const sliderContainer = document.createElement('div');
+  sliderContainer.setAttribute('id', 'rand-slider-container');
+  sliderContainer.appendChild(sliderLabel);
+  sliderContainer.appendChild(slider);
+  document.querySelector('body').appendChild(sliderContainer);
+
+  randomSlider = document.getElementById('rand-slider');
+
   // createSpan('direction: ');  
   // direcitonSlider = createSlider(-1, 1, 1, 2);
 
@@ -287,7 +303,7 @@ function drill() {
   dir.rotate(angle * bias);
 
   // Add some randomness
-  const randomFactor = randomSlider.value();
+  const randomFactor = randomSlider.value;
   const r = (random(-randomFactor, 0) * angle * bias) / 100;
   dir.rotate(r);
 
