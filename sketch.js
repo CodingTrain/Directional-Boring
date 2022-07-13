@@ -622,7 +622,7 @@ function draw() {
     stroke(125);
     strokeWeight(1);
     noFill();
-    const maxAimAngle = QUARTER_PI * 1.2;
+    const maxAimAngle = QUARTER_PI * 1.8;
     arc(
       0,
       -turnCircleRadius,
