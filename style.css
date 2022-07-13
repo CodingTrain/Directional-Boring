@@ -16,10 +16,11 @@ body {
   font-size: 0.9rem;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 450px 1fr 1.7rem 1.7rem;
+  grid-template-rows: 450px 3.2rem 3.2rem 3.2rem 3.2rem;
   align-items: center;
   justify-items: center;
   margin: 0 calc(50% - 300px);
+  margin-bottom: 1rem;
 }
 
 /* main only contains canvas */
@@ -32,23 +33,6 @@ main {
 canvas {
   display: block;
 }
-
-/* The check box */
-/* #steer-lim-box {
-  grid-row-start: 3;
-  grid-row-end: 4;
-  grid-column-start: 1;
-  grid-column-end: 6;
-  align-self: end;
-}
-
-#fog-box {
-  grid-row-start: 4;
-  grid-row-end: 5;
-  grid-column-start: 1;
-  grid-column-end: 6;
-  align-self: end;
-} */
 
 input[type='checkbox'] {
   margin-right: 0.5rem;
@@ -73,8 +57,47 @@ button:hover{
   border: 0.1rem solid #8F8F8F;
 }
 
-/* The "randomness" span */
+/* Slider */
 
+#rand-slider {
+  width: 6rem;
+  top: 1rem;
+}
+
+#rand-slider-container {
+  display: flex;
+  flex-flow: row; 
+  align-items: center;
+  justify-content: flex-end; 
+  height: 100%;
+  grid-column: 2 / 3;
+}
+
+/* A few adjustments */
+
+#fog-box {
+  grid-column : 1 / 2;
+  grid-row: 3 / 4;
+}
+
+#visual-instructions {
+  grid-row: 4 / 5; 
+  grid-column: 1 / 2;
+  text-align: center;
+}
+
+#seed-div {
+  grid-row: 4 / 5;
+  grid-column: 3 / 4;
+  text-align: center;
+}
+
+#copyright {
+  grid-row: 5 / 6;
+  grid-column: 1 / 4;
+  text-align: center;
+  align-self: end;
+}
 
 /* Cursor for buttons, sliders and checkboxes*/
 
@@ -82,4 +105,10 @@ button,
 input[type='range'],
 input[type='checkbox'] {
   cursor: pointer;
+}
+
+/* Link styling */
+
+a:not([class]) {
+  color: #8F8F8F;
 }
