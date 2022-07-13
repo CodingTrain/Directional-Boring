@@ -16,6 +16,8 @@ let path;
 let pathPosition;
 let oldPaths;
 let stuckCount;
+let sideTrackCount;
+let startCount;
 // Current state of game
 let state;
 let currentSeed = undefined;
@@ -23,6 +25,7 @@ let seedDiv;
 // The turning radius to be computed
 let turnCircleRadius;
 let boulders;
+let canvas;
 
 // images of the drilling machine
 let machineBack;
@@ -98,19 +101,75 @@ function toggleBias() {
   bias *= -1;
 }
 
+function startStopAction(){
+  if (state == 'PAUSED' || state == 'STUCK') {
+    state = 'DRILLING';
+    let prevPath = undefined;
+    if (oldPaths.length > 0){
+      prevPath = oldPaths[oldPaths.length - 1];
+    }
+    let oldPathPoint = undefined;
+    if (prevPath && prevPath.length > 0) {
+      // taking the first element of the last path (closest to the current bit position)
+      oldPathPoint = prevPath[0];
+    }
+    // check if the previous segment drilled is near by and we are 'side-tracking'
+    if (oldPathPoint && 
+        dist(pos.x, pos.y, oldPathPoint[0].x, oldPathPoint[0].y) < 1.5){
+      sideTrackCount++;
+      console.log("Side-track count" + sideTrackCount);
+    } //else {
+    startCount++;
+    console.log("Start count" + startCount);
+  } else if (state == 'DRILLING') {
+    state = 'PAUSED';
+  } else if (state == 'WIN' || state == 'LOSE') {
+    currentSeed = Math.floor(Math.random() * 999998)+1;
+    updateDivWithLinkToThisLevel();
+    randomSeed(currentSeed);
+    startDrill();
+  }
+  updateStartButtonText();
+}
+
+function pullBack() {
+  if (state == "PAUSED" || state == "DRILLING" || state == "STUCK") {
+    state = 'PAUSED';
+    let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
+    if (prevPosition > 0) {
+      oldPaths.push(path.slice(prevPosition));
+      path = path.slice(0, prevPosition);
+      pathPosition = path.length - 1;
+      pos = path[pathPosition][0].copy();
+      dir = path[pathPosition][1].copy();
+    }
+    updateStartButtonText();
+  }
+}
+
+function touchStarted() {
+  // ellipse(mouseX, mouseY, 5, 5);
+  if (mouseY > height || mouseX < 0 || mouseX > width){
+    return true;
+  }
+  else if (mouseX <= machineWidth && 
+      mouseY <= groundLevel &&
+      mouseY >= groundLevel - machineHeight){
+    startStopAction();
+  }
+  else{
+    toggleBias();
+  }
+  // prevent default
+  return false;
+}
+
 function keyPressed() {
+  // TODO reformat to a single function
   if (key == " ") {
     toggleBias();
-  } else if (keyCode == ESCAPE) {
-    if (state == "WIN" || state == "LOSE") {
-      startDrill();
-    } else if (state == "PAUSED") {
-      state = "DRILLING";
-    } else {
-      state = "PAUSED";
-    }
-    // Update the button text
-    updateStartButtonText();
+  } else if (keyCode == ESCAPE || keyCode == RETURN || keyCode == ENTER) {
+    startStopAction();
   } else if (keyCode == BACKSPACE) {
     pullBack();
   }
@@ -216,6 +275,8 @@ function startDrill() {
   oldPaths = [];
   pathPosition = -1;
   stuckCount = 0;
+  startCount = 0;
+  sideTrackCount = 0;
   boulders = [];
   bias = 1;
   state = 'PAUSED';
@@ -243,73 +304,64 @@ function updateStartButtonText() {
     startButton.html('drill');
   } 
   if (state == "WIN" || state == "LOSE") {
-    startButton.html("try again");
-  }
-}
-
-function pullBack() {
-  if (state == "PAUSED" || state == "DRILLING" || state == "STUCK") {
-    state = 'PAUSED';
-    let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
-    if (prevPosition > 0) {
-      oldPaths.push(path.slice(prevPosition));
-      path = path.slice(0, prevPosition);
-      pathPosition = path.length - 1;
-      pos = path[pathPosition][0].copy();
-      dir = path[pathPosition][1].copy();
-    }
-    updateStartButtonText();
+    startButton.html("new game");
   }
 }
 
 function setup() {
   // Let's begin!
-  createCanvas(600, 400);
+  canvas = createCanvas(600, 400);
+  // canvas.touchStarted(sceneOnTouchStarted);
   // frameRate(10);
 
   // Handle the start and stop button
-  startButton = createButton('start').mousePressed(function () {
-    if (state == 'PAUSED' || state == 'STUCK') {
-      state = 'DRILLING';
-      this.html('pause');
-    } else if (state == 'DRILLING') {
-      state = 'PAUSED';
-      this.html('drill');
-    } else if (state == 'WIN' || state == 'LOSE') {
-      currentSeed = Math.floor(Math.random() * 999998)+1;
-      updateDivWithLinkToThisLevel();
-      randomSeed(currentSeed);
-      startDrill();
-    }
-    updateStartButtonText();
-  });
+  startButton = createButton('start').mousePressed(startStopAction);
 
-  pullBackButton = createButton('pull back');
-  pullBackButton.mousePressed(
-    function(){
-      pullBack();
-    }
-  );
+    // Handle the toggle bias button
+    createButton("toggle bias").mousePressed(function () {
+        toggleBias();
+    });
 
-  // Handle the toggle bias button
-  createButton('toggle bias').mousePressed(function () {
-    toggleBias();
-  });
+    pullBackButton = createButton("pull back");
+    pullBackButton.mousePressed(function () {
+        pullBack();
+    });
 
-  // A slider for adding some randomness (in %)
-  createSpan('randomness: ').id('slider-label');
-  randomSlider = createSlider(0, 100, 50, 0.5);
-  // createSpan('direction: ');  
-  // direcitonSlider = createSlider(-1, 1, 1, 2);
+    // A slider for adding some randomness (in %)
 
-  // A button for previewing aiming bounds
-  aimingCheckbox = createCheckbox('Steering Aim', true).id("steer-lim-box");
-  fogCheckbox = createCheckbox('Fog of uncertainty', true).id("fog-box");
+    const slider = document.createElement("input");
+    slider.setAttribute("id", "rand-slider");
+    slider.setAttribute("type", "range");
+    slider.setAttribute("min", "0");
+    slider.setAttribute("max", "100");
+    slider.setAttribute("value", "50");
+    slider.setAttribute("step", "0.5");
+    const sliderLabel = document.createElement("label");
+    sliderLabel.innerHTML = "randomness: ";
+    sliderLabel.setAttribute("for", "rand-slider");
+    const sliderContainer = document.createElement("div");
+    sliderContainer.setAttribute("id", "rand-slider-container");
+    sliderContainer.appendChild(sliderLabel);
+    sliderContainer.appendChild(slider);
+    document.querySelector("body").appendChild(sliderContainer);
 
-  createDiv('<a href="instructions/instructions-slide.png">Visual instructions</a>')
-  createDiv('Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Rishi; tyomka896 <a href="LICENSE.md">MIT License</a>');
-  
-  let params = getURLParams();
+    randomSlider = document.getElementById("rand-slider");
+
+    // createSpan('direction: ');
+    // direcitonSlider = createSlider(-1, 1, 1, 2);
+
+    // A button for previewing steering bounds for aiming (@Denisovich I insist on the "limits")
+    aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
+    fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
+
+    createDiv(
+        '<a href="instructions/instructions-slide.png">Visual instructions</a>'
+    ).id("visual-instructions");
+    createDiv(
+        'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
+    ).id("copyright");
+
+    let params = getURLParams();
   if (params) {
     if (params["seed"]) {
       currentSeed = params["seed"];
@@ -317,10 +369,11 @@ function setup() {
     }
   }
   if (!currentSeed) {
-    currentSeed = Math.floor(Math.random() * 999999);
+    currentSeed = Math.floor(Math.random() * 999998)+1;
+    randomSeed(currentSeed);
   }
 
-  seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>');
+  seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>').id('seed-div');
   updateDivWithLinkToThisLevel();
 
   machineBack = loadImage('assets/drilling-machine-small.png');
@@ -331,11 +384,18 @@ function setup() {
 
 // One drill step
 function drill() {
+  // update bias based on mouse input 
+  // scrapped for now
+  // if (mouseY < pos.y){
+  //   bias = -1;
+  // } else{
+  //   bias = 1;
+  // }
 
   dir.rotate(angle * bias);
 
   // Add some randomness
-  const randomFactor = randomSlider.value();
+  const randomFactor = randomSlider.value;
   const r = (random(-randomFactor, 0) * angle * bias) / 100;
   dir.rotate(r);
 
@@ -355,7 +415,7 @@ function drill() {
   pos.add(dir);
   if (pos.x < 0 || pos.x > width || pos.y > height) {
     state = 'LOSE';
-    startButton.html('try again');
+    updateStartButtonText();
   }
 
   // Get pixel color under drill
@@ -368,7 +428,7 @@ function drill() {
   // Green you win!
   if (c == goalColor.toString()) {
     state = 'WIN';
-    startButton.html('try again');
+    updateStartButtonText();
     // Anything else not the ground color you lose!
   } else if (c == boulderColor.toString()) {
     state = 'STUCK';
@@ -383,7 +443,7 @@ function drill() {
     c == boundaryColor.toString()
   ) {
     state = 'LOSE';
-    startButton.html('try again');
+    updateStartButtonText();
   }
 }
 
@@ -406,7 +466,6 @@ function drawReflection(reflectionImage) {
 function computeReflextionTimeSinglePoint(x0, x1) {
   let minArrivalDist = height * 2;
   //const maxSteps = height * 2;
-  console.log('point '+ x0);
   for (let j = 0; j < boulders.length; j++) {
     for (let i = 0; i < 360; i+= 10) {
       // looping angles on the boulder
@@ -421,7 +480,6 @@ function computeReflextionTimeSinglePoint(x0, x1) {
       let totalDist = distDown + distUp;
       if (totalDist < minArrivalDist) {
         minArrivalDist = totalDist;
-        console.log('boulder '+ boulderPoint);
       }
     }
   }
@@ -462,8 +520,71 @@ function drawSurfacePipe() {
   pop();
 }
 
+function padNumber(num){
+  return String(num).padStart(5, ' ')
+}
+
+function drawEndGameStatsAtY(textY){
+  textAlign(RIGHT, TOP);
+  noStroke();
+  fill(255);
+  textFont('courier-bold');
+  const fontSize = 24;
+  const textX = width - fontSize;
+  textSize(fontSize);
+  
+  let reward = 0;
+  if (state == "WIN"){
+    reward = 5000;
+    text(`mission reward = ${padNumber(reward)}+`, textX, textY);
+  } else {
+    reward = 1000;
+    text(`partial reward = ${padNumber(reward)}+`, textX, textY);
+  }
+  textY += fontSize;
+  if (state == "WIN"){
+    text(`final pipe length = ${padNumber(path.length)}-`, textX, textY);
+    reward -= path.length;
+  } else{
+    let remainingDistance = Math.ceil(dist(pos.x, pos.y, goal.x + goal.w/2, groundLevel));
+    text(`remaining distance = ${padNumber(remainingDistance)}-`, textX, textY);
+    reward -= remainingDistance;
+  }
+  textY += fontSize;
+
+  let length = path.length;
+  for (let oldPath of oldPaths) {
+    length += oldPath.length;
+  }
+  text(`drilled length = ${padNumber(length)}-`, textX, textY);
+  reward -= length;
+  
+  textY += fontSize;
+  const startMult = Math.ceil(pipeLength/40) * 10;
+  let startCost = startCount * startMult;
+  text(`starts: ${startCount} *${startMult} = ${padNumber(startCost)}-`, textX, textY);
+  reward -= startCost;
+
+  textY += fontSize;
+  const sideTrackMult = Math.ceil(pipeLength/20) * 10;
+  let sideTrackCost = sideTrackCount * sideTrackMult;
+  text(`side-tracks: ${sideTrackCount} *${sideTrackMult} = ${padNumber(sideTrackCost)}-`, textX, textY);
+  reward -= sideTrackCost;
+
+  textY += fontSize;
+  const stuckMult = Math.ceil(pipeLength/50) * 50;
+  let stuckCost = stuckCount * stuckMult;
+  text(`stuck count: ${stuckCount} *${stuckMult} = ${padNumber(stuckCost)}-`, textX, textY);
+  reward -= stuckCost;
+
+  textY += fontSize * 1.5;
+  text(`FINAL SCORE = ${padNumber(reward)} `, textX, textY);
+  return reward;
+}
+
 // Draw loop
 function draw() {
+
   // Dril!
   if (state == "DRILLING") drill();
 
@@ -520,7 +641,7 @@ function draw() {
     stroke(125);
     strokeWeight(1);
     noFill();
-    const maxAimAngle = QUARTER_PI * 1.2;
+    const maxAimAngle = QUARTER_PI * 1.8;
     arc(
       0,
       -turnCircleRadius,
@@ -551,7 +672,9 @@ function draw() {
   line(0, 0, 10, 0);
   pop();
 
-  if (state == "CONNECTION") {
+  // circle(xTouch, yTouch, 10);
+
+  if (state == "CONNECTION"){
     textAlign(CENTER, TOP);
     noStroke();
     fill(255);
@@ -573,39 +696,37 @@ function draw() {
     text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', width / 2, groundLevel / 2);
   }
 
+  if (state != "DRILLING"){
+    textAlign(LEFT, TOP);
+    noStroke();
+    fill(255);
+    textSize(16);
+    textFont('courier');
+    text('Click the machine \nto start / pause', 3, 3);
+    text('Click anywehere else\nto toggle bias', width/2, 3)
+  }
+
+
   // If you've lost!
   if (state == 'LOSE') {
     background(255, 0, 0, 150);
-    textAlign(CENTER, CENTER);
+    textAlign(CENTER, TOP);
     noStroke();
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    text('YOU LOSE', width / 2, height / 2);
-    textSize(24);
-    let length = path.length;
-    for (let oldPath of oldPaths) {
-      length += oldPath.length;
-    }
-    text(`drilling length: ${length}`, width / 2, height / 2 + 96);
-    text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 24);
-    // If you've won!
-  } else if (state == 'WIN') {
+    text('YOU LOSE', width / 2, groundLevel);
+    drawEndGameStatsAtY(groundLevel + 96);
+  } // If you've won!
+  else if (state == 'WIN') {
     background(0, 255, 0, 150);
-    textAlign(CENTER, CENTER);
+    textAlign(CENTER, TOP);
     noStroke();
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    text('YOU WIN', width / 2, height / 2);
-    textSize(24);
+    text('YOU WIN', width / 2, groundLevel);
     // Starting idea for a score
-    let length = path.length;
-    for (let oldPath of oldPaths) {
-      length += oldPath.length;
-    }
-    text(`drilling length: ${length}`, width / 2, height / 2 + 96);
-    text(`pipe length: ${path.length}`, width / 2, height / 2 + 96 + 24);
-    text(`stuck count: ${stuckCount}`, width / 2, height / 2 + 96 + 24 + 24);
+    drawEndGameStatsAtY(groundLevel + 96);
   }
 }
