@@ -7,6 +7,7 @@
 
 // Play the simulator: https://codingtrain.github.io/Directional-Boring/
 
+
 // Vectors for current position and direction
 let pos, dir;
 // Bias of current drill (up or down, 1 or -1)
@@ -71,6 +72,7 @@ let startButton;
 let aimingCheckbox;
 let fogCheckbox;
 let randomSlider;
+let controlCheckbox;
 // let direcitonSlider;
 let pullBackButton;
 
@@ -353,6 +355,7 @@ function setup() {
     // A button for previewing steering bounds for aiming (@Denisovich I insist on the "limits")
     aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
     fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
+    controlCheckbox = createCheckbox("Display controls", true).id("control-box");
 
     createDiv(
         '<a href="instructions/instructions-slide.png">Visual instructions</a>'
@@ -695,15 +698,18 @@ function draw() {
     textFont('courier');
     text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', width / 2, groundLevel / 2);
   }
+   
 
-  if (state != "DRILLING"){
+  if (state != "DRILLING" && controlCheckbox.checked()){
     textAlign(LEFT, TOP);
     noStroke();
     fill(255);
     textSize(16);
     textFont('courier');
     text('Click the machine \nto start / pause', 3, 3);
-    text('Click anywehere else\nto toggle bias', width/2, 3)
+    text('Click anywhere \nto toggle bias', 3, 360);
+    text('Enter = start/pause \nSpace = toggle bias', width/3, 3);
+    text('Back = pull back \nShift = future use', width/1.45, 3);
   }
 
 
