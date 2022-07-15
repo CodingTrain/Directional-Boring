@@ -80,6 +80,11 @@ button:hover{
   grid-row: 3 / 4;
 }
 
+#control-box {
+  grid-column : 2 / 3;
+  grid-row : 4 / 5;
+}  
+
 #visual-instructions {
   grid-row: 4 / 5; 
   grid-column: 1 / 2;
