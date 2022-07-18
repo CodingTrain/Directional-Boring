@@ -44,6 +44,7 @@ const goalColor = [252, 238, 33];
 const surfacePipeColor = [103, 88, 76];
 const dirtLayers = 7;
 let connectionCountDown = 0;
+let deltaSpeed = 1;
 
 // simulations constants
 const angle = 0.01;
@@ -66,14 +67,19 @@ let hddScene;
 let fogOfUncertinty;
 let reflections;
 
+// Buttons
 // Button to start
 let startButton;
+let pullBackButton;
+let toggleButton;
+
+// Checkboxes
 let aimingCheckbox;
 let fogCheckbox;
-let randomSlider;
-// let direcitonSlider;
-let pullBackButton;
 
+// Sliders
+let randomSlider;
+let speedSlider;
 
 function setGradient(image, x, y, w, h, c1, c2, axis) {
   image.noFill();
@@ -318,7 +324,7 @@ function setup() {
   startButton = createButton('start').mousePressed(startStopAction);
 
     // Handle the toggle bias button
-    createButton("toggle bias").mousePressed(function () {
+  toggleButton = createButton("toggle bias").mousePressed(function () {
         toggleBias();
     });
 
