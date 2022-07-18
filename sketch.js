@@ -675,12 +675,12 @@ function draw() {
   // circle(xTouch, yTouch, 10);
 
   if (state == "CONNECTION"){
-    textAlign(CENTER, TOP);
-    noStroke();
-    fill(255);
-    textSize(24);
-    textFont('courier');
-    text('*pipe handling*', width / 2, groundLevel / 2);
+    // textAlign(CENTER, TOP);
+    // noStroke();
+    // fill(255);
+    // textSize(24);
+    // textFont('courier');
+    // text('*pipe handling*', width / 2, groundLevel / 2);
     connectionCountDown--;
     if (connectionCountDown <= 0) {
       state = "DRILLING";
@@ -696,7 +696,7 @@ function draw() {
     text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', width / 2, groundLevel / 2);
   }
 
-  if (state != "DRILLING"){
+  if (state != "DRILLING" && state != "CONNECTION"){
     textAlign(LEFT, TOP);
     noStroke();
     fill(255);
