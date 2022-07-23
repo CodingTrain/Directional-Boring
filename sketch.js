@@ -68,6 +68,7 @@ let turnAngleCurSpeed = turnAnglePerPixel;
 let pipeLengthSteps = pipeLengthPixels;
 
 // playback string undefined
+let playback = undefined;
 
 // Pixel map for scene
 let hddScene;
@@ -141,6 +142,7 @@ function startStopAction(){
     state = 'PAUSED';
   } else if (state == 'WIN' || state == 'LOSE') {
     currentSeed = Math.floor(Math.random() * 999998)+1;
+    playback = undefined;
     updateDivWithLinkToThisLevel();
     randomSeed(currentSeed);
     startDrill();
@@ -427,6 +429,9 @@ function setup() {
       currentSeed = params["seed"];
       randomSeed(currentSeed);
     }
+    if (params["sol"]) {
+      playback = stringToBias(params["sol"]);
+    }
   }
   if (!currentSeed) {
     currentSeed = Math.floor(Math.random() * 999998)+1;
@@ -451,6 +456,13 @@ function drill() {
   // } else{
   //   bias = 1;
   // }
+  if (playback){
+    let decisionNumber = path.length;
+    bias = playback[decisionNumber];
+    if (bias == 0){
+      bias = -1;
+    }
+  }
   dir.rotate(turnAngleCurSpeed * bias);
   // Add some randomness
   const randomFactor = randomSlider.value;
