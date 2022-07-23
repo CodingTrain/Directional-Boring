@@ -44,15 +44,14 @@ const goalColor = [252, 238, 33];
 const surfacePipeColor = [103, 88, 76];
 const dirtLayers = 7;
 let connectionCountDown = 0;
-let deltaSpeed = 1;
 
 // simulations constants
-const angle = 0.01;
+const turnAnglePerPixel = 0.01;
 const startingAngle = 0.2967; // that is 17 degrees 
 const machineWidth = 80;
 const machineHeight = machineWidth * 9 / 16; // proportions according to the image
 const pipeLengthMult = 0.87688219663; // relative to drilling machine width
-const pipeLength = Math.floor(pipeLengthMult * machineWidth)- 2; // -2 accounts for the rounding of the pipe
+const pipeLengthPixels = Math.floor(pipeLengthMult * machineWidth)- 2; // -2 accounts for the rounding of the pipe
 
 const startingDepth = 2;
 const startingX = 90;
@@ -61,6 +60,12 @@ const pipeOffset = 22;
 const maxStuckTimes = 3;
 
 const verticalPipeMovement = 5; // this is used to initialize the connection time
+
+// values related to current game speed;
+let stepMult = 1;
+let deltaSpeedCurGame = 1;
+let turnAngleCurSpeed = turnAnglePerPixel;
+let pipeLengthSteps = pipeLengthPixels;
 
 // Pixel map for scene
 let hddScene;
@@ -79,7 +84,10 @@ let fogCheckbox;
 
 // Sliders
 let randomSlider;
-let speedSlider;
+let speedSliderP5;
+
+// label
+let speedLabel;
 
 function setGradient(image, x, y, w, h, c1, c2, axis) {
   image.noFill();
@@ -141,7 +149,7 @@ function startStopAction(){
 function pullBack() {
   if (state == "PAUSED" || state == "DRILLING" || state == "STUCK") {
     state = 'PAUSED';
-    let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
+    let prevPosition = Math.floor((pathPosition - 1) / pipeLengthSteps) * pipeLengthSteps;
     if (prevPosition > 0) {
       oldPaths.push(path.slice(prevPosition));
       path = path.slice(0, prevPosition);
@@ -273,10 +281,24 @@ function createReflections() {
   drawReflection(reflections);
 }
 
+function recomputeDrillingConstants(){
+  // computing speed-related constants
+  stepMult = -speedSliderP5.value();
+  speedLabel.html("Game speed: 1/" + stepMult);
+  deltaSpeedCurGame = 1 / stepMult;
+  turnAngleCurSpeed = turnAnglePerPixel * deltaSpeedCurGame;
+  pipeLengthSteps = pipeLengthPixels * stepMult;
+
+  // reseting the bit postion and steering
+  pos = createVector(startingX, groundLevel + startingDepth);
+  dir = p5.Vector.fromAngle(startingAngle, deltaSpeedCurGame);
+}
+
 // Reset the initial state
 function startDrill() {
-  pos = createVector(startingX, groundLevel + startingDepth);
-  dir = p5.Vector.fromAngle(startingAngle);
+  recomputeDrillingConstants();
+
+  // rest of the setup
   path = [];
   oldPaths = [];
   pathPosition = -1;
@@ -289,7 +311,7 @@ function startDrill() {
   startButton.html('start');
 
   // Related circle size
-  const turnCircleLen = (PI * 2) / angle;
+  const turnCircleLen = (PI * 2) / turnAnglePerPixel;
   turnCircleRadius = turnCircleLen / PI / 2;
   
 
@@ -317,6 +339,10 @@ function updateStartButtonText() {
 function setup() {
   // Let's begin!
   canvas = createCanvas(600, 400);
+  // setting frame rate in case it is not set
+  // and it goes crazy on screen with variable refresh rate
+  frameRate(60);
+
   // canvas.touchStarted(sceneOnTouchStarted);
   // frameRate(10);
 
@@ -352,6 +378,25 @@ function setup() {
     document.querySelector("body").appendChild(sliderContainer);
 
     randomSlider = document.getElementById("rand-slider");
+    // TODO fix the slider to P5 slider
+    // slider.changed(() => {
+    //   sliderLabel.html("Randomness: " + randomSlider.value + "%");
+    // });
+
+    // TODO fix speed slider group
+    const speedDiv = document.createElement("div");
+    let startingSpeed = 100;
+    speedLabel = createElement('label', "Game speed: 1/1");
+    speedSliderP5 = createSlider(-10, -1, startingSpeed, -1);
+    speedSliderP5.changed(() => {
+      speedLabel.html("Next game speed: 1/" + -speedSliderP5.value());
+      if (path.length == 0){
+        recomputeDrillingConstants();
+      }
+    });
+
+    // speedDiv.appendChild(speedLabel);
+    // speedDiv.appendChild(speedSlider);
 
     // createSpan('direction: ');
     // direcitonSlider = createSlider(-1, 1, 1, 2);
@@ -398,11 +443,10 @@ function drill() {
   //   bias = 1;
   // }
 
-  dir.rotate(angle * bias);
-
+  dir.rotate(turnAngleCurSpeed * bias);
   // Add some randomness
   const randomFactor = randomSlider.value;
-  const r = (random(-randomFactor, 0) * angle * bias) / 100;
+  const r = (random(-randomFactor, 0) * turnAngleCurSpeed * bias) / 100;
   dir.rotate(r);
 
 
@@ -410,7 +454,7 @@ function drill() {
   // Save previous position
   path.push([pos.copy(), dir.copy()]);
   pathPosition = path.length - 1;
-  if (path.length % pipeLength == 0) {
+  if (path.length % pipeLengthSteps == 0) {
     state = "CONNECTION";
     connectionCountDown = verticalPipeMovement;
   }
@@ -507,7 +551,7 @@ function computeReflextionTimeSinglePoint(x0, x1) {
 }
 
 function drawSurfacePipe() {
-  let visibleLength = pipeLength - path.length % pipeLength + pipeOffset;
+  let visibleLength = pipeLengthPixels - path.length % pipeLengthSteps * deltaSpeedCurGame + pipeOffset;
   push();
   translate(startingX, groundLevel + startingDepth);
   rotate(startingAngle);
@@ -515,7 +559,7 @@ function drawSurfacePipe() {
   stroke(surfacePipeColor);
   if (state == "CONNECTION") {
     // loading the pipe 
-    line(-pipeLength-pipeOffset, -connectionCountDown, -pipeOffset, -connectionCountDown);
+    line(-pipeLengthPixels - pipeOffset, -connectionCountDown, -pipeOffset, -connectionCountDown);
     line(-pipeOffset, 0, 0, 0);
   } else {
     line(-visibleLength, 0, 0, 0);
@@ -565,20 +609,22 @@ function drawEndGameStatsAtY(textY){
   text(`drilled length = ${padNumber(length)}-`, textX, textY);
   reward -= length;
   
+  // TODO fix end-game stats
+
   textY += fontSize;
-  const startMult = Math.ceil(pipeLength/40) * 10;
+  const startMult = Math.ceil(pipeLengthPixels/40) * 10;
   let startCost = startCount * startMult;
   text(`starts: ${startCount} *${startMult} = ${padNumber(startCost)}-`, textX, textY);
   reward -= startCost;
 
   textY += fontSize;
-  const sideTrackMult = Math.ceil(pipeLength/20) * 10;
+  const sideTrackMult = Math.ceil(pipeLengthPixels/20) * 10;
   let sideTrackCost = sideTrackCount * sideTrackMult;
   text(`side-tracks: ${sideTrackCount} *${sideTrackMult} = ${padNumber(sideTrackCost)}-`, textX, textY);
   reward -= sideTrackCost;
 
   textY += fontSize;
-  const stuckMult = Math.ceil(pipeLength/50) * 50;
+  const stuckMult = Math.ceil(pipeLengthPixels/50) * 50;
   let stuckCost = stuckCount * stuckMult;
   text(`stuck count: ${stuckCount} *${stuckMult} = ${padNumber(stuckCost)}-`, textX, textY);
   reward -= stuckCost;
@@ -592,11 +638,15 @@ function drawEndGameStatsAtY(textY){
 function draw() {
 
   // Dril!
-  if (state == "DRILLING") drill();
+  if (state == "DRILLING"){ 
+    // frameRate(60); for the setting correct frame rate depending on the state in the future
+    drill();
+  }
+
 
   // Draw the scene
   image(hddScene, 0, 0);
-  if (!(state == "WIN" || state == "LOSE")  && fogCheckbox.checked()) {
+  if (!(state == "WIN" || state == "LOSE") && fogCheckbox.checked()) {
     blendMode(MULTIPLY);
     image(fogOfUncertinty, 0, 0);
     blendMode(BLEND);
@@ -678,6 +728,15 @@ function draw() {
   line(0, 0, 10, 0);
   pop();
 
+  // show frame rate
+  textAlign(LEFT, TOP);
+  noStroke();
+  fill(255);
+  textSize(24);
+  textFont('courier');
+  // let frameRateObserved = getFrameRate();
+  // text('Framerate ' +  Math.round(frameRateObserved/10) * 10, 10, height - 24);
+  // debug information for location
   // circle(xTouch, yTouch, 10);
 
   if (state == "CONNECTION"){
@@ -687,7 +746,7 @@ function draw() {
     // textSize(24);
     // textFont('courier');
     // text('*pipe handling*', width / 2, groundLevel / 2);
-    connectionCountDown--;
+    connectionCountDown -= deltaSpeedCurGame;
     if (connectionCountDown <= 0) {
       state = "DRILLING";
     }
@@ -711,7 +770,6 @@ function draw() {
     text('Click the machine \nto start / pause', 3, 3);
     text('Click anywehere else\nto toggle bias', width/2, 3)
   }
-
 
   // If you've lost!
   if (state == 'LOSE') {
