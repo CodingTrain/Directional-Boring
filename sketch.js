@@ -545,6 +545,8 @@ function drill() {
     stuckCount++;
     if (stuckCount >= maxStuckTimes) {
       state = 'LOSE';
+    }else if (playback){
+      state = 'DRILLING';
     }
     updateStartButtonText();
   } else if (
