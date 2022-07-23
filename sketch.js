@@ -67,6 +67,8 @@ let deltaSpeedCurGame = 1;
 let turnAngleCurSpeed = turnAnglePerPixel;
 let pipeLengthSteps = pipeLengthPixels;
 
+// playback string undefined
+
 // Pixel map for scene
 let hddScene;
 let fogOfUncertinty;
@@ -324,6 +326,12 @@ function updateDivWithLinkToThisLevel() {
   seedDiv.html('<a href="?seed='+currentSeed+'">Persistent link to THIS level</a>');
 }
 
+function updateDivWithLinkToThisSolution() {
+  let solution = pathToString();
+  seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Persistent link to THIS level</a>');
+}
+
+// todo note, this funciton now also updates dharable link
 function updateStartButtonText() {
   if (state == 'DRILLING' || state == 'CONNECTION') {
     startButton.html('pause');
@@ -332,6 +340,7 @@ function updateStartButtonText() {
     startButton.html('drill');
   } 
   if (state == "WIN" || state == "LOSE") {
+    updateDivWithLinkToThisSolution();
     startButton.html("new game");
   }
 }
@@ -442,7 +451,6 @@ function drill() {
   // } else{
   //   bias = 1;
   // }
-
   dir.rotate(turnAngleCurSpeed * bias);
   // Add some randomness
   const randomFactor = randomSlider.value;
@@ -452,7 +460,7 @@ function drill() {
 
   // Drilling mode
   // Save previous position
-  path.push([pos.copy(), dir.copy()]);
+  path.push([pos.copy(), dir.copy(), bias]);
   pathPosition = path.length - 1;
   if (path.length % pipeLengthSteps == 0) {
     state = "CONNECTION";
@@ -574,6 +582,43 @@ function padNumber(num){
   return String(Math.round(num)).padStart(5, ' ')
 }
 
+function pathToString(){
+  let sequence = "";
+  // go each 8 bit
+  for (let i = 0; i*8<path.length; ++i){
+    // compute 8-bit number
+    let number = 0;
+    let mult = 1;
+    for (let j = 0; j<8; ++j){
+      if (i*8+j < path.length){
+        let bias = path[i*8+j][2];
+        if (bias > 0){
+          number += mult * bias;
+        }
+        mult *= 2;
+      }
+    }
+    // add 8-bit number to sttring
+    sequence += String.fromCharCode(number);
+  }
+  // btoa encodes string to URL string
+  return btoa(sequence);
+}
+
+function stringToBias(urlstr){
+  // atob decodes from url string
+  let arrayFromStr = Array.from(atob(urlstr));
+  let biasArray = [];
+  for (let i=0; i<arrayFromStr.length; ++i){
+    let curNumber = arrayFromStr[i].charCodeAt(0);
+    for (let j=0; j<8; ++j){
+      biasArray.push(curNumber % 2);
+      curNumber = Math.floor(curNumber / 2);
+    }
+  }
+  return biasArray;
+}
+
 function drawEndGameStatsAtY(textY){
   textAlign(RIGHT, TOP);
   noStroke();
@@ -633,6 +678,10 @@ function drawEndGameStatsAtY(textY){
 
   textY += fontSize * 1.5;
   text(`FINAL SCORE = ${padNumber(reward)} `, textX, textY);
+
+  let compressedString = pathToString();
+  let restoredBias = stringToBias(compressedString);
+
   return reward;
 }
 
