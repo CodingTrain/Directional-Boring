@@ -69,6 +69,7 @@ let pipeLengthSteps = pipeLengthPixels;
 
 // playback string undefined
 let playback = undefined;
+let suplementary = undefined;
 
 // Pixel map for scene
 let hddScene;
@@ -143,6 +144,7 @@ function startStopAction(){
   } else if (state == 'WIN' || state == 'LOSE') {
     currentSeed = Math.floor(Math.random() * 999998)+1;
     playback = undefined;
+    suplementary = undefined;
     updateDivWithLinkToThisLevel();
     randomSeed(currentSeed);
     startDrill();
@@ -330,7 +332,37 @@ function updateDivWithLinkToThisLevel() {
 
 function updateDivWithLinkToThisSolution() {
   let solution = pathToString();
-  seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Persistent link to THIS level</a>');
+  let suplementaryScoringInformation = encodeSuplementaryScoringInformation();
+  seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'&sup='+suplementaryScoringInformation+'">Persistent link to THIS level</a>');
+}
+
+function encodeSuplementaryScoringInformation(){
+  let length = path.length;
+  for (let oldPath of oldPaths) {
+    length += oldPath.length;
+  }
+  length *= deltaSpeedCurGame; // accouning for drilling speed
+  length = Math.round(length);
+
+  let suplementaryScoringInformation = 
+    String.fromCharCode(Math.floor(length/256)) +
+    String.fromCharCode(length % 256) +
+    String.fromCharCode(startCount) + 
+    String.fromCharCode(sideTrackCount)+ 
+    String.fromCharCode(stuckCount);
+  return btoa(suplementaryScoringInformation);
+}
+
+function decodeSuplementaryScoringInformation(info){
+  let decoded = atob(info);
+  let kpis = [];
+  let totalLength = decoded.charCodeAt(0);
+  totalLength = totalLength * 256 + decoded.charCodeAt(1);
+  kpis.push(totalLength);
+  kpis.push(decoded.charCodeAt(2));
+  kpis.push(decoded.charCodeAt(3));
+  kpis.push(decoded.charCodeAt(4));
+  return kpis;
 }
 
 // todo note, this funciton now also updates dharable link
@@ -432,6 +464,9 @@ function setup() {
     if (params["sol"]) {
       playback = stringToBias(params["sol"]);
     }
+    if (params["sup"]){
+      suplementary = params["sup"];
+    }
   }
   if (!currentSeed) {
     currentSeed = Math.floor(Math.random() * 999998)+1;
@@ -463,6 +498,9 @@ function drill() {
       if (bias == 0){
         bias = -1;
       }
+    }else{
+      state = "LOSE";
+
     }
   }
   dir.rotate(turnAngleCurSpeed * bias);
@@ -662,11 +700,19 @@ function drawEndGameStatsAtY(textY){
   }
   textY += fontSize;
 
+  let kpis = undefined;
+  if (suplementary){
+    kpis = decodeSuplementaryScoringInformation(suplementary);
+  }
+
   let length = path.length;
   for (let oldPath of oldPaths) {
     length += oldPath.length;
   }
   length *= deltaSpeedCurGame; // accouning for drilling speed
+  if (kpis){
+    length = kpis[0];
+  }
   text(`drilled length = ${padNumber(length)}-`, textX, textY);
   reward -= length;
   
@@ -674,18 +720,27 @@ function drawEndGameStatsAtY(textY){
 
   textY += fontSize;
   const startMult = Math.ceil(pipeLengthPixels/40) * 10;
+  if (kpis){
+    startCount = kpis[1];
+  }
   let startCost = startCount * startMult;
   text(`starts: ${startCount} *${startMult} = ${padNumber(startCost)}-`, textX, textY);
   reward -= startCost;
 
   textY += fontSize;
   const sideTrackMult = Math.ceil(pipeLengthPixels/20) * 10;
+  if (kpis){
+    sideTrackCount = kpis[2];
+  }
   let sideTrackCost = sideTrackCount * sideTrackMult;
   text(`side-tracks: ${sideTrackCount} *${sideTrackMult} = ${padNumber(sideTrackCost)}-`, textX, textY);
   reward -= sideTrackCost;
 
   textY += fontSize;
   const stuckMult = Math.ceil(pipeLengthPixels/50) * 50;
+  if (kpis){
+    stuckCount = kpis[3];
+  }
   let stuckCost = stuckCount * stuckMult;
   text(`stuck count: ${stuckCount} *${stuckMult} = ${padNumber(stuckCost)}-`, textX, textY);
   reward -= stuckCost;
@@ -693,8 +748,8 @@ function drawEndGameStatsAtY(textY){
   textY += fontSize * 1.5;
   text(`FINAL SCORE = ${padNumber(reward)} `, textX, textY);
 
-  let compressedString = pathToString();
-  let restoredBias = stringToBias(compressedString);
+  // let compressedString = pathToString();
+  // let restoredBias = stringToBias(compressedString);
 
   return reward;
 }
