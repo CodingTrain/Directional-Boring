@@ -15,6 +15,7 @@ let bias;
 let path;
 let pathPosition;
 let oldPaths;
+let actionSequence;
 let stuckCount;
 let sideTrackCount;
 let startCount;
@@ -141,6 +142,7 @@ function startStopAction(){
     console.log("Start count" + startCount);
   } else if (state == 'DRILLING') {
     state = 'PAUSED';
+    actionSequence.push(1);
   } else if (state == 'WIN' || state == 'LOSE') {
     currentSeed = Math.floor(Math.random() * 999998)+1;
     playback = undefined;
@@ -154,6 +156,7 @@ function startStopAction(){
 
 function pullBack() {
   if (state == "PAUSED" || state == "DRILLING" || state == "STUCK") {
+    actionSequence.push(3);
     state = 'PAUSED';
     let prevPosition = Math.floor((pathPosition - 1) / pipeLengthSteps) * pipeLengthSteps;
     if (prevPosition > 0) {
@@ -306,6 +309,7 @@ function startDrill() {
 
   // rest of the setup
   path = [];
+  actionSequence = [];
   oldPaths = [];
   pathPosition = -1;
   stuckCount = 0;
@@ -509,10 +513,10 @@ function drill() {
   const r = (random(-randomFactor, 0) * turnAngleCurSpeed * bias) / 100;
   dir.rotate(r);
 
-
   // Drilling mode
   // Save previous position
   path.push([pos.copy(), dir.copy(), bias]);
+  actionSequence.push(bias+1);
   pathPosition = path.length - 1;
   if (path.length % pipeLengthSteps == 0) {
     state = "CONNECTION";
@@ -739,7 +743,7 @@ function drawEndGameStatsAtY(textY){
   reward -= sideTrackCost;
 
   textY += fontSize;
-  const stuckMult = Math.ceil(pipeLengthPixels/50) * 50;
+  const stuckMult = Math.ceil(pipeLengthPixels/10) * 10;
   if (kpis){
     stuckCount = kpis[3];
   }
