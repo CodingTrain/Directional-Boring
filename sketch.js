@@ -51,7 +51,7 @@ const startingAngle = 0.2967; // that is 17 degrees
 const machineWidth = 80;
 const machineHeight = machineWidth * 9 / 16; // proportions according to the image
 const pipeLengthMult = 0.87688219663; // relative to drilling machine width
-const pipeLengthPixels = Math.floor(pipeLengthMult * machineWidth)- 2; // -2 accounts for the rounding of the pipe
+const pipeLengthPixels = Math.floor(pipeLengthMult * machineWidth) - 2; // -2 accounts for the rounding of the pipe
 
 const startingDepth = 2;
 const startingX = 90;
@@ -571,7 +571,7 @@ function drawSurfacePipe() {
 }
 
 function padNumber(num){
-  return String(num).padStart(5, ' ')
+  return String(Math.round(num)).padStart(5, ' ')
 }
 
 function drawEndGameStatsAtY(textY){
@@ -593,8 +593,9 @@ function drawEndGameStatsAtY(textY){
   }
   textY += fontSize;
   if (state == "WIN"){
-    text(`final pipe length = ${padNumber(path.length)}-`, textX, textY);
-    reward -= path.length;
+    let drilledPathPixels = path.length*deltaSpeedCurGame;
+    text(`final pipe length = ${padNumber(drilledPathPixels)}-`, textX, textY);
+    reward -= drilledPathPixels;
   } else{
     let remainingDistance = Math.ceil(dist(pos.x, pos.y, goal.x + goal.w/2, groundLevel));
     text(`remaining distance = ${padNumber(remainingDistance)}-`, textX, textY);
@@ -606,6 +607,7 @@ function drawEndGameStatsAtY(textY){
   for (let oldPath of oldPaths) {
     length += oldPath.length;
   }
+  length *= deltaSpeedCurGame; // accouning for drilling speed
   text(`drilled length = ${padNumber(length)}-`, textX, textY);
   reward -= length;
   
