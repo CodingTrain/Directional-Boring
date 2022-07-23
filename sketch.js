@@ -458,9 +458,11 @@ function drill() {
   // }
   if (playback){
     let decisionNumber = path.length;
-    bias = playback[decisionNumber];
-    if (bias == 0){
-      bias = -1;
+    if (decisionNumber < playback.length){
+      bias = playback[decisionNumber];
+      if (bias == 0){
+        bias = -1;
+      }
     }
   }
   dir.rotate(turnAngleCurSpeed * bias);
