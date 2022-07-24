@@ -480,8 +480,6 @@ function takeAction(){
         return;
       }
       bias = playback[decisionNumber] - 1;
-    }else{
-      state = "LOSE";
     }
   }
 }
