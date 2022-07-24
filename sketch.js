@@ -340,7 +340,10 @@ function updateDivWithLinkToThisLevel() {
 function updateDivWithLinkToThisSolution() {
   let solution = actionSequenceToString();
   let restoredSequence = stringToActions(solution);
-  seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Persistent link to THIS level</a>');
+  let sol4 = actionSequenceToCondencedString();
+  let restoredSequence4 = condencedStringToActions(sol4); 
+  // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Persistent link to THIS level</a>');
+  seedDiv.html('<a href="?seed='+currentSeed+'&s4='+sol4+'">Persistent link to THIS level</a>');
 }
 
 // todo note, this funciton now also updates dharable link
@@ -439,8 +442,13 @@ function setup() {
       currentSeed = params["seed"];
       randomSeed(currentSeed);
     }
+    // using uncondenced string
     if (params["sol"]) {
       playback = stringToActions(params["sol"]);
+    }
+    // using condenced string
+    if (params["s4"]) {
+      playback = condencedStringToActions(params["s4"]);
     }
   }
   if (!currentSeed) {
@@ -653,6 +661,41 @@ function stringToBias(urlstr){
     }
   }
   return biasArray;
+}
+
+function actionSequenceToCondencedString(){
+  let sequence = "";
+  const maxLenght = 63;
+  let left = 0;
+  let right = 0;
+  while (left < actionSequence.length){
+    let command = actionSequence[left];
+    right = left + 1;
+    while (right < actionSequence.length 
+            && actionSequence[right] == command
+            && right-left < maxLenght){
+      right++;
+    }
+    let repeat = right - left;
+    let encoded = repeat * 4 + command;
+    sequence += String.fromCharCode(encoded);
+    left = right;
+  }
+  return btoa(sequence);
+}
+
+function condencedStringToActions(urlstr){
+  let arrayFromStr = Array.from(atob(urlstr));
+  let actionArray = [];
+  for (let i=0; i<arrayFromStr.length; ++i){
+    let encoded = arrayFromStr[i].charCodeAt(0);
+    let command = encoded % 4;
+    let repeat = Math.floor(encoded / 4);
+    for (let j=0; j<repeat; ++j){
+      actionArray.push(command);
+    }
+  }
+  return actionArray;
 }
 
 function actionSequenceToString(){
