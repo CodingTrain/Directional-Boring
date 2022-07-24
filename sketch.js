@@ -45,6 +45,7 @@ const goalColor = [252, 238, 33];
 const surfacePipeColor = [103, 88, 76];
 const dirtLayers = 7;
 let connectionCountDown = 0;
+let playbackCountDown = 0;
 
 // simulations constants
 const turnAnglePerPixel = 0.01;
@@ -61,6 +62,7 @@ const pipeOffset = 22;
 const maxStuckTimes = 3;
 
 const verticalPipeMovement = 5; // this is used to initialize the connection time
+const pauseTimePlayback = 25;
 
 // values related to current game speed;
 let stepMult = 1;
@@ -142,6 +144,8 @@ function startStopAction(){
   } else if (state == 'DRILLING') {
     state = 'PAUSED';
     actionSequence.push(1);
+    // initializing playback countdown in case we are in playback mode
+    playbackCountDown = pauseTimePlayback;
   } else if (state == 'WIN' || state == 'LOSE') {
     currentSeed = Math.floor(Math.random() * 999998)+1;
     playback = undefined;
@@ -156,6 +160,7 @@ function pullBack() {
   if (state == "PAUSED" || state == "DRILLING" || state == "STUCK") {
     actionSequence.push(3);
     state = 'PAUSED';
+    playbackCountDown = pauseTimePlayback;
     let prevPosition = Math.floor((pathPosition - 1) / pipeLengthSteps) * pipeLengthSteps;
     if (prevPosition > 0) {
       oldPaths.push(path.slice(prevPosition));
@@ -522,7 +527,8 @@ function drill() {
     if (stuckCount >= maxStuckTimes) {
       state = 'LOSE';
     }else if (playback){
-      state = 'DRILLING';
+      state = 'PAUSED';
+      playbackCountDown = pauseTimePlayback;
     }
     updateStartButtonText();
   } else if (
@@ -758,11 +764,10 @@ function draw() {
   }
   // in playback mode we need to take actions when paused or stuck using drill()
   if (playback){
-    if (state == "STUCK"){
-      startStopAction();
-    }else if (state == "PAUSED"){
-      // only drill once started
-      if (path.length > 0){
+    if (state == "STUCK" || (state == "PAUSED" && path.length > 0)){
+      if (playbackCountDown > 0){
+        playbackCountDown -= deltaSpeedCurGame;
+      }else{
         startStopAction();
       }
     }
