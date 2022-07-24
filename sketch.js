@@ -812,6 +812,17 @@ function draw() {
     // frameRate(60); for the setting correct frame rate depending on the state in the future
     drill();
   }
+  // in playback mode we need to take actions when paused or stuck using drill()
+  if (playback){
+    if (state == "STUCK"){
+      startStopAction();
+    }else if (state == "PAUSED"){
+      // only drill once started
+      if (path.length > 0){
+        startStopAction();
+      }
+    }
+  } 
 
 
   // Draw the scene
