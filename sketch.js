@@ -124,6 +124,7 @@ function toggleBias() {
 function startStopAction(){
   if (state == 'PAUSED' || state == 'STUCK') {
     state = 'DRILLING';
+    actionSequence.push(1);
     let prevPath = undefined;
     if (oldPaths.length > 0){
       prevPath = oldPaths[oldPaths.length - 1];
@@ -465,15 +466,7 @@ function setup() {
   startDrill();
 }
 
-// One drill step
-function drill() {
-  // update bias based on mouse input 
-  // scrapped for now
-  // if (mouseY < pos.y){
-  //   bias = -1;
-  // } else{
-  //   bias = 1;
-  // }
+function takeAction(){
   if (playback){
     let decisionNumber = actionSequence.length;
     if (decisionNumber < playback.length){
@@ -489,9 +482,12 @@ function drill() {
       bias = playback[decisionNumber] - 1;
     }else{
       state = "LOSE";
-
     }
   }
+}
+
+// One drill step
+function drill() {
   dir.rotate(turnAngleCurSpeed * bias);
   // Add some randomness
   const randomFactor = randomSlider.value;
@@ -799,22 +795,34 @@ function drawEndGameStatsAtY(textY){
 
 // Draw loop
 function draw() {
-
-  // Dril!
-  if (state == "DRILLING"){ 
-    // frameRate(60); for the setting correct frame rate depending on the state in the future
-    drill();
-  }
-  // in playback mode we need to take actions when paused or stuck using drill()
   if (playback){
     if (state == "STUCK" || (state == "PAUSED" && path.length > 0)){
       if (playbackCountDown > 0){
         playbackCountDown -= deltaSpeedCurGame;
       }else{
-        startStopAction();
+        takeAction();
       }
+    }else{
+      takeAction();
     }
-  } 
+  }
+  // Dril!
+  if (state == "DRILLING"){ 
+    // frameRate(60); for the setting correct frame rate depending on the state in the future
+    drill();
+  }
+
+  // // in playback mode we need to take actions when paused or stuck using drill()
+  // if (playback){
+  //   if (state == "STUCK" || (state == "PAUSED" && path.length > 0)){
+  //     if (playbackCountDown > 0){
+  //       playbackCountDown -= deltaSpeedCurGame;
+  //     }else{
+  //       // state = "DRILLING";
+  //       startStopAction();
+  //     }
+  //   }
+  // } 
 
 
   // Draw the scene
