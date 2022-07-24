@@ -335,9 +335,12 @@ function updateDivWithLinkToThisLevel() {
 }
 
 function updateDivWithLinkToThisSolution() {
-  let solution = pathToString();
-  let suplementaryScoringInformation = encodeSuplementaryScoringInformation();
-  seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'&sup='+suplementaryScoringInformation+'">Persistent link to THIS level</a>');
+  let solution = actionSequenceToString();
+  let restoredSequence = stringToActions(solution);
+  // let solution = pathToString();
+  // let suplementaryScoringInformation = encodeSuplementaryScoringInformation();
+  // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'&sup='+suplementaryScoringInformation+'">Persistent link to THIS level</a>');
+  seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Persistent link to THIS level</a>');
 }
 
 function encodeSuplementaryScoringInformation(){
@@ -466,11 +469,11 @@ function setup() {
       randomSeed(currentSeed);
     }
     if (params["sol"]) {
-      playback = stringToBias(params["sol"]);
+      playback = stringToActions(params["sol"]);
     }
-    if (params["sup"]){
-      suplementary = params["sup"];
-    }
+    // if (params["sup"]){
+    //   suplementary = params["sup"];
+    // }
   }
   if (!currentSeed) {
     currentSeed = Math.floor(Math.random() * 999998)+1;
@@ -496,12 +499,18 @@ function drill() {
   //   bias = 1;
   // }
   if (playback){
-    let decisionNumber = path.length;
+    let decisionNumber = actionSequence.length;
     if (decisionNumber < playback.length){
-      bias = playback[decisionNumber];
-      if (bias == 0){
-        bias = -1;
+      let action = playback[decisionNumber];
+      if (action == 1){ // pause
+        startStopAction();
+        return;
       }
+      if (action == 3){ // pull back
+        pullBack();
+        return;
+      }
+      bias = playback[decisionNumber] - 1;
     }else{
       state = "LOSE";
 
@@ -675,6 +684,41 @@ function stringToBias(urlstr){
     }
   }
   return biasArray;
+}
+
+function actionSequenceToString(){
+  let sequence = "";
+  // go each 8 bit
+  for (let i = 0; i*4<actionSequence.length; ++i){
+    // compute 8-bit number
+    let number = 0;
+    let mult = 1;
+    for (let j = 0; j<4; ++j){
+      if (i*4+j < actionSequence.length){
+        let action = actionSequence[i*4+j];
+        number += mult * action;
+        mult *= 4;
+      }
+    }
+    // add 8-bit number to sttring
+    sequence += String.fromCharCode(number);
+  }
+  // btoa encodes string to URL string
+  return btoa(sequence);
+}
+
+function stringToActions(urlstr){
+  // atob decodes from url string
+  let arrayFromStr = Array.from(atob(urlstr));
+  let actionArray = [];
+  for (let i=0; i<arrayFromStr.length; ++i){
+    let curNumber = arrayFromStr[i].charCodeAt(0);
+    for (let j=0; j<4; ++j){
+      actionArray.push(curNumber % 4);
+      curNumber = Math.floor(curNumber / 4);
+    }
+  }
+  return actionArray;
 }
 
 function drawEndGameStatsAtY(textY){
