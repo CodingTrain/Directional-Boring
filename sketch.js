@@ -124,7 +124,7 @@ function toggleBias() {
 function startStopAction(){
   if (state == 'PAUSED' || state == 'STUCK') {
     state = 'DRILLING';
-    actionSequence.push(1);
+    // actionSequence.push(1);
     let prevPath = undefined;
     if (oldPaths.length > 0){
       prevPath = oldPaths[oldPaths.length - 1];
@@ -474,12 +474,17 @@ function takeAction(){
       if (action == 1){ // pause
         startStopAction();
         return;
-      }
-      if (action == 3){ // pull back
+      }else if (action == 3){ // pull back
         pullBack();
         return;
+      } else {
+        if (decisionNumber == 0){
+          startStopAction();
+        }else if (playback[decisionNumber-1] == 1 || playback[decisionNumber-1] == 3){
+          startStopAction();
+        }
+        bias = playback[decisionNumber] - 1;
       }
-      bias = playback[decisionNumber] - 1;
     }
   }
 }
