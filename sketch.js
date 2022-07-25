@@ -963,7 +963,11 @@ function draw() {
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    text('YOU LOSE', width / 2, groundLevel);
+    if (playback){
+      text('THEY LOSE', width / 2, groundLevel);
+    }else{
+      text('YOU LOSE', width / 2, groundLevel);
+    }
     drawEndGameStatsAtY(groundLevel + 96);
   } // If you've won!
   else if (state == 'WIN') {
@@ -973,7 +977,11 @@ function draw() {
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    text('YOU WIN', width / 2, groundLevel);
+    if (playback){
+      text('THEY WIN', width / 2, groundLevel);
+    }else{
+      text('YOU WIN', width / 2, groundLevel);
+    }
     // Starting idea for a score
     drawEndGameStatsAtY(groundLevel + 96);
   }
