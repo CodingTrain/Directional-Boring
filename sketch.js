@@ -534,7 +534,12 @@ function drill() {
   // Reduce uncertainty
   fogOfUncertinty.noStroke();
   fogOfUncertinty.fill(255);
-  fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
+  // todo do not reduce uncertainty in playback mode
+  if (!playback){
+    fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
+  }else{
+    fogOfUncertinty.circle(pos.x, pos.y, goal.w);
+  }
   pos.add(dir);
   if (pos.x < 0 || pos.x > width || pos.y > height) {
     state = 'LOSE';
@@ -855,12 +860,15 @@ function draw() {
 
   // Draw the scene
   image(hddScene, 0, 0);
-  if (!(state == "WIN" || state == "LOSE") && fogCheckbox.checked()) {
+  if ((state != "WIN" || playback) && fogCheckbox.checked()) {
     blendMode(MULTIPLY);
     image(fogOfUncertinty, 0, 0);
     blendMode(BLEND);
   }
-  image(reflections, 0, 0);
+  // todo consider turning off reflections
+  if (!playback){
+    image(reflections, 0, 0);
+  }
 
   // draw the machine
   image(machineBack, 0, groundLevel - machineHeight + 2, machineWidth, machineHeight);
