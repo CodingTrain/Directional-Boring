@@ -480,7 +480,7 @@ function takeAction(){
       } else {
         if (decisionNumber == 0){
           startStopAction();
-        }else if (playback[decisionNumber-1] == 1 || playback[decisionNumber-1] == 3){
+        }else if (state == "STUCK" || state == "PAUSED"){
           startStopAction();
         }
         bias = playback[decisionNumber] - 1;
@@ -534,7 +534,7 @@ function drill() {
     if (stuckCount >= maxStuckTimes) {
       state = 'LOSE';
     }else if (playback){
-      state = 'PAUSED';
+      // state = 'PAUSED';
       playbackCountDown = pauseTimePlayback;
     }
     updateStartButtonText();
