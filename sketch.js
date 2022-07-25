@@ -121,6 +121,21 @@ function toggleBias() {
   bias *= -1;
 }
 
+// todo link a separate new game button
+function newGameAction(){
+  currentSeed = Math.floor(Math.random() * 999998)+1;
+  playback = undefined;
+  updateDivWithLinkToThisLevel();
+  randomSeed(currentSeed);
+  startDrill();
+}
+
+function startStopUserAction(){
+  if (!playback){
+    startStopAction();
+  }
+}
+
 function startStopAction(){
   if (state == 'PAUSED' || state == 'STUCK') {
     state = 'DRILLING';
@@ -148,13 +163,16 @@ function startStopAction(){
     // initializing playback countdown in case we are in playback mode
     playbackCountDown = pauseTimePlayback;
   } else if (state == 'WIN' || state == 'LOSE') {
-    currentSeed = Math.floor(Math.random() * 999998)+1;
-    playback = undefined;
-    updateDivWithLinkToThisLevel();
-    randomSeed(currentSeed);
+    // todo test
     startDrill();
   }
   updateStartButtonText();
+}
+
+function pullBackUserAction(){
+  if (!playback){
+    pullBack();
+  }
 }
 
 function pullBack() {
@@ -182,7 +200,7 @@ function touchStarted() {
   else if (mouseX <= machineWidth && 
       mouseY <= groundLevel &&
       mouseY >= groundLevel - machineHeight){
-    startStopAction();
+    startStopUserAction();
   }
   else{
     toggleBias();
@@ -196,9 +214,9 @@ function keyPressed() {
   if (key == " ") {
     toggleBias();
   } else if (keyCode == ESCAPE || keyCode == RETURN || keyCode == ENTER) {
-    startStopAction();
+    startStopUserAction();
   } else if (keyCode == BACKSPACE) {
-    pullBack();
+    pullBackUserAction();
   }
 }
 
@@ -338,16 +356,20 @@ function updateDivWithLinkToThisLevel() {
   seedDiv.html('<a href="?seed='+currentSeed+'">Persistent link to THIS level</a>');
 }
 
-function updateDivWithLinkToThisSolution() {
-  let solution = actionSequenceToString();
-  let restoredSequence = stringToActions(solution);
-  let sol4 = actionSequenceToCondencedString();
-  let restoredSequence4 = condencedStringToActions(sol4); 
-  // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Persistent link to THIS level</a>');
-  seedDiv.html('<a href="?seed='+currentSeed+'&s4='+sol4+'">Persistent link to THIS level</a>');
+function updateDivWithLinkToThisSolution(addSolution = false) {
+  // let solution = actionSequenceToString();
+  // let restoredSequence = stringToActions(solution);
+  if (addSolution){
+    let sol4 = actionSequenceToCondencedString();
+    // let restoredSequence4 = condencedStringToActions(sol4); 
+    // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Persistent link to THIS level</a>');
+    seedDiv.html('<a href="?seed='+currentSeed+'&s4='+sol4+'">Link to YOUR result</a>');
+  }else{
+    updateDivWithLinkToThisLevel();
+  }
 }
 
-// todo note, this funciton now also updates dharable link
+// todo note, this funciton now also updates sharable link
 function updateStartButtonText() {
   if (state == 'DRILLING' || state == 'CONNECTION') {
     startButton.html('pause');
@@ -356,8 +378,12 @@ function updateStartButtonText() {
     startButton.html('drill');
   } 
   if (state == "WIN" || state == "LOSE") {
-    updateDivWithLinkToThisSolution();
-    startButton.html("new game");
+    if (playback){
+      // todo only link here
+    }else{
+      updateDivWithLinkToThisSolution(true);
+      startButton.html("try again");
+    }
   }
 }
 
@@ -372,72 +398,71 @@ function setup() {
   // frameRate(10);
 
   // Handle the start and stop button
-  startButton = createButton('start').mousePressed(startStopAction);
+  // todo change to another function to check if in playback mode and ignore
+  startButton = createButton('start').mousePressed(startStopUserAction);
 
     // Handle the toggle bias button
   toggleButton = createButton("toggle bias").mousePressed(function () {
         toggleBias();
     });
+  // todo change to another function to check if in playback mode and ignore
+  pullBackButton = createButton("pull back");
+  pullBackButton.mousePressed(pullBackUserAction);
 
-    pullBackButton = createButton("pull back");
-    pullBackButton.mousePressed(function () {
-        pullBack();
-    });
+  // A slider for adding some randomness (in %)
 
-    // A slider for adding some randomness (in %)
+  const slider = document.createElement("input");
+  slider.setAttribute("id", "rand-slider");
+  slider.setAttribute("type", "range");
+  slider.setAttribute("min", "0");
+  slider.setAttribute("max", "100");
+  slider.setAttribute("value", "50");
+  slider.setAttribute("step", "0.5");
+  const sliderLabel = document.createElement("label");
+  sliderLabel.innerHTML = "randomness: ";
+  sliderLabel.setAttribute("for", "rand-slider");
+  const sliderContainer = document.createElement("div");
+  sliderContainer.setAttribute("id", "rand-slider-container");
+  sliderContainer.appendChild(sliderLabel);
+  sliderContainer.appendChild(slider);
+  document.querySelector("body").appendChild(sliderContainer);
 
-    const slider = document.createElement("input");
-    slider.setAttribute("id", "rand-slider");
-    slider.setAttribute("type", "range");
-    slider.setAttribute("min", "0");
-    slider.setAttribute("max", "100");
-    slider.setAttribute("value", "50");
-    slider.setAttribute("step", "0.5");
-    const sliderLabel = document.createElement("label");
-    sliderLabel.innerHTML = "randomness: ";
-    sliderLabel.setAttribute("for", "rand-slider");
-    const sliderContainer = document.createElement("div");
-    sliderContainer.setAttribute("id", "rand-slider-container");
-    sliderContainer.appendChild(sliderLabel);
-    sliderContainer.appendChild(slider);
-    document.querySelector("body").appendChild(sliderContainer);
+  randomSlider = document.getElementById("rand-slider");
+  // TODO fix the slider to P5 slider
+  // slider.changed(() => {
+  //   sliderLabel.html("Randomness: " + randomSlider.value + "%");
+  // });
 
-    randomSlider = document.getElementById("rand-slider");
-    // TODO fix the slider to P5 slider
-    // slider.changed(() => {
-    //   sliderLabel.html("Randomness: " + randomSlider.value + "%");
-    // });
+  // TODO fix speed slider group
+  const speedDiv = document.createElement("div");
+  let startingSpeed = 100;
+  speedLabel = createElement('label', "Game speed: 1/1");
+  speedSliderP5 = createSlider(-10, -1, startingSpeed, -1);
+  speedSliderP5.changed(() => {
+    speedLabel.html("Next game speed: 1/" + -speedSliderP5.value());
+    if (path.length == 0){
+      recomputeDrillingConstants();
+    }
+  });
 
-    // TODO fix speed slider group
-    const speedDiv = document.createElement("div");
-    let startingSpeed = 100;
-    speedLabel = createElement('label', "Game speed: 1/1");
-    speedSliderP5 = createSlider(-10, -1, startingSpeed, -1);
-    speedSliderP5.changed(() => {
-      speedLabel.html("Next game speed: 1/" + -speedSliderP5.value());
-      if (path.length == 0){
-        recomputeDrillingConstants();
-      }
-    });
+  // speedDiv.appendChild(speedLabel);
+  // speedDiv.appendChild(speedSlider);
 
-    // speedDiv.appendChild(speedLabel);
-    // speedDiv.appendChild(speedSlider);
+  // createSpan('direction: ');
+  // direcitonSlider = createSlider(-1, 1, 1, 2);
 
-    // createSpan('direction: ');
-    // direcitonSlider = createSlider(-1, 1, 1, 2);
+  // A button for previewing steering bounds for aiming (@Denisovich I insist on the "limits")
+  aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
+  fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
 
-    // A button for previewing steering bounds for aiming (@Denisovich I insist on the "limits")
-    aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
-    fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
+  createDiv(
+      '<a href="instructions/instructions-slide.png">Visual instructions</a>'
+  ).id("visual-instructions");
+  createDiv(
+      'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
+  ).id("copyright");
 
-    createDiv(
-        '<a href="instructions/instructions-slide.png">Visual instructions</a>'
-    ).id("visual-instructions");
-    createDiv(
-        'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
-    ).id("copyright");
-
-    let params = getURLParams();
+  let params = getURLParams();
   if (params) {
     if (params["seed"]) {
       currentSeed = params["seed"];
