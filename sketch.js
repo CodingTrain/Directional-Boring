@@ -983,14 +983,19 @@ function draw() {
     text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', width / 2, groundLevel / 2);
   }
 
-  if (state != "DRILLING" && state != "CONNECTION"){
-    textAlign(LEFT, TOP);
+  if (!playback && state != "DRILLING" && state != "CONNECTION"){
     noStroke();
     fill(255);
     textSize(16);
     textFont('courier');
-    text('Click the machine \nto start / pause', 3, 3);
-    text('Click anywehere else\nto toggle bias', width/2, 3)
+    // text('Click the machine \nto start / pause', 3, 3);
+    textAlign(LEFT, TOP);
+    text('Click the machine\nto start/pause [⏎]', 5, 5);
+    textAlign(CENTER, TOP);
+    text('Click anywehere else\nto toggle bias [⎵]', width/2 + 10, 5)
+    textAlign(RIGHT, TOP);
+    text('Use the button\nto pull back [⌫]', width - 5, 5)
+    // text('Click anywehere else\nto toggle bias', width/2, 3)
   }
 
   // If you've lost!
