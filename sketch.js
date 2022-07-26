@@ -133,6 +133,12 @@ function newGameAction(){
 function startStopUserAction(){
   if (!playback){
     startStopAction();
+  }else{
+    // todo restart game, make appropriate button title
+    // todo this is not the right funciton
+    playback = undefined;
+    // todo set seed correctly again
+    startDrill();
   }
 }
 
@@ -327,6 +333,7 @@ function recomputeDrillingConstants(){
 
 // Reset the initial state
 function startDrill() {
+  randomSeed(currentSeed);
   recomputeDrillingConstants();
 
   // rest of the setup
@@ -371,6 +378,10 @@ function updateDivWithLinkToThisSolution(addSolution = false) {
 
 // todo note, this funciton now also updates sharable link
 function updateStartButtonText() {
+  if (playback){
+    startButton.html("try to beat");
+    return;
+  }
   if (state == 'DRILLING' || state == 'CONNECTION') {
     startButton.html('pause');
   } 
@@ -866,9 +877,9 @@ function draw() {
     blendMode(BLEND);
   }
   // todo consider turning off reflections
-  if (!playback){
-    image(reflections, 0, 0);
-  }
+  // if (!playback){
+  image(reflections, 0, 0);
+  // }
 
   // draw the machine
   image(machineBack, 0, groundLevel - machineHeight + 2, machineWidth, machineHeight);
