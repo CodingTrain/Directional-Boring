@@ -83,6 +83,7 @@ let reflections;
 let startButton;
 let pullBackButton;
 let toggleButton;
+let newGameButton;
 
 // Checkboxes
 let aimingCheckbox;
@@ -121,11 +122,10 @@ function toggleBias() {
   bias *= -1;
 }
 
-// todo link a separate new game button
 function newGameAction(){
   currentSeed = Math.floor(Math.random() * 999998)+1;
   playback = undefined;
-  updateDivWithLinkToThisLevel();
+  updateDivWithLinkToThisSolution(false);
   randomSeed(currentSeed);
   startDrill();
 }
@@ -134,10 +134,7 @@ function startStopUserAction(){
   if (!playback){
     startStopAction();
   }else{
-    // todo restart game, make appropriate button title
-    // todo this is not the right funciton
     playback = undefined;
-    // todo set seed correctly again
     startDrill();
   }
 }
@@ -169,7 +166,6 @@ function startStopAction(){
     // initializing playback countdown in case we are in playback mode
     playbackCountDown = pauseTimePlayback;
   } else if (state == 'WIN' || state == 'LOSE') {
-    // todo test
     startDrill();
   }
   updateStartButtonText();
@@ -216,7 +212,6 @@ function touchStarted() {
 }
 
 function keyPressed() {
-  // TODO reformat to a single function
   if (key == " ") {
     toggleBias();
   } else if (keyCode == ESCAPE || keyCode == RETURN || keyCode == ENTER) {
@@ -376,9 +371,10 @@ function updateDivWithLinkToThisSolution(addSolution = false) {
   }
 }
 
-// todo note, this funciton now also updates sharable link
+// note, this funciton now also updates sharable link
 function updateStartButtonText() {
   if (playback){
+    updateDivWithLinkToThisSolution(false);
     startButton.html("try to beat");
     return;
   }
@@ -389,12 +385,8 @@ function updateStartButtonText() {
     startButton.html('drill');
   } 
   if (state == "WIN" || state == "LOSE") {
-    if (playback){
-      // todo only link here
-    }else{
-      updateDivWithLinkToThisSolution(true);
-      startButton.html("try again");
-    }
+    updateDivWithLinkToThisSolution(true);
+    startButton.html("try again");
   }
 }
 
@@ -408,17 +400,19 @@ function setup() {
   // canvas.touchStarted(sceneOnTouchStarted);
   // frameRate(10);
 
-  // Handle the start and stop button
-  // todo change to another function to check if in playback mode and ignore
+  // Handle the start and pause button
   startButton = createButton('start').mousePressed(startStopUserAction);
 
-    // Handle the toggle bias button
-  toggleButton = createButton("toggle bias").mousePressed(function () {
-        toggleBias();
-    });
-  // todo change to another function to check if in playback mode and ignore
+  // Handle the toggle bias button
+  toggleButton = createButton("toggle bias").mousePressed(toggleBias);
+
+  // Handle the pull-back button
   pullBackButton = createButton("pull back");
   pullBackButton.mousePressed(pullBackUserAction);
+
+  // Handle new level button
+  newGameButton = createButton("new level");
+  newGameButton.mousePressed(newGameAction);
 
   // A slider for adding some randomness (in %)
 
@@ -494,7 +488,7 @@ function setup() {
   }
 
   seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>').id('seed-div');
-  updateDivWithLinkToThisLevel();
+  updateDivWithLinkToThisSolution(false);
 
   machineBack = loadImage('assets/drilling-machine-small.png');
   machineFront = loadImage('assets/machine-foreground-small.png');
@@ -545,7 +539,7 @@ function drill() {
   // Reduce uncertainty
   fogOfUncertinty.noStroke();
   fogOfUncertinty.fill(255);
-  // todo do not reduce uncertainty in playback mode
+  //   todo do not reduce uncertainty in playback mode
   if (!playback){
     fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
   }else{
@@ -876,7 +870,7 @@ function draw() {
     image(fogOfUncertinty, 0, 0);
     blendMode(BLEND);
   }
-  // todo consider turning off reflections
+  //   todo consider turning off reflections
   // if (!playback){
   image(reflections, 0, 0);
   // }
