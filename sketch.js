@@ -18,6 +18,7 @@ let oldPaths;
 let actionSequence;
 let stuckCount;
 let sideTrackCount;
+const maxStarts = 9;
 let startCount;
 // Current state of game
 let state;
@@ -342,7 +343,7 @@ function startDrill() {
   boulders = [];
   bias = 1;
   state = 'PAUSED';
-  startButton.html('start');
+  updateStartButtonText();
 
   // Related circle size
   const turnCircleLen = (PI * 2) / turnAnglePerPixel;
@@ -382,7 +383,10 @@ function updateStartButtonText() {
     startButton.html('pause');
   } 
   if (state == 'PAUSED' || state == 'STUCK') {
-    startButton.html('drill');
+    startButton.html(`start (${maxStarts - startCount} left)`);
+    if (maxStarts - startCount <= 0){
+      state = "LOSE";
+    }
   } 
   if (state == "WIN" || state == "LOSE") {
     updateDivWithLinkToThisSolution(true);
