@@ -428,6 +428,35 @@ function setup() {
   // and it goes crazy on screen with variable refresh rate
   frameRate(60);
 
+
+  let params = getURLParams();
+  if (params) {
+    if (params["seed"]) {
+      currentSeed = params["seed"];
+      randomSeed(currentSeed);
+    }
+    // using uncondenced string
+    if (params["sol"]) {
+      playback = stringToActions(params["sol"]);
+    }
+    // using condenced string
+    if (params["s4"]) {
+      playback = condencedStringToActions(params["s4"]);
+    }
+    // randomness
+    if (params["rnd"]) {
+      randomFactor6 = params["rnd"];
+    }
+    // ROP (Rate Of Penetration aka speed) factor
+    if (params["rop"]) {
+      curRopMult = params["rop"];
+    }
+  }
+  if (!currentSeed) {
+    currentSeed = Math.floor(Math.random() * 999998)+1;
+    randomSeed(currentSeed);
+  }
+
   // canvas.touchStarted(sceneOnTouchStarted);
   // frameRate(10);
 
@@ -497,34 +526,6 @@ function setup() {
   //TODO fog checkbox to be gone 
   // fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
 
-
-  let params = getURLParams();
-  if (params) {
-    if (params["seed"]) {
-      currentSeed = params["seed"];
-      randomSeed(currentSeed);
-    }
-    // using uncondenced string
-    if (params["sol"]) {
-      playback = stringToActions(params["sol"]);
-    }
-    // using condenced string
-    if (params["s4"]) {
-      playback = condencedStringToActions(params["s4"]);
-    }
-    // randomness
-    if (params["rnd"]) {
-      randomFactor6 = params["rnd"];
-    }
-    // ROP (Rate Of Penetration aka speed) factor
-    if (params["rop"]) {
-      curRopMult = params["rop"];
-    }
-  }
-  if (!currentSeed) {
-    currentSeed = Math.floor(Math.random() * 999998)+1;
-    randomSeed(currentSeed);
-  }
 
 
 
