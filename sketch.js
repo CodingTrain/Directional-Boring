@@ -86,6 +86,15 @@ let pullBackButton;
 let toggleButton;
 let newGameButton;
 
+// Divs with information
+let curLevelDiv;
+
+// Divs which control behaviour
+let nextLevelDiv;
+let globalSpeedDiv;
+let randomnessDiv;
+// todo think of new controll? 
+
 // Checkboxes
 let aimingCheckbox;
 let fogCheckbox;
@@ -356,7 +365,7 @@ function startDrill() {
 }
 
 function updateDivWithLinkToThisLevel() {
-  seedDiv.html('<a href="?seed='+currentSeed+'">Persistent link to THIS level</a>');
+  seedDiv.html('<a href="?seed='+currentSeed+'">Link to THIS level</a>');
 }
 
 function updateDivWithLinkToThisSolution(addSolution = false) {
@@ -365,7 +374,7 @@ function updateDivWithLinkToThisSolution(addSolution = false) {
   if (addSolution){
     let sol4 = actionSequenceToCondencedString();
     // let restoredSequence4 = condencedStringToActions(sol4); 
-    // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Persistent link to THIS level</a>');
+    // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Link to THIS level</a>');
     seedDiv.html('<a href="?seed='+currentSeed+'&s4='+sol4+'">Link to YOUR result</a>');
   }else{
     updateDivWithLinkToThisLevel();
@@ -404,6 +413,15 @@ function setup() {
   // canvas.touchStarted(sceneOnTouchStarted);
   // frameRate(10);
 
+  // todo Move to canvas
+  // Stat divs row 0
+  let startDiv = createDiv('Drill starts: 0/9');
+
+  let sideTracksDiv = createDiv('Side tracks: 0');
+
+  let stuckDiv = createDiv('Bit damage: 0/3');
+
+  // Buttons row 1
   // Handle the start and pause button
   startButton = createButton('start').mousePressed(startStopUserAction);
 
@@ -414,62 +432,51 @@ function setup() {
   pullBackButton = createButton("pull back");
   pullBackButton.mousePressed(pullBackUserAction);
 
+  // Buttons and links row 2 control of levels
+  // Div with the link
+  seedDiv = createDiv('<a href="?seed=">Link to THIS level</a>').id('seed-div');
+  updateDivWithLinkToThisSolution(false);
+
+  // A button for previewing steering bounds for aiming (@Denisovich I insist on the "limits")
+  aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
+  // // empty
+  // createDiv('');
+
   // Handle new level button
   newGameButton = createButton("new level");
   newGameButton.mousePressed(newGameAction);
 
-  // A slider for adding some randomness (in %)
+  // Lnks with information row 3
+  curLevelDiv = createDiv(`Level 12344`);
+  createDiv("Speed");
+  createDiv("Randomness");
 
-  const slider = document.createElement("input");
-  slider.setAttribute("id", "rand-slider");
-  slider.setAttribute("type", "range");
-  slider.setAttribute("min", "0");
-  slider.setAttribute("max", "100");
-  slider.setAttribute("value", "50");
-  slider.setAttribute("step", "0.5");
-  const sliderLabel = document.createElement("label");
-  sliderLabel.innerHTML = "randomness: ";
-  sliderLabel.setAttribute("for", "rand-slider");
-  const sliderContainer = document.createElement("div");
-  sliderContainer.setAttribute("id", "rand-slider-container");
-  sliderContainer.appendChild(sliderLabel);
-  sliderContainer.appendChild(slider);
-  document.querySelector("body").appendChild(sliderContainer);
+  // Links to control game behavior row 4
+  nextLevelDiv = createDiv(`<a href="?seed=11">Another level</a>`);
+  globalSpeedDiv = createDiv(`<a href="?seed=11&speed=chill">chill</a> <b>normal</b>`);
+  randomnessDiv = createDiv(`<a href="?seed=11&speed=chill">none</a> <b>normal</b> <a href="?seed=11&speed=chill">high</a>`);
 
-  randomSlider = document.getElementById("rand-slider");
-  // TODO fix the slider to P5 slider
-  // slider.changed(() => {
-  //   sliderLabel.html("Randomness: " + randomSlider.value + "%");
+  // TODO fix the speed 
+  // changed(() => {
+  //   speedLabel.html("Next game speed: 1/" + -speedSliderP5.value());
+  //   if (path.length == 0){
+  //     recomputeDrillingConstants();
+  //   }
   // });
 
-  // TODO fix speed slider group
-  const speedDiv = document.createElement("div");
-  let startingSpeed = 100;
-  speedLabel = createElement('label', "Game speed: 1/1");
-  speedSliderP5 = createSlider(-10, -1, startingSpeed, -1);
-  speedSliderP5.changed(() => {
-    speedLabel.html("Next game speed: 1/" + -speedSliderP5.value());
-    if (path.length == 0){
-      recomputeDrillingConstants();
-    }
-  });
-
-  // speedDiv.appendChild(speedLabel);
-  // speedDiv.appendChild(speedSlider);
-
-  // createSpan('direction: ');
-  // direcitonSlider = createSlider(-1, 1, 1, 2);
-
-  // A button for previewing steering bounds for aiming (@Denisovich I insist on the "limits")
-  aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
-  fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
+  // Last row 
 
   createDiv(
       '<a href="instructions/instructions-slide.png">Visual instructions</a>'
   ).id("visual-instructions");
+  createDiv("");
   createDiv(
       'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
   ).id("copyright");
+
+  //TODO fog checkbox to be gone 
+  fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
+
 
   let params = getURLParams();
   if (params) {
@@ -491,8 +498,7 @@ function setup() {
     randomSeed(currentSeed);
   }
 
-  seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>').id('seed-div');
-  updateDivWithLinkToThisSolution(false);
+
 
   machineBack = loadImage('assets/drilling-machine-small.png');
   machineFront = loadImage('assets/machine-foreground-small.png');

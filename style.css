@@ -16,7 +16,7 @@ body {
   font-size: 0.9rem;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 450px 3.2rem 3.2rem 3.2rem 3.2rem;
+  grid-template-rows: 420px 1.2rem 3.2rem 3.2rem 1rem 1rem 7rem 5rem; 
   align-items: center;
   justify-items: center;
   margin: 0 calc(50% - 300px);
@@ -57,47 +57,20 @@ button:hover{
   border: 0.1rem solid #8F8F8F;
 }
 
-/* Slider */
+/* A few adjustments commented out */
 
-#rand-slider {
-  width: 6rem;
-  top: 1rem;
-}
-
-#rand-slider-container {
-  display: flex;
-  flex-flow: row; 
-  align-items: center;
-  justify-content: flex-end; 
-  height: 100%;
-  grid-column: 2 / 3;
-}
-
-/* A few adjustments */
-
-#fog-box {
-  grid-column : 1 / 2;
-  grid-row: 3 / 4;
-}
-
-#visual-instructions {
+/* #visual-instructions {
   grid-row: 4 / 5; 
   grid-column: 1 / 2;
   text-align: center;
-}
+} */
 
-#seed-div {
-  grid-row: 4 / 5;
-  grid-column: 3 / 4;
-  text-align: center;
-}
-
-#copyright {
+/* #copyright {
   grid-row: 5 / 6;
   grid-column: 1 / 4;
   text-align: center;
   align-self: end;
-}
+} */
 
 /* Cursor for buttons, sliders and checkboxes*/
 
