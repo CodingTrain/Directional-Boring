@@ -23,7 +23,12 @@ let startCount;
 // Current state of game
 let state;
 let currentSeed = undefined;
+let curRopMult = 1;
+let randomFactor6 = 3;
+
+// Div for replays
 let seedDiv;
+
 // The turning radius to be computed
 let turnCircleRadius;
 let boulders;
@@ -66,7 +71,6 @@ const verticalPipeMovement = 5; // this is used to initialize the connection tim
 const pauseTimePlayback = 25;
 
 // values related to current game speed;
-let stepMult = 1;
 let deltaSpeedCurGame = 1;
 let turnAngleCurSpeed = turnAnglePerPixel;
 let pipeLengthSteps = pipeLengthPixels;
@@ -97,7 +101,7 @@ let randomnessDiv;
 
 // Checkboxes
 let aimingCheckbox;
-let fogCheckbox;
+// let fogCheckbox;
 
 // Sliders
 let randomSlider;
@@ -325,11 +329,11 @@ function createReflections() {
 
 function recomputeDrillingConstants(){
   // computing speed-related constants
-  stepMult = -speedSliderP5.value();
-  speedLabel.html("Game speed: 1/" + stepMult);
-  deltaSpeedCurGame = 1 / stepMult;
+  // curRopMult = -speedSliderP5.value();
+  // speedLabel.html("Game speed: 1/" + curRopMult);
+  deltaSpeedCurGame = 1 / curRopMult;
   turnAngleCurSpeed = turnAnglePerPixel * deltaSpeedCurGame;
-  pipeLengthSteps = pipeLengthPixels * stepMult;
+  pipeLengthSteps = pipeLengthPixels * curRopMult;
 
   // reseting the bit postion and steering
   pos = createVector(startingX, groundLevel + startingDepth);
@@ -364,18 +368,32 @@ function startDrill() {
   createReflections();
 }
 
+function generateLink(randomness, seed, speed, replay){
+  let link = `?rnd=${randomness}`;
+  if (seed){
+    link += `&seed=${seed}`;
+  }
+  link += `&rop=${speed}`;
+  if (replay){
+    let sol4 = actionSequenceToCondencedString();
+    link += `&s4=${sol4}`;
+  }
+  return link;
+}
+
 function updateDivWithLinkToThisLevel() {
-  seedDiv.html('<a href="?seed='+currentSeed+'">Link to THIS level</a>');
+  seedDiv.html(`<a href="${generateLink(randomFactor6, currentSeed, curRopMult, false)}">Link to THIS level</a>`);
 }
 
 function updateDivWithLinkToThisSolution(addSolution = false) {
   // let solution = actionSequenceToString();
   // let restoredSequence = stringToActions(solution);
   if (addSolution){
-    let sol4 = actionSequenceToCondencedString();
+    // let sol4 = actionSequenceToCondencedString();
     // let restoredSequence4 = condencedStringToActions(sol4); 
     // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Link to THIS level</a>');
-    seedDiv.html('<a href="?seed='+currentSeed+'&s4='+sol4+'">Link to YOUR result</a>');
+    // todo finish
+    seedDiv.html(`<a href="${generateLink(randomFactor6, currentSeed, curRopMult, true)}">Link to YOUR result</a>`);
   }else{
     updateDivWithLinkToThisLevel();
   }
@@ -414,6 +432,7 @@ function setup() {
   // frameRate(10);
 
   // todo Move to canvas
+  // todo implement updates
   // Stat divs row 0
   let startDiv = createDiv('Drill starts: 0/9');
 
@@ -433,6 +452,7 @@ function setup() {
   pullBackButton.mousePressed(pullBackUserAction);
 
   // Buttons and links row 2 control of levels
+  createDiv('');
   // Div with the link
   seedDiv = createDiv('<a href="?seed=">Link to THIS level</a>').id('seed-div');
   updateDivWithLinkToThisSolution(false);
@@ -443,16 +463,16 @@ function setup() {
   // createDiv('');
 
   // Handle new level button
-  newGameButton = createButton("new level");
-  newGameButton.mousePressed(newGameAction);
 
+  // newGameButton = createButton("new level");
+  // newGameButton.mousePressed(newGameAction);
   // Lnks with information row 3
-  curLevelDiv = createDiv(`Level 12344`);
+  curLevelDiv = createDiv(`Level`);
   createDiv("Speed");
   createDiv("Randomness");
 
   // Links to control game behavior row 4
-  nextLevelDiv = createDiv(`<a href="?seed=11">Another level</a>`);
+  nextLevelDiv = createDiv(`<b>12344</b> <a href="?seed=11">next ⏭</a>`);
   globalSpeedDiv = createDiv(`<a href="?seed=11&speed=chill">chill</a> <b>normal</b>`);
   randomnessDiv = createDiv(`<a href="?seed=11&speed=chill">none</a> <b>normal</b> <a href="?seed=11&speed=chill">high</a>`);
 
@@ -475,7 +495,7 @@ function setup() {
   ).id("copyright");
 
   //TODO fog checkbox to be gone 
-  fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
+  // fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
 
 
   let params = getURLParams();
@@ -491,6 +511,14 @@ function setup() {
     // using condenced string
     if (params["s4"]) {
       playback = condencedStringToActions(params["s4"]);
+    }
+    // randomness
+    if (params["rnd"]) {
+      randomFactor6 = params["rnd"];
+    }
+    // ROP (Rate Of Penetration aka speed) factor
+    if (params["rop"]) {
+      curRopMult = params["rop"];
     }
   }
   if (!currentSeed) {
@@ -533,8 +561,8 @@ function takeAction(){
 function drill() {
   dir.rotate(turnAngleCurSpeed * bias);
   // Add some randomness
-  const randomFactor = randomSlider.value;
-  const r = (random(-randomFactor, 0) * turnAngleCurSpeed * bias) / 100;
+  // randomFactor6 = randomSlider.value;
+  const r = (random(-randomFactor6, 0) * turnAngleCurSpeed * bias) / 6;
   dir.rotate(r);
 
   // Drilling mode
@@ -875,7 +903,7 @@ function draw() {
 
   // Draw the scene
   image(hddScene, 0, 0);
-  if ((state != "WIN" || playback) && fogCheckbox.checked()) {
+  if (state != "WIN" || playback) {
     blendMode(MULTIPLY);
     image(fogOfUncertinty, 0, 0);
     blendMode(BLEND);

@@ -16,7 +16,7 @@ body {
   font-size: 0.9rem;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 420px 1.2rem 3.2rem 3.2rem 1rem 1rem 7rem 5rem; 
+  grid-template-rows: 420px 1.2rem 3.2rem 5rem 1rem 1rem 7rem 5rem; 
   align-items: center;
   justify-items: center;
   margin: 0 calc(50% - 300px);
