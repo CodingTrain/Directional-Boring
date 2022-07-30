@@ -23,8 +23,8 @@ let startCount;
 // Current state of game
 let state;
 let currentSeed = undefined;
-let curRopMult = 1;
-let randomFactor6 = 3;
+let curRopDevider = 1;
+let curRandomFactor6 = 3;
 
 // Div for replays
 let seedDiv;
@@ -137,11 +137,15 @@ function toggleBias() {
 }
 
 function newGameAction(){
-  currentSeed = Math.floor(Math.random() * 999998)+1;
+  currentSeed = getNewSeed();
   playback = undefined;
   updateDivWithLinkToThisSolution(false);
   randomSeed(currentSeed);
   startDrill();
+}
+
+function getNewSeed(){
+  return Math.floor(Math.random() * 999998)+1;
 }
 
 function startStopUserAction(){
@@ -331,9 +335,9 @@ function recomputeDrillingConstants(){
   // computing speed-related constants
   // curRopMult = -speedSliderP5.value();
   // speedLabel.html("Game speed: 1/" + curRopMult);
-  deltaSpeedCurGame = 1 / curRopMult;
+  deltaSpeedCurGame = 1 / curRopDevider;
   turnAngleCurSpeed = turnAnglePerPixel * deltaSpeedCurGame;
-  pipeLengthSteps = pipeLengthPixels * curRopMult;
+  pipeLengthSteps = pipeLengthPixels * curRopDevider;
 
   // reseting the bit postion and steering
   pos = createVector(startingX, groundLevel + startingDepth);
@@ -373,7 +377,7 @@ function generateLink(randomness, seed, speed, replay){
   if (seed){
     link += `&seed=${seed}`;
   }
-  link += `&rop=${speed}`;
+  link += `&ropd=${speed}`;
   if (replay){
     let sol4 = actionSequenceToCondencedString();
     link += `&s4=${sol4}`;
@@ -382,7 +386,7 @@ function generateLink(randomness, seed, speed, replay){
 }
 
 function updateDivWithLinkToThisLevel() {
-  seedDiv.html(`<a href="${generateLink(randomFactor6, currentSeed, curRopMult, false)}">Link to THIS level</a>`);
+  seedDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, false)}">Link to THIS level</a>`);
 }
 
 function updateDivWithLinkToThisSolution(addSolution = false) {
@@ -393,7 +397,7 @@ function updateDivWithLinkToThisSolution(addSolution = false) {
     // let restoredSequence4 = condencedStringToActions(sol4); 
     // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Link to THIS level</a>');
     // todo finish
-    seedDiv.html(`<a href="${generateLink(randomFactor6, currentSeed, curRopMult, true)}">Link to YOUR result</a>`);
+    seedDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, true)}">Link to YOUR result</a>`);
   }else{
     updateDivWithLinkToThisLevel();
   }
@@ -445,15 +449,15 @@ function setup() {
     }
     // randomness
     if (params["rnd"]) {
-      randomFactor6 = params["rnd"];
+      curRandomFactor6 = params["rnd"];
     }
     // ROP (Rate Of Penetration aka speed) factor
-    if (params["rop"]) {
-      curRopMult = params["rop"];
+    if (params["ropd"]) {
+      curRopDevider = params["ropd"];
     }
   }
   if (!currentSeed) {
-    currentSeed = Math.floor(Math.random() * 999998)+1;
+    currentSeed = getNewSeed();
     randomSeed(currentSeed);
   }
 
@@ -495,15 +499,12 @@ function setup() {
 
   // newGameButton = createButton("new level");
   // newGameButton.mousePressed(newGameAction);
-  // Lnks with information row 3
-  curLevelDiv = createDiv(`Level`);
-  createDiv("Speed");
-  createDiv("Randomness");
 
+
+  // Lnks with information row 3
   // Links to control game behavior row 4
-  nextLevelDiv = createDiv(`<b>12344</b> <a href="?seed=11">next ⏭</a>`);
-  globalSpeedDiv = createDiv(`<a href="?seed=11&speed=chill">chill</a> <b>normal</b>`);
-  randomnessDiv = createDiv(`<a href="?seed=11&speed=chill">none</a> <b>normal</b> <a href="?seed=11&speed=chill">high</a>`);
+  createGameControlDivs();
+ 
 
   // TODO fix the speed 
   // changed(() => {
@@ -527,12 +528,54 @@ function setup() {
   // fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
 
 
-
-
   machineBack = loadImage('assets/drilling-machine-small.png');
   machineFront = loadImage('assets/machine-foreground-small.png');
 
   startDrill();
+}
+
+function createGameControlDivs(){
+  // divs with information
+  // TODO remove curLevelDiv
+  curLevelDiv = createDiv(`Level`);
+  createDiv("Speed");
+  createDiv("Randomness");
+  let divText = '';
+  // current / next level
+  divText += `<b>${currentSeed}</b> `;
+  divText += hyperLink(generateLink(curRandomFactor6, getNewSeed(), curRopDevider, false),
+    'next ⏭');
+  nextLevelDiv = createDiv(divText);
+
+  // speed controls
+  divText = '';
+  divText += boldOrHyperLink(curRopDevider == 2, 
+          generateLink(curRandomFactor6, currentSeed, 2, false), 'chill');
+  divText += boldOrHyperLink(curRopDevider == 1, 
+          generateLink(curRandomFactor6, currentSeed, 1, false), 'standard');
+  createDiv(divText);
+  
+  // randomness controls
+  divText = '';
+  divText += boldOrHyperLink(curRandomFactor6 == 0, 
+          generateLink(0, currentSeed, curRopDevider, false), 'none');
+  divText += boldOrHyperLink(curRandomFactor6 == 3, 
+          generateLink(3, currentSeed, curRopDevider, false), 'normal');
+  divText += boldOrHyperLink(curRandomFactor6 == 6, 
+          generateLink(6, currentSeed, curRopDevider, false), 'chaos');
+  createDiv(divText);    
+}
+
+function boldOrHyperLink(expression, link, text){
+  if (expression){
+    return `<b>${text}</b> `;
+  } else{
+    return hyperLink(link, text);
+  }
+}
+
+function hyperLink(link, text){
+  return `<a href="${link}">${text}</a> `;
 }
 
 function takeAction(){
@@ -563,7 +606,7 @@ function drill() {
   dir.rotate(turnAngleCurSpeed * bias);
   // Add some randomness
   // randomFactor6 = randomSlider.value;
-  const r = (random(-randomFactor6, 0) * turnAngleCurSpeed * bias) / 6;
+  const r = (random(-curRandomFactor6, 0) * turnAngleCurSpeed * bias) / 6;
   dir.rotate(r);
 
   // Drilling mode
