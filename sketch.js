@@ -16,10 +16,18 @@ let path;
 let pathPosition;
 let oldPaths;
 let actionSequence;
-let stuckCount;
-let sideTrackCount;
+let stuckCount = 0;
+let sideTrackCount = 0;
+let startCount = 0;
 const maxStarts = 9;
-let startCount;
+const maxStuckTimes = 3;
+const maxSideTracks = 5;
+
+// corresponding Divs
+let startDiv;
+let sideTracksDiv;
+let stuckDiv;
+
 // Current state of game
 let state;
 let currentSeed = undefined;
@@ -61,12 +69,10 @@ const machineHeight = machineWidth * 9 / 16; // proportions according to the ima
 const pipeLengthMult = 0.87688219663; // relative to drilling machine width
 const pipeLengthPixels = Math.floor(pipeLengthMult * machineWidth) - 2; // -2 accounts for the rounding of the pipe
 
+// constants for machine visualization
 const startingDepth = 2;
 const startingX = 90;
-
 const pipeOffset = 22; 
-const maxStuckTimes = 3;
-
 const verticalPipeMovement = 5; // this is used to initialize the connection time
 const pauseTimePlayback = 25;
 
@@ -157,6 +163,18 @@ function startStopUserAction(){
   }
 }
 
+function updateSideTrackDiv(){
+  sideTracksDiv.html(`Side tracks: ${sideTrackCount}/${maxSideTracks}`);
+}
+
+function updateStartDiv(){
+  startDiv.html(`Starts: ${startCount}/${maxStarts}`);
+}
+
+function updateStuckDiv(){
+  stuckDiv.html(`Bit damage: ${stuckCount}/${maxStuckTimes}`);
+}
+
 function startStopAction(){
   if (state == 'PAUSED' || state == 'STUCK') {
     state = 'DRILLING';
@@ -175,9 +193,12 @@ function startStopAction(){
         dist(pos.x, pos.y, oldPathPoint[0].x, oldPathPoint[0].y) < 1.5){
       sideTrackCount++;
       console.log("Side-track count" + sideTrackCount);
+      // update side teack div
+      updateSideTrackDiv();
     } //else {
     startCount++;
     console.log("Start count" + startCount);
+    updateStartDiv();
   } else if (state == 'DRILLING') {
     state = 'PAUSED';
     actionSequence.push(1);
@@ -357,6 +378,9 @@ function startDrill() {
   stuckCount = 0;
   startCount = 0;
   sideTrackCount = 0;
+  updateStartDiv();
+  updateSideTrackDiv();
+  updateStuckDiv();
   boulders = [];
   bias = 1;
   state = 'PAUSED';
@@ -404,18 +428,25 @@ function updateDivWithLinkToThisSolution(addSolution = false) {
 }
 
 // note, this funciton now also updates sharable link
+// todo note 2, this function updates labels with stats
 function updateStartButtonText() {
   if (playback){
     updateDivWithLinkToThisSolution(false);
     startButton.html("try to beat");
+    if (state == 'PAUSED' || state == 'STUCK') {
+      if (maxStarts - startCount <= 0 || maxSideTracks - sideTrackCount <= 0){
+        state = "LOSE";
+      }
+    }
     return;
   }
   if (state == 'DRILLING' || state == 'CONNECTION') {
     startButton.html('pause');
   } 
   if (state == 'PAUSED' || state == 'STUCK') {
-    startButton.html(`start (${maxStarts - startCount} left)`);
-    if (maxStarts - startCount <= 0){
+    // startButton.html(`start (${maxStarts - startCount} left)`);
+    startButton.html('start');
+    if (maxStarts - startCount <= 0 || maxSideTracks - sideTrackCount <= 0){
       state = "LOSE";
     }
   } 
@@ -464,14 +495,14 @@ function setup() {
   // canvas.touchStarted(sceneOnTouchStarted);
   // frameRate(10);
 
-  // todo Move to canvas
-  // todo implement updates
+  // todo Move to canvas?
   // Stat divs row 0
-  let startDiv = createDiv('Drill starts: 0/9');
-
-  let sideTracksDiv = createDiv('Side tracks: 0');
-
-  let stuckDiv = createDiv('Bit damage: 0/3');
+  startDiv = createDiv('Drill starts: ');
+  updateStartDiv();
+  sideTracksDiv = createDiv('Side tracks: ');
+  updateSideTrackDiv();
+  stuckDiv = createDiv('Bit damage: ');
+  updateStuckDiv(); 
 
   // Buttons row 1
   // Handle the start and pause button
@@ -648,6 +679,7 @@ function drill() {
   } else if (c == boulderColor.toString()) {
     state = 'STUCK';
     stuckCount++;
+    updateStuckDiv();
     if (stuckCount >= maxStuckTimes) {
       state = 'LOSE';
     }else if (playback){
