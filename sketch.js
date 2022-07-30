@@ -16,12 +16,15 @@ let path;
 let pathPosition;
 let oldPaths;
 let actionSequence;
+// let randomTurnResistance = 0;
 let stuckCount = 0;
 let sideTrackCount = 0;
 let startCount = 0;
 const maxStarts = 9;
 const maxStuckTimes = 3;
 const maxSideTracks = 5;
+const referenceSaturation = 60;
+// const randomTurnCorrelation = 0.2;
 
 // corresponding Divs
 let startDiv;
@@ -293,8 +296,12 @@ function createHddScene() {
   hddScene.strokeWeight(3);
   for (let l = 0; l < dirtLayers; l++) {
     hddScene.noStroke();
-    hddScene.colorMode(HSB);
-    hddScene.fill(24, random(30, 90), 30);
+    // hsl mode can be used in rgb to extract saturation
+    hddScene.colorMode(HSL);
+    // let earthColor = color(`hsba(9.4%, ${random(30, 90)}, 11.8%, 1)`)
+    hddScene.fill(24, random(referenceSaturation - 30, referenceSaturation + 30), 18);
+    // hddScene.fill(24, 90, 16);
+    // hddScene.fill(earthColor);
     hddScene.beginShape();
     for (let x = 0; x < landscapeIterations; x++) {
       // Calculate the y of the dirt
@@ -377,6 +384,7 @@ function startDrill() {
   pathPosition = -1;
   stuckCount = 0;
   startCount = 0;
+  // randomTurnResistance = 0;
   sideTrackCount = 0;
   updateStartDiv();
   updateSideTrackDiv();
@@ -420,7 +428,6 @@ function updateDivWithLinkToThisSolution(addSolution = false) {
     // let sol4 = actionSequenceToCondencedString();
     // let restoredSequence4 = condencedStringToActions(sol4); 
     // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Link to THIS level</a>');
-    // todo finish
     seedDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, true)}">Link to YOUR result</a>`);
   }else{
     updateDivWithLinkToThisLevel();
@@ -428,7 +435,6 @@ function updateDivWithLinkToThisSolution(addSolution = false) {
 }
 
 // note, this funciton now also updates sharable link
-// todo note 2, this function updates labels with stats
 function updateStartButtonText() {
   if (playback){
     updateDivWithLinkToThisSolution(false);
@@ -535,15 +541,6 @@ function setup() {
   // Lnks with information row 3
   // Links to control game behavior row 4
   createGameControlDivs();
- 
-
-  // TODO fix the speed 
-  // changed(() => {
-  //   speedLabel.html("Next game speed: 1/" + -speedSliderP5.value());
-  //   if (path.length == 0){
-  //     recomputeDrillingConstants();
-  //   }
-  // });
 
   // Last row 
 
@@ -636,9 +633,17 @@ function takeAction(){
 function drill() {
   dir.rotate(turnAngleCurSpeed * bias);
   // Add some randomness
-  // randomFactor6 = randomSlider.value;
-  const r = (random(-curRandomFactor6, 0) * turnAngleCurSpeed * bias) / 6;
-  dir.rotate(r);
+  // get color
+  let c1 = hddScene.get(pos.x, pos.y);
+  let c1Saturation = saturation(c1);
+  let c1Factor = c1Saturation / referenceSaturation;
+  // let c1Brightness = (c1[0] + c1[1] + c1[2]) / 3 / 60;
+  // console.log(`color ${c1}. saturation ${c1Saturation}. factor ${c1Factor}.`);
+  // random depending on the dirt color
+  const newRandom = c1Factor * (random(-curRandomFactor6, 0) * turnAngleCurSpeed * bias) / 6;
+  // updated with selected correlation
+  // randomTurnResistance = randomTurnResistance * randomTurnCorrelation + newRandom * (1 - randomTurnCorrelation);
+  dir.rotate(newRandom);
 
   // Drilling mode
   // Save previous position
@@ -984,7 +989,7 @@ function draw() {
     image(fogOfUncertinty, 0, 0);
     blendMode(BLEND);
   }
-  //   todo consider turning off reflections
+  // todo consider turning off reflections
   // if (!playback){
   image(reflections, 0, 0);
   // }
@@ -1052,6 +1057,25 @@ function draw() {
       -HALF_PI + maxAimAngle,
       OPEN
     );
+    // test angle
+    // arc(
+    //   0,
+    //   -turnCircleRadius * 4/3,
+    //   turnCircleRadius * 2 * 4/3,
+    //   turnCircleRadius * 2 * 4/3,
+    //   HALF_PI - maxAimAngle,
+    //   PI,
+    //   OPEN
+    // );
+    // arc(
+    //   0,
+    //   turnCircleRadius * 4/3,
+    //   turnCircleRadius * 2 * 4/3,
+    //   turnCircleRadius * 2 * 4/3,
+    //   -PI,
+    //   -HALF_PI + maxAimAngle,
+    //   OPEN
+    // );
     pop();
   }
 
