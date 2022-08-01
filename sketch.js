@@ -15,13 +15,31 @@ let bias;
 let path;
 let pathPosition;
 let oldPaths;
-let stuckCount;
-let sideTrackCount;
-let startCount;
+let actionSequence;
+// let randomTurnResistance = 0;
+let stuckCount = 0;
+let sideTrackCount = 0;
+let startCount = 0;
+const maxStarts = 9;
+const maxStuckTimes = 3;
+const maxSideTracks = 5;
+const referenceSaturation = 60;
+// const randomTurnCorrelation = 0.2;
+
+// corresponding Divs
+let startDiv;
+let sideTracksDiv;
+let stuckDiv;
+
 // Current state of game
 let state;
 let currentSeed = undefined;
+let curRopDevider = 1;
+let curRandomFactor6 = 3;
+
+// Div for replays
 let seedDiv;
+
 // The turning radius to be computed
 let turnCircleRadius;
 let boulders;
@@ -44,36 +62,62 @@ const goalColor = [252, 238, 33];
 const surfacePipeColor = [103, 88, 76];
 const dirtLayers = 7;
 let connectionCountDown = 0;
+let playbackCountDown = 0;
 
 // simulations constants
-const angle = 0.01;
+const turnAnglePerPixel = 0.01;
 const startingAngle = 0.2967; // that is 17 degrees 
 const machineWidth = 80;
 const machineHeight = machineWidth * 9 / 16; // proportions according to the image
 const pipeLengthMult = 0.87688219663; // relative to drilling machine width
-const pipeLength = Math.floor(pipeLengthMult * machineWidth)- 2; // -2 accounts for the rounding of the pipe
+const pipeLengthPixels = Math.floor(pipeLengthMult * machineWidth) - 2; // -2 accounts for the rounding of the pipe
 
+// constants for machine visualization
 const startingDepth = 2;
 const startingX = 90;
-
 const pipeOffset = 22; 
-const maxStuckTimes = 3;
-
 const verticalPipeMovement = 5; // this is used to initialize the connection time
+const pauseTimePlayback = 25;
+
+// values related to current game speed;
+let deltaSpeedCurGame = 1;
+let turnAngleCurSpeed = turnAnglePerPixel;
+let pipeLengthSteps = pipeLengthPixels;
+
+// playback string undefined
+let playback = undefined;
 
 // Pixel map for scene
 let hddScene;
 let fogOfUncertinty;
 let reflections;
 
+// Buttons
 // Button to start
 let startButton;
-let aimingCheckbox;
-let fogCheckbox;
-let randomSlider;
-// let direcitonSlider;
 let pullBackButton;
+let toggleButton;
+let newGameButton;
 
+// Divs with information
+let curLevelDiv;
+
+// Divs which control behaviour
+let nextLevelDiv;
+let globalSpeedDiv;
+let randomnessDiv;
+// todo think of new controll? 
+
+// Checkboxes
+let aimingCheckbox;
+// let fogCheckbox;
+
+// Sliders
+let randomSlider;
+let speedSliderP5;
+
+// label
+let speedLabel;
 
 function setGradient(image, x, y, w, h, c1, c2, axis) {
   image.noFill();
@@ -101,9 +145,43 @@ function toggleBias() {
   bias *= -1;
 }
 
+function newGameAction(){
+  currentSeed = getNewSeed();
+  playback = undefined;
+  updateDivWithLinkToThisSolution(false);
+  randomSeed(currentSeed);
+  startDrill();
+}
+
+function getNewSeed(){
+  return Math.floor(Math.random() * 999998)+1;
+}
+
+function startStopUserAction(){
+  if (!playback){
+    startStopAction();
+  }else{
+    playback = undefined;
+    startDrill();
+  }
+}
+
+function updateSideTrackDiv(){
+  sideTracksDiv.html(`Side tracks: ${sideTrackCount}/${maxSideTracks}`);
+}
+
+function updateStartDiv(){
+  startDiv.html(`Starts: ${startCount}/${maxStarts}`);
+}
+
+function updateStuckDiv(){
+  stuckDiv.html(`Bit damage: ${stuckCount}/${maxStuckTimes}`);
+}
+
 function startStopAction(){
   if (state == 'PAUSED' || state == 'STUCK') {
     state = 'DRILLING';
+    // actionSequence.push(1);
     let prevPath = undefined;
     if (oldPaths.length > 0){
       prevPath = oldPaths[oldPaths.length - 1];
@@ -118,24 +196,35 @@ function startStopAction(){
         dist(pos.x, pos.y, oldPathPoint[0].x, oldPathPoint[0].y) < 1.5){
       sideTrackCount++;
       console.log("Side-track count" + sideTrackCount);
+      // update side teack div
+      updateSideTrackDiv();
     } //else {
     startCount++;
     console.log("Start count" + startCount);
+    updateStartDiv();
   } else if (state == 'DRILLING') {
     state = 'PAUSED';
+    actionSequence.push(1);
+    // initializing playback countdown in case we are in playback mode
+    playbackCountDown = pauseTimePlayback;
   } else if (state == 'WIN' || state == 'LOSE') {
-    currentSeed = Math.floor(Math.random() * 999998)+1;
-    updateDivWithLinkToThisLevel();
-    randomSeed(currentSeed);
     startDrill();
   }
   updateStartButtonText();
 }
 
+function pullBackUserAction(){
+  if (!playback){
+    pullBack();
+  }
+}
+
 function pullBack() {
   if (state == "PAUSED" || state == "DRILLING" || state == "STUCK") {
+    actionSequence.push(3);
     state = 'PAUSED';
-    let prevPosition = Math.floor((pathPosition - 1) / pipeLength) * pipeLength;
+    playbackCountDown = pauseTimePlayback;
+    let prevPosition = Math.floor((pathPosition - 1) / pipeLengthSteps) * pipeLengthSteps;
     if (prevPosition > 0) {
       oldPaths.push(path.slice(prevPosition));
       path = path.slice(0, prevPosition);
@@ -155,7 +244,7 @@ function touchStarted() {
   else if (mouseX <= machineWidth && 
       mouseY <= groundLevel &&
       mouseY >= groundLevel - machineHeight){
-    startStopAction();
+    startStopUserAction();
   }
   else{
     toggleBias();
@@ -165,13 +254,12 @@ function touchStarted() {
 }
 
 function keyPressed() {
-  // TODO reformat to a single function
   if (key == " ") {
     toggleBias();
   } else if (keyCode == ESCAPE || keyCode == RETURN || keyCode == ENTER) {
-    startStopAction();
+    startStopUserAction();
   } else if (keyCode == BACKSPACE) {
-    pullBack();
+    pullBackUserAction();
   }
 }
 
@@ -208,8 +296,12 @@ function createHddScene() {
   hddScene.strokeWeight(3);
   for (let l = 0; l < dirtLayers; l++) {
     hddScene.noStroke();
-    hddScene.colorMode(HSB);
-    hddScene.fill(24, random(30, 90), 30);
+    // hsl mode can be used in rgb to extract saturation
+    hddScene.colorMode(HSL);
+    // let earthColor = color(`hsba(9.4%, ${random(30, 90)}, 11.8%, 1)`)
+    hddScene.fill(24, random(referenceSaturation - 30, referenceSaturation + 30), 18);
+    // hddScene.fill(24, 90, 16);
+    // hddScene.fill(earthColor);
     hddScene.beginShape();
     for (let x = 0; x < landscapeIterations; x++) {
       // Calculate the y of the dirt
@@ -267,23 +359,43 @@ function createReflections() {
   drawReflection(reflections);
 }
 
+function recomputeDrillingConstants(){
+  // computing speed-related constants
+  // curRopMult = -speedSliderP5.value();
+  // speedLabel.html("Game speed: 1/" + curRopMult);
+  deltaSpeedCurGame = 1 / curRopDevider;
+  turnAngleCurSpeed = turnAnglePerPixel * deltaSpeedCurGame;
+  pipeLengthSteps = pipeLengthPixels * curRopDevider;
+
+  // reseting the bit postion and steering
+  pos = createVector(startingX, groundLevel + startingDepth);
+  dir = p5.Vector.fromAngle(startingAngle, deltaSpeedCurGame);
+}
+
 // Reset the initial state
 function startDrill() {
-  pos = createVector(startingX, groundLevel + startingDepth);
-  dir = p5.Vector.fromAngle(startingAngle);
+  randomSeed(currentSeed);
+  recomputeDrillingConstants();
+
+  // rest of the setup
   path = [];
+  actionSequence = [];
   oldPaths = [];
   pathPosition = -1;
   stuckCount = 0;
   startCount = 0;
+  // randomTurnResistance = 0;
   sideTrackCount = 0;
+  updateStartDiv();
+  updateSideTrackDiv();
+  updateStuckDiv();
   boulders = [];
   bias = 1;
   state = 'PAUSED';
-  startButton.html('start');
+  updateStartButtonText();
 
   // Related circle size
-  const turnCircleLen = (PI * 2) / angle;
+  const turnCircleLen = (PI * 2) / turnAnglePerPixel;
   turnCircleRadius = turnCircleLen / PI / 2;
   
 
@@ -292,89 +404,157 @@ function startDrill() {
   createReflections();
 }
 
-function updateDivWithLinkToThisLevel() {
-  seedDiv.html('<a href="?seed='+currentSeed+'">Persistent link to THIS level</a>');
+function generateLink(randomness, seed, speed, replay){
+  let link = `?rnd=${randomness}`;
+  if (seed){
+    link += `&seed=${seed}`;
+  }
+  link += `&ropd=${speed}`;
+  if (replay){
+    let sol4 = actionSequenceToCondencedString();
+    link += `&s4=${sol4}`;
+  }
+  return link;
 }
 
+function updateDivWithLinkToThisLevel() {
+  seedDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, false)}">Link to THIS level</a>`);
+}
+
+function updateDivWithLinkToThisSolution(addSolution = false) {
+  // let solution = actionSequenceToString();
+  // let restoredSequence = stringToActions(solution);
+  if (addSolution){
+    // let sol4 = actionSequenceToCondencedString();
+    // let restoredSequence4 = condencedStringToActions(sol4); 
+    // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Link to THIS level</a>');
+    seedDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, true)}">Link to YOUR result</a>`);
+  }else{
+    updateDivWithLinkToThisLevel();
+  }
+}
+
+// note, this funciton now also updates sharable link
 function updateStartButtonText() {
+  if (playback){
+    updateDivWithLinkToThisSolution(false);
+    startButton.html("try to beat");
+    if (state == 'PAUSED' || state == 'STUCK') {
+      if (maxStarts - startCount <= 0 || maxSideTracks - sideTrackCount <= 0){
+        state = "LOSE";
+      }
+    }
+    return;
+  }
   if (state == 'DRILLING' || state == 'CONNECTION') {
     startButton.html('pause');
   } 
   if (state == 'PAUSED' || state == 'STUCK') {
-    startButton.html('drill');
+    // startButton.html(`start (${maxStarts - startCount} left)`);
+    startButton.html('start');
+    if (maxStarts - startCount <= 0 || maxSideTracks - sideTrackCount <= 0){
+      state = "LOSE";
+    }
   } 
   if (state == "WIN" || state == "LOSE") {
-    startButton.html("new game");
+    updateDivWithLinkToThisSolution(true);
+    startButton.html("try again");
   }
 }
 
 function setup() {
   // Let's begin!
   canvas = createCanvas(600, 400);
-  // canvas.touchStarted(sceneOnTouchStarted);
-  // frameRate(10);
+  // setting frame rate in case it is not set
+  // and it goes crazy on screen with variable refresh rate
+  frameRate(60);
 
-  // Handle the start and stop button
-  startButton = createButton('start').mousePressed(startStopAction);
 
-    // Handle the toggle bias button
-    createButton("toggle bias").mousePressed(function () {
-        toggleBias();
-    });
-
-    pullBackButton = createButton("pull back");
-    pullBackButton.mousePressed(function () {
-        pullBack();
-    });
-
-    // A slider for adding some randomness (in %)
-
-    const slider = document.createElement("input");
-    slider.setAttribute("id", "rand-slider");
-    slider.setAttribute("type", "range");
-    slider.setAttribute("min", "0");
-    slider.setAttribute("max", "100");
-    slider.setAttribute("value", "50");
-    slider.setAttribute("step", "0.5");
-    const sliderLabel = document.createElement("label");
-    sliderLabel.innerHTML = "randomness: ";
-    sliderLabel.setAttribute("for", "rand-slider");
-    const sliderContainer = document.createElement("div");
-    sliderContainer.setAttribute("id", "rand-slider-container");
-    sliderContainer.appendChild(sliderLabel);
-    sliderContainer.appendChild(slider);
-    document.querySelector("body").appendChild(sliderContainer);
-
-    randomSlider = document.getElementById("rand-slider");
-
-    // createSpan('direction: ');
-    // direcitonSlider = createSlider(-1, 1, 1, 2);
-
-    // A button for previewing steering bounds for aiming (@Denisovich I insist on the "limits")
-    aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
-    fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
-
-    createDiv(
-        '<a href="instructions/instructions-slide.png">Visual instructions</a>'
-    ).id("visual-instructions");
-    createDiv(
-        'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
-    ).id("copyright");
-
-    let params = getURLParams();
+  let params = getURLParams();
   if (params) {
     if (params["seed"]) {
       currentSeed = params["seed"];
       randomSeed(currentSeed);
     }
+    // using uncondenced string
+    if (params["sol"]) {
+      playback = stringToActions(params["sol"]);
+    }
+    // using condenced string
+    if (params["s4"]) {
+      playback = condencedStringToActions(params["s4"]);
+    }
+    // randomness
+    if (params["rnd"]) {
+      curRandomFactor6 = params["rnd"];
+    }
+    // ROP (Rate Of Penetration aka speed) factor
+    if (params["ropd"]) {
+      curRopDevider = params["ropd"];
+    }
   }
   if (!currentSeed) {
-    currentSeed = Math.floor(Math.random() * 999998)+1;
+    currentSeed = getNewSeed();
     randomSeed(currentSeed);
   }
 
-  seedDiv = createDiv('<a href="?seed=">Persistent link to THIS level</a>').id('seed-div');
-  updateDivWithLinkToThisLevel();
+  // canvas.touchStarted(sceneOnTouchStarted);
+  // frameRate(10);
+
+  // todo Move to canvas?
+  // Stat divs row 0
+  startDiv = createDiv('Drill starts: ');
+  updateStartDiv();
+  sideTracksDiv = createDiv('Side tracks: ');
+  updateSideTrackDiv();
+  stuckDiv = createDiv('Bit damage: ');
+  updateStuckDiv(); 
+
+  // Buttons row 1
+  // Handle the start and pause button
+  startButton = createButton('start').mousePressed(startStopUserAction);
+
+  // Handle the toggle bias button
+  toggleButton = createButton("toggle bias").mousePressed(toggleBias);
+
+  // Handle the pull-back button
+  pullBackButton = createButton("pull back");
+  pullBackButton.mousePressed(pullBackUserAction);
+
+  // Buttons and links row 2 control of levels
+  createDiv('');
+  // Div with the link
+  seedDiv = createDiv('<a href="?seed=">Link to THIS level</a>').id('seed-div');
+  updateDivWithLinkToThisSolution(false);
+
+  // A button for previewing steering bounds for aiming (@Denisovich I insist on the "limits")
+  aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
+  // // empty
+  // createDiv('');
+
+  // Handle new level button
+
+  // newGameButton = createButton("new level");
+  // newGameButton.mousePressed(newGameAction);
+
+
+  // Lnks with information row 3
+  // Links to control game behavior row 4
+  createGameControlDivs();
+
+  // Last row 
+
+  createDiv(
+      '<a href="instructions/instructions-slide.png">Visual instructions</a>'
+  ).id("visual-instructions");
+  createDiv("");
+  createDiv(
+      'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
+  ).id("copyright");
+
+  //TODO fog checkbox to be gone 
+  // fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
+
 
   machineBack = loadImage('assets/drilling-machine-small.png');
   machineFront = loadImage('assets/machine-foreground-small.png');
@@ -382,36 +562,107 @@ function setup() {
   startDrill();
 }
 
+function createGameControlDivs(){
+  // divs with information
+  // TODO remove curLevelDiv
+  curLevelDiv = createDiv(`Level`);
+  createDiv("Speed");
+  createDiv("Randomness");
+  let divText = '';
+  // current / next level
+  divText += `<b>${currentSeed}</b> `;
+  divText += hyperLink(generateLink(curRandomFactor6, getNewSeed(), curRopDevider, false),
+    'next ⏭');
+  nextLevelDiv = createDiv(divText);
+
+  // speed controls
+  divText = '';
+  divText += boldOrHyperLink(curRopDevider == 2, 
+          generateLink(curRandomFactor6, currentSeed, 2, false), 'chill');
+  divText += boldOrHyperLink(curRopDevider == 1, 
+          generateLink(curRandomFactor6, currentSeed, 1, false), 'standard');
+  createDiv(divText);
+  
+  // randomness controls
+  divText = '';
+  divText += boldOrHyperLink(curRandomFactor6 == 0, 
+          generateLink(0, currentSeed, curRopDevider, false), 'none');
+  divText += boldOrHyperLink(curRandomFactor6 == 3, 
+          generateLink(3, currentSeed, curRopDevider, false), 'normal');
+  divText += boldOrHyperLink(curRandomFactor6 == 6, 
+          generateLink(6, currentSeed, curRopDevider, false), 'chaos');
+  createDiv(divText);    
+}
+
+function boldOrHyperLink(expression, link, text){
+  if (expression){
+    return `<b>${text}</b> `;
+  } else{
+    return hyperLink(link, text);
+  }
+}
+
+function hyperLink(link, text){
+  return `<a href="${link}">${text}</a> `;
+}
+
+function takeAction(){
+  if (playback){
+    let decisionNumber = actionSequence.length;
+    if (decisionNumber < playback.length){
+      let action = playback[decisionNumber];
+      if (action == 1){ // pause
+        startStopAction();
+        return;
+      }else if (action == 3){ // pull back
+        pullBack();
+        return;
+      } else {
+        if (decisionNumber == 0){
+          startStopAction();
+        }else if (state == "STUCK" || state == "PAUSED"){
+          startStopAction();
+        }
+        bias = playback[decisionNumber] - 1;
+      }
+    }
+  }
+}
+
 // One drill step
 function drill() {
-  // update bias based on mouse input 
-  // scrapped for now
-  // if (mouseY < pos.y){
-  //   bias = -1;
-  // } else{
-  //   bias = 1;
-  // }
-
-  dir.rotate(angle * bias);
-
+  dir.rotate(turnAngleCurSpeed * bias);
   // Add some randomness
-  const randomFactor = randomSlider.value;
-  const r = (random(-randomFactor, 0) * angle * bias) / 100;
-  dir.rotate(r);
-
+  // get color
+  let c1 = hddScene.get(pos.x, pos.y);
+  let c1Saturation = saturation(c1);
+  let c1Factor = c1Saturation / referenceSaturation;
+  // let c1Brightness = (c1[0] + c1[1] + c1[2]) / 3 / 60;
+  // console.log(`color ${c1}. saturation ${c1Saturation}. factor ${c1Factor}.`);
+  // random depending on the dirt color
+  const newRandom = c1Factor * (random(-curRandomFactor6, 0) * turnAngleCurSpeed * bias) / 6;
+  // updated with selected correlation
+  // randomTurnResistance = randomTurnResistance * randomTurnCorrelation + newRandom * (1 - randomTurnCorrelation);
+  dir.rotate(newRandom);
 
   // Drilling mode
   // Save previous position
-  path.push([pos.copy(), dir.copy()]);
+  path.push([pos.copy(), dir.copy(), bias]);
+  actionSequence.push(bias+1);
   pathPosition = path.length - 1;
-  if (path.length % pipeLength == 0) {
+  if (path.length % pipeLengthSteps == 0) {
     state = "CONNECTION";
     connectionCountDown = verticalPipeMovement;
   }
   // Reduce uncertainty
   fogOfUncertinty.noStroke();
   fogOfUncertinty.fill(255);
-  fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
+  //   todo do not reduce uncertainty in playback mode
+  if (!playback){
+    fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
+  }else{
+    fogOfUncertinty.circle(pos.x, pos.y, goal.w);
+  }
   pos.add(dir);
   if (pos.x < 0 || pos.x > width || pos.y > height) {
     state = 'LOSE';
@@ -433,8 +684,12 @@ function drill() {
   } else if (c == boulderColor.toString()) {
     state = 'STUCK';
     stuckCount++;
+    updateStuckDiv();
     if (stuckCount >= maxStuckTimes) {
       state = 'LOSE';
+    }else if (playback){
+      // state = 'PAUSED';
+      playbackCountDown = pauseTimePlayback;
     }
     updateStartButtonText();
   } else if (
@@ -501,7 +756,7 @@ function computeReflextionTimeSinglePoint(x0, x1) {
 }
 
 function drawSurfacePipe() {
-  let visibleLength = pipeLength - path.length % pipeLength + pipeOffset;
+  let visibleLength = pipeLengthPixels - path.length % pipeLengthSteps * deltaSpeedCurGame + pipeOffset;
   push();
   translate(startingX, groundLevel + startingDepth);
   rotate(startingAngle);
@@ -509,7 +764,7 @@ function drawSurfacePipe() {
   stroke(surfacePipeColor);
   if (state == "CONNECTION") {
     // loading the pipe 
-    line(-pipeLength-pipeOffset, -connectionCountDown, -pipeOffset, -connectionCountDown);
+    line(-pipeLengthPixels - pipeOffset, -connectionCountDown, -pipeOffset, -connectionCountDown);
     line(-pipeOffset, 0, 0, 0);
   } else {
     line(-visibleLength, 0, 0, 0);
@@ -521,7 +776,114 @@ function drawSurfacePipe() {
 }
 
 function padNumber(num){
-  return String(num).padStart(5, ' ')
+  return String(Math.round(num)).padStart(5, ' ')
+}
+
+function pathToString(){
+  let sequence = "";
+  // go each 8 bit
+  for (let i = 0; i*8<path.length; ++i){
+    // compute 8-bit number
+    let number = 0;
+    let mult = 1;
+    for (let j = 0; j<8; ++j){
+      if (i*8+j < path.length){
+        let bias = path[i*8+j][2];
+        if (bias > 0){
+          number += mult * bias;
+        }
+        mult *= 2;
+      }
+    }
+    // add 8-bit number to sttring
+    sequence += String.fromCharCode(number);
+  }
+  // btoa encodes string to URL string
+  return btoa(sequence);
+}
+
+function stringToBias(urlstr){
+  // atob decodes from url string
+  let arrayFromStr = Array.from(atob(urlstr));
+  let biasArray = [];
+  for (let i=0; i<arrayFromStr.length; ++i){
+    let curNumber = arrayFromStr[i].charCodeAt(0);
+    for (let j=0; j<8; ++j){
+      biasArray.push(curNumber % 2);
+      curNumber = Math.floor(curNumber / 2);
+    }
+  }
+  return biasArray;
+}
+
+function actionSequenceToCondencedString(){
+  let sequence = "";
+  const maxLenght = 63;
+  let left = 0;
+  let right = 0;
+  while (left < actionSequence.length){
+    let command = actionSequence[left];
+    right = left + 1;
+    while (right < actionSequence.length 
+            && actionSequence[right] == command
+            && right-left < maxLenght){
+      right++;
+    }
+    let repeat = right - left;
+    let encoded = repeat * 4 + command;
+    sequence += String.fromCharCode(encoded);
+    left = right;
+  }
+  return btoa(sequence);
+}
+
+function condencedStringToActions(urlstr){
+  let arrayFromStr = Array.from(atob(urlstr));
+  let actionArray = [];
+  for (let i=0; i<arrayFromStr.length; ++i){
+    let encoded = arrayFromStr[i].charCodeAt(0);
+    let command = encoded % 4;
+    let repeat = Math.floor(encoded / 4);
+    for (let j=0; j<repeat; ++j){
+      actionArray.push(command);
+    }
+  }
+  return actionArray;
+}
+
+function actionSequenceToString(){
+  let sequence = "";
+  // go each 8 bit
+  for (let i = 0; i*4<actionSequence.length; ++i){
+    // compute 8-bit number
+    let number = 0;
+    let mult = 1;
+    for (let j = 0; j<4; ++j){
+      if (i*4+j < actionSequence.length){
+        let action = actionSequence[i*4+j];
+        number += mult * action;
+        mult *= 4;
+      }
+    }
+    // add 8-bit number to sttring
+    sequence += String.fromCharCode(number);
+  }
+  // btoa encodes string to URL string
+  return btoa(sequence);
+}
+
+function stringToActions(urlstr){
+  // atob decodes from url string
+  let arrayFromStr = Array.from(atob(urlstr));
+  let actionArray = [];
+  for (let i=0; i<arrayFromStr.length; ++i){
+    let curNumber = arrayFromStr[i].charCodeAt(0);
+    for (let j=0; j<4; ++j){
+      actionArray.push(curNumber % 4);
+      curNumber = Math.floor(curNumber / 4);
+    }
+  }
+  return actionArray;
 }
 
 function drawEndGameStatsAtY(textY){
@@ -543,8 +905,9 @@ function drawEndGameStatsAtY(textY){
   }
   textY += fontSize;
   if (state == "WIN"){
-    text(`final pipe length = ${padNumber(path.length)}-`, textX, textY);
-    reward -= path.length;
+    let drilledPathPixels = path.length*deltaSpeedCurGame;
+    text(`final pipe length = ${padNumber(drilledPathPixels)}-`, textX, textY);
+    reward -= drilledPathPixels;
   } else{
     let remainingDistance = Math.ceil(dist(pos.x, pos.y, goal.x + goal.w/2, groundLevel));
     text(`remaining distance = ${padNumber(remainingDistance)}-`, textX, textY);
@@ -556,46 +919,80 @@ function drawEndGameStatsAtY(textY){
   for (let oldPath of oldPaths) {
     length += oldPath.length;
   }
+  length *= deltaSpeedCurGame; // accouning for drilling speed
   text(`drilled length = ${padNumber(length)}-`, textX, textY);
   reward -= length;
   
   textY += fontSize;
-  const startMult = Math.ceil(pipeLength/40) * 10;
+  const startMult = Math.ceil(pipeLengthPixels/40) * 10;
   let startCost = startCount * startMult;
   text(`starts: ${startCount} *${startMult} = ${padNumber(startCost)}-`, textX, textY);
   reward -= startCost;
 
   textY += fontSize;
-  const sideTrackMult = Math.ceil(pipeLength/20) * 10;
+  const sideTrackMult = Math.ceil(pipeLengthPixels/20) * 10;
   let sideTrackCost = sideTrackCount * sideTrackMult;
   text(`side-tracks: ${sideTrackCount} *${sideTrackMult} = ${padNumber(sideTrackCost)}-`, textX, textY);
   reward -= sideTrackCost;
 
   textY += fontSize;
-  const stuckMult = Math.ceil(pipeLength/50) * 50;
+  const stuckMult = Math.ceil(pipeLengthPixels/10) * 10;
   let stuckCost = stuckCount * stuckMult;
   text(`stuck count: ${stuckCount} *${stuckMult} = ${padNumber(stuckCost)}-`, textX, textY);
   reward -= stuckCost;
 
   textY += fontSize * 1.5;
   text(`FINAL SCORE = ${padNumber(reward)} `, textX, textY);
+
+  // let compressedString = pathToString();
+  // let restoredBias = stringToBias(compressedString);
+
   return reward;
 }
 
 // Draw loop
 function draw() {
-
+  if (playback){
+    if (state == "STUCK" || (state == "PAUSED" && path.length > 0)){
+      if (playbackCountDown > 0){
+        playbackCountDown -= deltaSpeedCurGame;
+      }else{
+        takeAction();
+      }
+    }else{
+      takeAction();
+    }
+  }
   // Dril!
-  if (state == "DRILLING") drill();
+  if (state == "DRILLING"){ 
+    // frameRate(60); for the setting correct frame rate depending on the state in the future
+    drill();
+  }
+
+  // // in playback mode we need to take actions when paused or stuck using drill()
+  // if (playback){
+  //   if (state == "STUCK" || (state == "PAUSED" && path.length > 0)){
+  //     if (playbackCountDown > 0){
+  //       playbackCountDown -= deltaSpeedCurGame;
+  //     }else{
+  //       // state = "DRILLING";
+  //       startStopAction();
+  //     }
+  //   }
+  // } 
+
 
   // Draw the scene
   image(hddScene, 0, 0);
-  if (!(state == "WIN" || state == "LOSE")  && fogCheckbox.checked()) {
+  if (state != "WIN" || playback) {
     blendMode(MULTIPLY);
     image(fogOfUncertinty, 0, 0);
     blendMode(BLEND);
   }
+  // todo consider turning off reflections
+  // if (!playback){
   image(reflections, 0, 0);
+  // }
 
   // draw the machine
   image(machineBack, 0, groundLevel - machineHeight + 2, machineWidth, machineHeight);
@@ -660,6 +1057,25 @@ function draw() {
       -HALF_PI + maxAimAngle,
       OPEN
     );
+    // test angle
+    // arc(
+    //   0,
+    //   -turnCircleRadius * 4/3,
+    //   turnCircleRadius * 2 * 4/3,
+    //   turnCircleRadius * 2 * 4/3,
+    //   HALF_PI - maxAimAngle,
+    //   PI,
+    //   OPEN
+    // );
+    // arc(
+    //   0,
+    //   turnCircleRadius * 4/3,
+    //   turnCircleRadius * 2 * 4/3,
+    //   turnCircleRadius * 2 * 4/3,
+    //   -PI,
+    //   -HALF_PI + maxAimAngle,
+    //   OPEN
+    // );
     pop();
   }
 
@@ -672,6 +1088,15 @@ function draw() {
   line(0, 0, 10, 0);
   pop();
 
+  // show frame rate
+  textAlign(LEFT, TOP);
+  noStroke();
+  fill(255);
+  textSize(24);
+  textFont('courier');
+  // let frameRateObserved = getFrameRate();
+  // text('Framerate ' +  Math.round(frameRateObserved/10) * 10, 10, height - 24);
+  // debug information for location
   // circle(xTouch, yTouch, 10);
 
   if (state == "CONNECTION"){
@@ -681,7 +1106,7 @@ function draw() {
     // textSize(24);
     // textFont('courier');
     // text('*pipe handling*', width / 2, groundLevel / 2);
-    connectionCountDown--;
+    connectionCountDown -= deltaSpeedCurGame;
     if (connectionCountDown <= 0) {
       state = "DRILLING";
     }
@@ -696,16 +1121,20 @@ function draw() {
     text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', width / 2, groundLevel / 2);
   }
 
-  if (state != "DRILLING" && state != "CONNECTION"){
-    textAlign(LEFT, TOP);
+  if (!playback && state != "DRILLING" && state != "CONNECTION"){
     noStroke();
     fill(255);
     textSize(16);
     textFont('courier');
-    text('Click the machine \nto start / pause', 3, 3);
-    text('Click anywehere else\nto toggle bias', width/2, 3)
+    // text('Click the machine \nto start / pause', 3, 3);
+    textAlign(LEFT, TOP);
+    text('Click the machine\nto start/pause [⏎]', 5, 5);
+    textAlign(CENTER, TOP);
+    text('Click anywehere else\nto toggle bias [⎵]', width/2 + 10, 5)
+    textAlign(RIGHT, TOP);
+    text('Use the button\nto pull back [⌫]', width - 5, 5)
+    // text('Click anywehere else\nto toggle bias', width/2, 3)
   }
-
 
   // If you've lost!
   if (state == 'LOSE') {
@@ -715,7 +1144,11 @@ function draw() {
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    text('YOU LOSE', width / 2, groundLevel);
+    if (playback){
+      text('THEY LOSE', width / 2, groundLevel);
+    }else{
+      text('YOU LOSE', width / 2, groundLevel);
+    }
     drawEndGameStatsAtY(groundLevel + 96);
   } // If you've won!
   else if (state == 'WIN') {
@@ -725,7 +1158,11 @@ function draw() {
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    text('YOU WIN', width / 2, groundLevel);
+    if (playback){
+      text('THEY WIN', width / 2, groundLevel);
+    }else{
+      text('YOU WIN', width / 2, groundLevel);
+    }
     // Starting idea for a score
     drawEndGameStatsAtY(groundLevel + 96);
   }
