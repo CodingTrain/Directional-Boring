@@ -333,6 +333,10 @@ function createHddScene() {
   hddScene.noStroke();
   hddScene.rect(0, 0, width, groundLevel);
 
+  // todo add the houses here
+  // it is important to color houses differently
+  // because the status checking occurs based on color
+
   // Add the goal
   hddScene.fill(goalColor);
   hddScene.rect(goal.x - 2, groundLevel - goal.w - 2, goal.w + 4, goal.w + 4);
