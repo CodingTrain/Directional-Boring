@@ -13,7 +13,9 @@ let pos, dir;
 let bias;
 // All the points along the drill path so far
 let path;
+let reversePath;
 let pathPosition;
+let finalPathLength;
 let oldPaths;
 let actionSequence;
 // let randomTurnResistance = 0;
@@ -383,6 +385,9 @@ function startDrill() {
 
   // rest of the setup
   path = [];
+  reversePath = [
+    [createVector(width, groundLevel - 4)],
+    [createVector(goal.x + goal.w, groundLevel - 4)]];
   actionSequence = [];
   oldPaths = [];
   pathPosition = -1;
@@ -899,6 +904,10 @@ function drawEndGameStatsAtY(textY){
   const textX = width - fontSize;
   textSize(fontSize);
   
+  if (!finalPathLength){
+    finalPathLength = path.length;
+  }
+
   let reward = 0;
   if (state == "WIN"){
     reward = 5000;
@@ -909,7 +918,7 @@ function drawEndGameStatsAtY(textY){
   }
   textY += fontSize;
   if (state == "WIN"){
-    let drilledPathPixels = path.length*deltaSpeedCurGame;
+    let drilledPathPixels = finalPathLength*deltaSpeedCurGame;
     text(`final pipe length = ${padNumber(drilledPathPixels)}-`, textX, textY);
     reward -= drilledPathPixels;
   } else{
@@ -919,7 +928,7 @@ function drawEndGameStatsAtY(textY){
   }
   textY += fontSize;
 
-  let length = path.length;
+  let length = finalPathLength;
   for (let oldPath of oldPaths) {
     length += oldPath.length;
   }
@@ -1016,6 +1025,7 @@ function draw() {
     }
     endShape();
   }
+
   // the newest well
   beginShape();
   noFill();
@@ -1026,6 +1036,31 @@ function draw() {
     vertex(v.x, v.y);
   }
   endShape();
+
+  // the pulled pipe/cable if win
+  
+  if (state == 'WIN'){
+    beginShape();
+    noFill();
+    stroke(127);
+    strokeWeight(8);
+    let v;
+    for (let vPair of reversePath) {
+      v = vPair[0]
+      vertex(v.x, v.y);
+    }
+    endShape();  
+    // draw hole enlarger in black
+    if (v){
+      stroke(0);
+      // todo something weird with circle diameter should be the same as strokeWeight
+      circle(v.x, v.y, 3);
+    }
+    // propogate pipe
+    if (path.length > 0){
+      reversePath.push(path.pop());
+    }
+  }
 
   // Draw something where drill starts
   fill(255, 0, 0);
