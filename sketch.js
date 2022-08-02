@@ -1084,13 +1084,15 @@ function draw() {
   }
 
   // Draw the drill bit
-  push();
-  stroke(252, 238, 33);
-  strokeWeight(8);
-  translate(pos.x, pos.y);
-  rotate(dir.heading() + (startingAngle) * bias);
-  line(0, 0, 10, 0);
-  pop();
+  if (state != 'WIN'){
+    push();
+    stroke(252, 238, 33);
+    strokeWeight(8);
+    translate(pos.x, pos.y);
+    rotate(dir.heading() + (startingAngle) * bias);
+    line(0, 0, 10, 0);
+    pop();
+  }
 
   // show frame rate
   textAlign(LEFT, TOP);
