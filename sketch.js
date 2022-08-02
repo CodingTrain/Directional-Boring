@@ -907,6 +907,7 @@ function drawEndGameStatsAtY(textY){
   textAlign(RIGHT, TOP);
   noStroke();
   fill(255);
+  // todo fix font for linux
   textFont('courier-bold');
   const fontSize = 24;
   const textX = width - fontSize;
