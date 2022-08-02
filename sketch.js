@@ -7,6 +7,14 @@
 
 // Play the simulator: https://codingtrain.github.io/Directional-Boring/
 
+// Event listeners
+// Prevents scrolling while toggling bias
+window.addEventListener('keydown', function(e) {
+  if((e.key == " " || e.code == 32) && e.target == document.body) {
+    e.preventDefault();
+  }
+});
+
 // Vectors for current position and direction
 let pos, dir;
 // Bias of current drill (up or down, 1 or -1)
