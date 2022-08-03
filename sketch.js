@@ -399,6 +399,7 @@ function startDrill() {
   actionSequence = [];
   oldPaths = [];
   pathPosition = -1;
+  finalPathLength = undefined;
   stuckCount = 0;
   startCount = 0;
   // randomTurnResistance = 0;
