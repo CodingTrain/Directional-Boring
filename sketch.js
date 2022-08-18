@@ -565,7 +565,9 @@ function setup() {
   createDiv(
       '<a href="instructions/instructions-slide.png">Visual instructions</a>'
   ).id("visual-instructions");
-  createDiv("");
+  createDiv(
+    '<a href="https://github.com/CodingTrain/Directional-Boring">Link to GitHub</a>'
+    );
   createDiv(
       'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
   ).id("copyright");
