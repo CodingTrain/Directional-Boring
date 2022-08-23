@@ -580,6 +580,16 @@ function setup() {
   machineFront = loadImage('assets/machine-foreground-small.png');
 
   startDrill();
+
+  // removing an anoying div from LaspPass
+  const annoyingDivs = document.querySelectorAll(`div`);
+  // [style="position: static !important;]
+  for (const annoying1 of annoyingDivs) { 
+    // annoying1.remove();
+    if (annoying1.style[0] === "position"){
+      annoying1.remove();
+    }
+  }
 }
 
 function createGameControlDivs(){
