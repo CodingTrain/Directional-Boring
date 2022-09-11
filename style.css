@@ -22,6 +22,7 @@ body {
   justify-items: center;
   margin: 0 max(0px, calc(50% - 300px));  
   margin-bottom: 1rem;
+  -webkit-text-size-adjust: none;
   /* touch-action: manipulation; */
 }
 
