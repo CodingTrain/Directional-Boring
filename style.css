@@ -32,9 +32,14 @@ main {
   grid-column-end: 4;
 }
 
+div {
+  text-align: center;
+}
+
 .copyright {
   grid-column-start: 1;
   grid-column-end: 4;
+  text-align: center;
 }
 
 canvas {
