@@ -15,6 +15,10 @@ window.addEventListener('keydown', function(e) {
   }
 });
 
+const defaultWidth = 600;
+const defaultHeight = 400;
+let ratio = 1;
+
 // Vectors for current position and direction
 let pos, dir;
 // Bias of current drill (up or down, 1 or -1)
@@ -177,15 +181,15 @@ function startStopUserAction(){
 }
 
 function updateSideTrackDiv(){
-  sideTracksDiv.html(`Side tracks: ${sideTrackCount}/${maxSideTracks}`);
+  sideTracksDiv.html(`Sidetracks ${sideTrackCount}/${maxSideTracks}`);
 }
 
 function updateStartDiv(){
-  startDiv.html(`Starts: ${startCount}/${maxStarts}`);
+  startDiv.html(`Starts ${startCount}/${maxStarts}`);
 }
 
 function updateStuckDiv(){
-  stuckDiv.html(`Bit damage: ${stuckCount}/${maxStuckTimes}`);
+  stuckDiv.html(`Bitwear ${stuckCount}/${maxStuckTimes}`);
 }
 
 function startStopAction(){
@@ -277,13 +281,13 @@ function drawRiver(hddScene, riverColor) {
   hddScene.noStroke();
   // hddScene.rectMode(CORNER);
   // hddScene.fill(groundColor);
-  // hddScene.rect(0, groundLevel, width, height - groundLevel);
+  // hddScene.rect(0, groundLevel, width, defaultHeight - groundLevel);
   hddScene.fill(riverColor);
-  hddScene.arc(width / 2 + startingX / 2, groundLevel, width / 2, width / 4, 0, PI);
+  hddScene.arc(defaultWidth / 2 + startingX / 2, groundLevel, defaultWidth / 2, defaultWidth / 4, 0, PI);
 }
 
 function createHddScene() {
-  hddScene = createGraphics(width, height);
+  hddScene = createGraphics(defaultWidth, defaultHeight);
   // Draw a new scene
   hddScene.background(backgroundColor);
 
@@ -295,7 +299,7 @@ function createHddScene() {
     dirt.push([]);
     for (let i = 0; i < landscapeIterations; i++) {
       dirt[dirt.length - 1].push(
-        noise((i * width) / (landscapeIterations * 100))
+        noise((i * defaultWidth) / (landscapeIterations * 100))
       );
     }
   }
@@ -317,14 +321,14 @@ function createHddScene() {
       // Calculate the y of the dirt
       let y = 0;
       for (let i = 0; i < l; i++) {
-        y += ((2.5 * (height - groundLevel)) / dirtLayers) * dirt[i][x];
+        y += ((2.5 * (defaultHeight - groundLevel)) / dirtLayers) * dirt[i][x];
       }
-      hddScene.vertex((x * width) / landscapeIterations, groundLevel + y);
+      hddScene.vertex((x * defaultWidth) / landscapeIterations, groundLevel + y);
     }
     // Wrap around so the whole shape can be filled
-    hddScene.vertex(width, groundLevel);
-    hddScene.vertex(width, height);
-    hddScene.vertex(0, height);
+    hddScene.vertex(defaultWidth, groundLevel);
+    hddScene.vertex(defaultWidth, defaultHeight);
+    hddScene.vertex(0, defaultHeight);
     hddScene.endShape(CLOSE);
   }
   hddScene.pop();
@@ -333,15 +337,15 @@ function createHddScene() {
 
   for (let i = 0; i < 10; i++) {
     let r = random(8, 36);
-    let x = random(0, width);
-    let y = random(groundLevel + 50, height - 50);
+    let x = random(0, defaultWidth);
+    let y = random(groundLevel + 50, defaultHeight - 50);
     boulders.push([x, y, r]);
     hddScene.fill(boulderColor);
     hddScene.circle(x, y, r * 2);
   }
   hddScene.fill(45, 197, 244);
   hddScene.noStroke();
-  hddScene.rect(0, 0, width, groundLevel);
+  hddScene.rect(0, 0, defaultWidth, groundLevel);
 
   // todo add the houses here
   // it is important to color houses differently
@@ -356,19 +360,19 @@ function createHddScene() {
 }
 
 function createFogOfUncertainty() {
-  fogOfUncertinty = createGraphics(width, height);
+  fogOfUncertinty = createGraphics(defaultWidth, defaultHeight);
   // Draw a new scene
   fogOfUncertinty.background(0, 0);
-  setGradient(fogOfUncertinty, 0, groundLevel, width, goal.w*2, color(255), color(0), 1);
+  setGradient(fogOfUncertinty, 0, groundLevel, defaultWidth, goal.w*2, color(255), color(0), 1);
   fogOfUncertinty.fill(0);
   fogOfUncertinty.noStroke();
-  fogOfUncertinty.rect(0, groundLevel + goal.w*2, width, height);
+  fogOfUncertinty.rect(0, groundLevel + goal.w*2, defaultWidth, defaultHeight);
 
   drawRiver(fogOfUncertinty, color(255));
 }
 
 function createReflections() {
-  reflections = createGraphics(width, height);
+  reflections = createGraphics(defaultWidth, defaultHeight);
   reflections.background(0, 0);
   drawReflection(reflections);
 }
@@ -394,7 +398,7 @@ function startDrill() {
   // rest of the setup
   path = [];
   reversePath = [
-    [createVector(width, groundLevel - 4)],
+    [createVector(defaultWidth, groundLevel - 4)],
     [createVector(goal.x + goal.w, groundLevel - 4)]];
   actionSequence = [];
   oldPaths = [];
@@ -483,8 +487,15 @@ function updateStartButtonText() {
 function setup() {
   // Let's begin!
   // todo there are some canvases in the end of the page that look weird
-  // canvas = createCanvas(600, 400);
-  canvas = createCanvas(375, 400);
+  const allowedWidth = windowWidth;
+  if (windowWidth > defaultWidth){
+    canvas = createCanvas(defaultWidth, defaultHeight);
+  }else{
+    ratio = windowWidth / defaultWidth;
+    canvas = createCanvas(defaultWidth*ratio, defaultHeight*ratio);
+    // scale(ratio);
+  }
+  // canvas = createCanvas(375, 400);
   // setting frame rate in case it is not set
   // and it goes crazy on screen with variable refresh rate
   frameRate(60);
@@ -621,9 +632,9 @@ function createGameControlDivs(){
   // randomness controls
   divText = '';
   divText += boldOrHyperLink(curRandomFactor6 == 0, 
-          generateLink(0, currentSeed, curRopDevider, false), 'none');
+          generateLink(0, currentSeed, curRopDevider, false), 'no');
   divText += boldOrHyperLink(curRandomFactor6 == 3, 
-          generateLink(3, currentSeed, curRopDevider, false), 'normal');
+          generateLink(3, currentSeed, curRopDevider, false), 'norm');
   divText += boldOrHyperLink(curRandomFactor6 == 6, 
           generateLink(6, currentSeed, curRopDevider, false), 'chaos');
   createDiv(divText);    
@@ -699,7 +710,7 @@ function drill() {
     fogOfUncertinty.circle(pos.x, pos.y, goal.w);
   }
   pos.add(dir);
-  if (pos.x < 0 || pos.x > width || pos.y > height) {
+  if (pos.x < 0 || pos.x > defaultWidth || pos.y > defaultHeight) {
     state = 'LOSE';
     updateStartButtonText();
   }
@@ -742,7 +753,7 @@ function drawReflection(reflectionImage) {
   const step = 1;
   const visualRad = 3;
   const errorPercent = 10;
-  for (let x = 0; x < width - spacing; x+=step) {
+  for (let x = 0; x < defaultWidth - spacing; x+=step) {
     let minTravelDist = computeReflextionTimeSinglePoint(x, x + spacing);
     let distToObjWithNoize = (100 + random(-10, 10)) / 100. * minTravelDist / 2;
     let xMid = x + spacing / 2;
@@ -754,8 +765,8 @@ function drawReflection(reflectionImage) {
 }
 
 function computeReflextionTimeSinglePoint(x0, x1) {
-  let minArrivalDist = height * 2;
-  //const maxSteps = height * 2;
+  let minArrivalDist = defaultHeight * 2;
+  //const maxSteps = defaultHeight * 2;
   for (let j = 0; j < boulders.length; j++) {
     for (let i = 0; i < 360; i+= 10) {
       // looping angles on the boulder
@@ -928,7 +939,7 @@ function drawEndGameStatsAtY(textY){
   // todo fix font for linux
   textFont('courier-bold');
   const fontSize = 24;
-  const textX = width - fontSize;
+  const textX = defaultWidth - fontSize;
   textSize(fontSize);
   
   if (!finalPathLength){
@@ -992,6 +1003,8 @@ function drawEndGameStatsAtY(textY){
 
 // Draw loop
 function draw() {
+  //scaling everytging if needed
+  scale(ratio);
   if (playback){
     if (state == "STUCK" || (state == "PAUSED" && path.length > 0)){
       if (playbackCountDown > 0){
@@ -1163,7 +1176,7 @@ function draw() {
   textSize(24);
   textFont('courier');
   // let frameRateObserved = getFrameRate();
-  // text('Framerate ' +  Math.round(frameRateObserved/10) * 10, 10, height - 24);
+  // text('Framerate ' +  Math.round(frameRateObserved/10) * 10, 10, defaultHeight - 24);
   // debug information for location
   // circle(xTouch, yTouch, 10);
 
@@ -1173,7 +1186,7 @@ function draw() {
     // fill(255);
     // textSize(24);
     // textFont('courier');
-    // text('*pipe handling*', width / 2, groundLevel / 2);
+    // text('*pipe handling*', defaultWidth / 2, groundLevel / 2);
     connectionCountDown -= deltaSpeedCurGame;
     if (connectionCountDown <= 0) {
       state = "DRILLING";
@@ -1186,7 +1199,7 @@ function draw() {
     fill(255);
     textSize(24);
     textFont('courier');
-    text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', width / 2, groundLevel / 2);
+    text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', defaultWidth / 2, groundLevel / 2);
   }
 
   if (!playback && state != "DRILLING" && state != "CONNECTION"){
@@ -1198,10 +1211,10 @@ function draw() {
     textAlign(LEFT, TOP);
     text('Click the machine\nto start/pause [⏎]', 5, 5);
     textAlign(CENTER, TOP);
-    text('Click anywehere else\nto toggle bias [⎵]', width/2 + 10, 5)
+    text('Click anywehere else\nto toggle bias [⎵]', defaultWidth/2 + 10, 5)
     textAlign(RIGHT, TOP);
-    text('Use the button\nto pull back [⌫]', width - 5, 5)
-    // text('Click anywehere else\nto toggle bias', width/2, 3)
+    text('Use the button\nto pull back [⌫]', defaultWidth - 5, 5)
+    // text('Click anywehere else\nto toggle bias', defaultWidth/2, 3)
   }
 
   // If you've lost!
@@ -1213,9 +1226,9 @@ function draw() {
     textSize(96);
     textFont('courier-bold');
     if (playback){
-      text('THEY LOSE', width / 2, groundLevel);
+      text('THEY LOSE', defaultWidth / 2, groundLevel);
     }else{
-      text('YOU LOSE', width / 2, groundLevel);
+      text('YOU LOSE', defaultWidth / 2, groundLevel);
     }
     drawEndGameStatsAtY(groundLevel + 96);
   } // If you've won!
@@ -1227,9 +1240,9 @@ function draw() {
     textSize(96);
     textFont('courier-bold');
     if (playback){
-      text('THEY WIN', width / 2, groundLevel);
+      text('THEY WIN', defaultWidth / 2, groundLevel);
     }else{
-      text('YOU WIN', width / 2, groundLevel);
+      text('YOU WIN', defaultWidth / 2, groundLevel);
     }
     // Starting idea for a score
     drawEndGameStatsAtY(groundLevel + 96);
