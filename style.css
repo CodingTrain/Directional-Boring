@@ -19,13 +19,19 @@ body {
   grid-template-rows: 420px 1.2rem 3.2rem 5rem 1rem 1rem 7rem 5rem; 
   align-items: center;
   justify-items: center;
-  margin: 0 calc(50% - 300px);
+  /* margin: 0 calc(50% - 300px); */
   margin-bottom: 1rem;
+  touch-action: manipulation;
 }
 
 /* main only contains canvas */
 
 main {
+  grid-column-start: 1;
+  grid-column-end: 4;
+}
+
+.copyright {
   grid-column-start: 1;
   grid-column-end: 4;
 }

@@ -482,7 +482,9 @@ function updateStartButtonText() {
 
 function setup() {
   // Let's begin!
-  canvas = createCanvas(600, 400);
+  // todo there are some canvases in the end of the page that look weird
+  // canvas = createCanvas(600, 400);
+  canvas = createCanvas(375, 400);
   // setting frame rate in case it is not set
   // and it goes crazy on screen with variable refresh rate
   frameRate(60);
@@ -568,9 +570,12 @@ function setup() {
   createDiv(
     '<a href="https://github.com/CodingTrain/Directional-Boring">Link to GitHub</a>'
     );
-  createDiv(
+  // this one is empty to make room for the last one
+  createDiv();
+  const copyrightDiv = createDiv(
       'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
   ).id("copyright");
+  copyrightDiv.addClass('copyright');
 
   //TODO fog checkbox to be gone 
   // fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
