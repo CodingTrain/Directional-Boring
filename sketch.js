@@ -255,9 +255,10 @@ function touchStarted() {
   if (mouseY > height || mouseX < 0 || mouseX > width){
     return true;
   }
-  else if (mouseX <= machineWidth && 
-      mouseY <= groundLevel &&
-      mouseY >= groundLevel - machineHeight){
+  else if (mouseX <= machineWidth*ratio && 
+      mouseY <= groundLevel*ratio) 
+      // && mouseY >= groundLevel - machineHeight)
+      {
     startStopUserAction();
   }
   else{
