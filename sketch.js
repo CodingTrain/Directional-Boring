@@ -255,6 +255,7 @@ function touchStarted() {
   if (mouseY > height || mouseX < 0 || mouseX > width){
     return true;
   }
+  //todo add click zone in the bottom of the screen
   else if (mouseX <= machineWidth*ratio && 
       mouseY <= groundLevel*ratio) 
       // && mouseY >= groundLevel - machineHeight)
