@@ -1,0 +1,100 @@
+/* CSS Reset */
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Setting up CSS grid */
+
+body {
+  font-family: 'Roboto Mono', monospace;
+  color: #3C3C3C;
+  font-size: 0.9rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: min(420px, 70vw) 1.2rem 3.2rem 5rem 1rem 1rem 5rem 5rem;
+  /* grid-template-rows: min(400px, 100vw) 1.2rem 3.2rem 5rem 1rem 1rem 5rem 5rem;  */
+  align-items: center;
+  justify-items: center;
+  margin: 0 max(0px, calc(50% - 300px));  
+  margin-bottom: 1rem;
+  -webkit-text-size-adjust: none;
+  /* touch-action: manipulation; */
+}
+
+/* main only contains canvas */
+
+main {
+  grid-column-start: 1;
+  grid-column-end: 4;
+}
+
+div {
+  text-align: center;
+}
+
+.copyright {
+  grid-column-start: 1;
+  grid-column-end: 4;
+  text-align: center;
+}
+
+canvas {
+  display: block;
+}
+
+input[type='checkbox'] {
+  margin-right: 0.5rem;
+}
+
+/* Button styling */
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+  width: 9em;
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+  border: 0.1rem solid #666666;
+  color: #3C3C3C;
+  background-color: #EDEDED;
+}
+
+button:hover{
+  background-color: #D8D8D8;
+  color: #727272;
+  border: 0.1rem solid #8F8F8F;
+}
+
+/* A few adjustments commented out */
+
+/* #visual-instructions {
+  grid-row: 4 / 5; 
+  grid-column: 1 / 2;
+  text-align: center;
+} */
+
+/* #copyright {
+  grid-row: 5 / 6;
+  grid-column: 1 / 4;
+  text-align: center;
+  align-self: end;
+} */
+
+/* Cursor for buttons, sliders and checkboxes*/
+
+button,
+input[type='range'],
+input[type='checkbox'] {
+  cursor: pointer;
+}
+
+/* Link styling */
+
+a:not([class]) {
+  color: #8F8F8F;
+}
