@@ -558,6 +558,7 @@ function setup() {
   createDiv('');
   // Div with the link
   seedDiv = createDiv('<a href="?seed=">Link to THIS level</a>').id('seed-div');
+  //todo change to 3 links: tweet / copy link / to LinkedIn
   updateDivWithLinkToThisSolution(false);
 
   // A button for previewing steering bounds for aiming (@Denisovich I insist on the "limits")
@@ -583,6 +584,9 @@ function setup() {
   createDiv(
     '<a href="https://github.com/CodingTrain/Directional-Boring">Link to GitHub</a>'
     );
+
+  //todo add checkbox here
+
   // this one is empty to make room for the last one
   createDiv();
   const copyrightDiv = createDiv(
