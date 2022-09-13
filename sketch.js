@@ -472,7 +472,7 @@ function updateDivWithLinkToThisSolution(addSolution = false) {
     const shareText = "Try to beat my score in the Underbore game."
     linkToSolution = window.location.href.split('?')[0] + relativeLink;
     const encodedUrl = encodeURIComponent(linkToSolution);
-    shareLinkDiv.html(`<a href="${relativeLink}">Link to Result</a>`);
+    shareLinkDiv.html(`<a href="${relativeLink}">Sharable link to Result</a>`);
     shareTwitDiv.html(`<a href="https://twitter.com/intent/tweet/?text=${shareText}&amp;url=${encodedUrl}&amp;hashtags=underbore" target="_blank" rel="noopener">Twit Result</a>`);
     //https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F10713542%2Fhow-to-make-custom-linkedin-share-button%2F10737122
     shareLinkedInDiv.html(`<a href="https://www.linkedin.com/sharing/share-offsite/?mini=true&amp;url=${encodedUrl}&amp;title=${shareText}" target="_blank" rel="noopener">Link Result In</a>`);
@@ -610,14 +610,14 @@ function setup() {
       '<a href="instructions/instructions-slide.png">Visual instructions</a>'
   ).id("visual-instructions");
   createDiv(
-    '<a href="https://github.com/CodingTrain/Directional-Boring">Link to GitHub</a>'
+    '<a href="https://github.com/alin256/Directional-Boring">Link to GitHub</a>'
     );
     
   aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
 
   // copyright row
   const copyrightDiv = createDiv(
-      'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
+      'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896. <a href="LICENSE.md">MIT License</a>'
   ).id("copyright");
   copyrightDiv.addClass('copyright');
 
