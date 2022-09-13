@@ -489,11 +489,11 @@ function updateStartButtonText() {
 function setup() {
   // Let's begin!
   // todo there are some canvases in the end of the page that look weird
-  const allowedWidth = windowWidth;
-  if (windowWidth > defaultWidth){
+  const allowedWidth = min(windowWidth, screen.width);
+  if (allowedWidth > defaultWidth){
     canvas = createCanvas(defaultWidth, defaultHeight);
   }else{
-    ratio = windowWidth / defaultWidth;
+    ratio = allowedWidth / defaultWidth;
     canvas = createCanvas(defaultWidth*ratio, defaultHeight*ratio);
     // scale(ratio);
   }

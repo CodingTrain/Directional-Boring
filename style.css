@@ -20,7 +20,8 @@ body {
   /* grid-template-rows: min(400px, 100vw) 1.2rem 3.2rem 5rem 1rem 1rem 5rem 5rem;  */
   align-items: center;
   justify-items: center;
-  margin: 0 max(0px, calc(50% - 300px));  
+  justify-content: center;
+  margin: 0 max(0px, calc(50% - 300px));
   margin-bottom: 1rem;
   -webkit-text-size-adjust: none;
   /* touch-action: manipulation; */
@@ -56,7 +57,7 @@ input[type='checkbox'] {
 button {
   font-family: inherit;
   font-size: inherit;
-  width: 9em;
+  width: 8em;
   padding-top: 0.3rem;
   padding-bottom: 0.3rem;
   border: 0.1rem solid #666666;
