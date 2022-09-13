@@ -52,7 +52,10 @@ let curRopDevider = 1;
 let curRandomFactor6 = 3;
 
 // Div for replays
-let seedDiv;
+let shareLinkDiv;
+let shareTwitDiv;
+let shareLinkedInDiv;
+let linkToSolution = '';
 
 // The turning radius to be computed
 let turnCircleRadius;
@@ -442,18 +445,42 @@ function generateLink(randomness, seed, speed, replay){
 }
 
 function updateDivWithLinkToThisLevel() {
-  seedDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, false)}">Link to THIS level</a>`);
+  shareLinkDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, false)}">Link to THIS level</a>`);
+}
+
+function copyLinkToClipboard(){
+  navigator.clipboard.writeText(linkToSolution);
 }
 
 function updateDivWithLinkToThisSolution(addSolution = false) {
   // let solution = actionSequenceToString();
   // let restoredSequence = stringToActions(solution);
+
+  // href="https://twitter.com/intent/tweet/?text=SHARE_TEXT&amp;url=SHARE_URLtwitter&amp;hashtags=geobanana"
+  // <a class="resp-sharing-button__link" href="https://facebook.com/sharer/sharer.php?u=SHARE_URLfacebook" target="_blank" 
+  // rel="noopener" aria-label="Share on Facebook" tabindex="-1">
+  // <a class="resp-sharing-button__link" 
+  // href="https://www.linkedin.com/shareArticle?mini=true&amp;url=SHARE_URLlinkedin&amp;title=SHARE_TEXT&amp;summary=SHARE_TEXT&amp;source=SHARE_URLlinkedin" target="_blank" 
+  // rel="noopener" aria-label="Share on LinkedIn" tabindex="-1">
+  // 
   if (addSolution){
-    // let sol4 = actionSequenceToCondencedString();
-    // let restoredSequence4 = condencedStringToActions(sol4); 
-    // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Link to THIS level</a>');
-    seedDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, true)}">Link to YOUR result</a>`);
+    const relativeLink = generateLink(curRandomFactor6, currentSeed, curRopDevider, true);
+    //simple link commented out
+    //shareLinkDiv.html(`<a href="${linkToSolution}">Link to YOUR result</a>`);
+    // shareLinkDiv.html(`<a onclick="copyLinkToClipboard()">Copy Result link</a>`);
+
+    const shareText = "Try to beat my score in the Underbore game."
+    linkToSolution = window.location.href.split('?')[0] + relativeLink;
+    const encodedUrl = encodeURIComponent(linkToSolution);
+    shareLinkDiv.html(`<a href="${relativeLink}">Link to Result</a>`);
+    shareTwitDiv.html(`<a href="https://twitter.com/intent/tweet/?text=${shareText}&amp;url=${encodedUrl}&amp;hashtags=underbore" target="_blank" rel="noopener">Twit Result</a>`);
+    //https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F10713542%2Fhow-to-make-custom-linkedin-share-button%2F10737122
+    shareLinkedInDiv.html(`<a href="https://www.linkedin.com/sharing/share-offsite/?mini=true&amp;url=${encodedUrl}&amp;title=${shareText}" target="_blank" rel="noopener">Link Result In</a>`);
+    //&amp;title=${shareText}&amp;summary=${shareText}&amp;source=${window.location.href.split('?')[0]}
+    
   }else{
+    shareTwitDiv.html('');
+    shareLinkedInDiv.html('');
     updateDivWithLinkToThisLevel();
   }
 }
@@ -554,15 +581,16 @@ function setup() {
   pullBackButton = createButton("pull back");
   pullBackButton.mousePressed(pullBackUserAction);
 
-  // Buttons and links row 2 control of levels
-  createDiv('');
-  // Div with the link
-  seedDiv = createDiv('<a href="?seed=">Link to THIS level</a>').id('seed-div');
-  //todo change to 3 links: tweet / copy link / to LinkedIn
+  // Divs with the links
+
+  shareTwitDiv = createDiv(); // empty until something interesting is shareable
+  shareLinkDiv = createDiv('<a href="?seed=">Link to THIS level</a>').id('seed-div');
+  shareLinkedInDiv = createDiv();
+  
   updateDivWithLinkToThisSolution(false);
 
   // A button for previewing steering bounds for aiming (@Denisovich I insist on the "limits")
-  aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
+
   // // empty
   // createDiv('');
 
@@ -584,19 +612,14 @@ function setup() {
   createDiv(
     '<a href="https://github.com/CodingTrain/Directional-Boring">Link to GitHub</a>'
     );
+    
+  aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
 
-  //todo add checkbox here
-
-  // this one is empty to make room for the last one
-  createDiv();
+  // copyright row
   const copyrightDiv = createDiv(
       'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
   ).id("copyright");
   copyrightDiv.addClass('copyright');
-
-  //TODO fog checkbox to be gone 
-  // fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
-
 
   machineBack = loadImage('assets/drilling-machine-small.png');
   machineFront = loadImage('assets/machine-foreground-small.png');
