@@ -52,10 +52,7 @@ let curRopDevider = 1;
 let curRandomFactor6 = 3;
 
 // Div for replays
-let shareLinkDiv;
-let shareTwitDiv;
-let shareLinkedInDiv;
-let linkToSolution = '';
+let seedDiv;
 
 // The turning radius to be computed
 let turnCircleRadius;
@@ -82,18 +79,18 @@ let connectionCountDown = 0;
 let playbackCountDown = 0;
 
 // simulations constants
-const turnAnglePerPixel = 0.01;
+const turnAnglePerPixel = 0.04;
 const startingAngle = 0.2967; // that is 17 degrees 
-const machineWidth = 80;
+const machineWidth = 160;
 const machineHeight = machineWidth * 9 / 16; // proportions according to the image
 const pipeLengthMult = 0.87688219663; // relative to drilling machine width
 const pipeLengthPixels = Math.floor(pipeLengthMult * machineWidth) - 2; // -2 accounts for the rounding of the pipe
 
 // constants for machine visualization
-const startingDepth = 2;
-const startingX = 90;
-const pipeOffset = 22; 
-const verticalPipeMovement = 5; // this is used to initialize the connection time
+const startingDepth = 4;
+const startingX = 180;
+const pipeOffset = 44; 
+const verticalPipeMovement = 10; // this is used to initialize the connection time
 const pauseTimePlayback = 25;
 
 // values related to current game speed;
@@ -445,42 +442,18 @@ function generateLink(randomness, seed, speed, replay){
 }
 
 function updateDivWithLinkToThisLevel() {
-  shareLinkDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, false)}">Link to THIS level</a>`);
-}
-
-function copyLinkToClipboard(){
-  navigator.clipboard.writeText(linkToSolution);
+  seedDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, false)}">Link to THIS level</a>`);
 }
 
 function updateDivWithLinkToThisSolution(addSolution = false) {
   // let solution = actionSequenceToString();
   // let restoredSequence = stringToActions(solution);
-
-  // href="https://twitter.com/intent/tweet/?text=SHARE_TEXT&amp;url=SHARE_URLtwitter&amp;hashtags=geobanana"
-  // <a class="resp-sharing-button__link" href="https://facebook.com/sharer/sharer.php?u=SHARE_URLfacebook" target="_blank" 
-  // rel="noopener" aria-label="Share on Facebook" tabindex="-1">
-  // <a class="resp-sharing-button__link" 
-  // href="https://www.linkedin.com/shareArticle?mini=true&amp;url=SHARE_URLlinkedin&amp;title=SHARE_TEXT&amp;summary=SHARE_TEXT&amp;source=SHARE_URLlinkedin" target="_blank" 
-  // rel="noopener" aria-label="Share on LinkedIn" tabindex="-1">
-  // 
   if (addSolution){
-    const relativeLink = generateLink(curRandomFactor6, currentSeed, curRopDevider, true);
-    //simple link commented out
-    //shareLinkDiv.html(`<a href="${linkToSolution}">Link to YOUR result</a>`);
-    // shareLinkDiv.html(`<a onclick="copyLinkToClipboard()">Copy Result link</a>`);
-
-    const shareText = "Try to beat my score in the Underbore game."
-    linkToSolution = window.location.href.split('?')[0] + relativeLink;
-    const encodedUrl = encodeURIComponent(linkToSolution);
-    shareLinkDiv.html(`<a href="${relativeLink}">Sharable link to Result</a>`);
-    shareTwitDiv.html(`<a href="https://twitter.com/intent/tweet/?text=${shareText}&amp;url=${encodedUrl}&amp;hashtags=underbore" target="_blank" rel="noopener">Twit Result</a>`);
-    //https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F10713542%2Fhow-to-make-custom-linkedin-share-button%2F10737122
-    shareLinkedInDiv.html(`<a href="https://www.linkedin.com/sharing/share-offsite/?mini=true&amp;url=${encodedUrl}&amp;title=${shareText}" target="_blank" rel="noopener">Link Result In</a>`);
-    //&amp;title=${shareText}&amp;summary=${shareText}&amp;source=${window.location.href.split('?')[0]}
-    
+    // let sol4 = actionSequenceToCondencedString();
+    // let restoredSequence4 = condencedStringToActions(sol4); 
+    // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Link to THIS level</a>');
+    seedDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, true)}">Link to YOUR result</a>`);
   }else{
-    shareTwitDiv.html('');
-    shareLinkedInDiv.html('');
     updateDivWithLinkToThisLevel();
   }
 }
@@ -516,11 +489,11 @@ function updateStartButtonText() {
 function setup() {
   // Let's begin!
   // todo there are some canvases in the end of the page that look weird
-  const allowedWidth = min(windowWidth, screen.width);
-  if (allowedWidth > defaultWidth){
+  const allowedWidth = windowWidth;
+  if (windowWidth > defaultWidth){
     canvas = createCanvas(defaultWidth, defaultHeight);
   }else{
-    ratio = allowedWidth / defaultWidth;
+    ratio = windowWidth / defaultWidth;
     canvas = createCanvas(defaultWidth*ratio, defaultHeight*ratio);
     // scale(ratio);
   }
@@ -581,16 +554,14 @@ function setup() {
   pullBackButton = createButton("pull back");
   pullBackButton.mousePressed(pullBackUserAction);
 
-  // Divs with the links
-
-  shareTwitDiv = createDiv(); // empty until something interesting is shareable
-  shareLinkDiv = createDiv('<a href="?seed=">Link to THIS level</a>').id('seed-div');
-  shareLinkedInDiv = createDiv();
-  
+  // Buttons and links row 2 control of levels
+  createDiv('');
+  // Div with the link
+  seedDiv = createDiv('<a href="?seed=">Link to THIS level</a>').id('seed-div');
   updateDivWithLinkToThisSolution(false);
 
   // A button for previewing steering bounds for aiming (@Denisovich I insist on the "limits")
-
+  aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
   // // empty
   // createDiv('');
 
@@ -610,19 +581,21 @@ function setup() {
       '<a href="instructions/instructions-slide.png">Visual instructions</a>'
   ).id("visual-instructions");
   createDiv(
-    '<a href="https://github.com/alin256/Directional-Boring">Link to GitHub</a>'
+    '<a href="https://github.com/CodingTrain/Directional-Boring">Link to GitHub</a>'
     );
-    
-  aimingCheckbox = createCheckbox("Steering limits", true).id("steer-lim-box");
-
-  // copyright row
+  // this one is empty to make room for the last one
+  createDiv();
   const copyrightDiv = createDiv(
-      'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896. <a href="LICENSE.md">MIT License</a>'
+      'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
   ).id("copyright");
   copyrightDiv.addClass('copyright');
 
-  machineBack = loadImage('assets/drilling-machine-small.png');
-  machineFront = loadImage('assets/machine-foreground-small.png');
+  //TODO fog checkbox to be gone 
+  // fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
+
+
+  machineBack = loadImage('../assets/drilling-machine-small.png');
+  machineFront = loadImage('../assets/machine-foreground-small.png');
 
   startDrill();
 
@@ -706,7 +679,20 @@ function takeAction(){
 
 // One drill step
 function drill() {
-  dir.rotate(turnAngleCurSpeed * bias);
+  if (dir.x == 0){
+    if (dir.y*bias < 0){
+      dir.rotate(turnAngleCurSpeed * bias);
+    }
+  }
+  // if (dir.y < 0){
+  //   dir.y == 0;
+  // } 
+  if (dir.x < 0){
+    dir.x = 0;
+  } else{
+    dir.rotate(turnAngleCurSpeed * bias);
+  }
+  // dir.rotate(turnAngleCurSpeed * bias);
   // Add some randomness
   // get color
   let c1 = hddScene.get(pos.x, pos.y);
@@ -835,7 +821,7 @@ function drawSurfacePipe() {
   push();
   translate(startingX, groundLevel + startingDepth);
   rotate(startingAngle);
-  strokeWeight(3);
+  strokeWeight(5);
   stroke(surfacePipeColor);
   if (state == "CONNECTION") {
     // loading the pipe 
@@ -846,7 +832,7 @@ function drawSurfacePipe() {
   }
   noStroke();
   fill('black');
-  rect(-visibleLength-4, -5, 4, 9); // top drive / pusher for the pipe constants are hard coded to look nice
+  rect(-visibleLength-4, -8, 8, 16); // top drive / pusher for the pipe constants are hard coded to look nice
   pop();
 }
 
@@ -1099,7 +1085,7 @@ function draw() {
   beginShape();
   noFill();
   stroke(255);
-  strokeWeight(4);
+  strokeWeight(8);
   for (let vPair of path) {
     let v = vPair[0]
     vertex(v.x, v.y);
@@ -1136,7 +1122,7 @@ function draw() {
   stroke(0);
   strokeWeight(4);
 
-  if (aimingCheckbox.checked() && !(state == "WIN" || state == "LOSE")) {
+  if (false && (aimingCheckbox.checked() && !(state == "WIN" || state == "LOSE"))) {
     // Start of the aiming arcs
     push();
     translate(pos.x, pos.y);
@@ -1191,7 +1177,7 @@ function draw() {
   if (state != 'WIN'){
     push();
     stroke(252, 238, 33);
-    strokeWeight(8);
+    strokeWeight(10);
     translate(pos.x, pos.y);
     rotate(dir.heading() + (startingAngle) * bias);
     line(0, 0, 10, 0);
@@ -1222,7 +1208,7 @@ function draw() {
     }
   }
 
-  if (state == 'STUCK') {
+  if (false && state == 'STUCK') {
     textAlign(CENTER, TOP);
     noStroke();
     fill(255);
@@ -1231,7 +1217,7 @@ function draw() {
     text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', defaultWidth / 2, groundLevel / 2);
   }
 
-  if (!playback && state != "DRILLING" && state != "CONNECTION"){
+  if (false){
     noStroke();
     fill(255);
     textSize(16);
