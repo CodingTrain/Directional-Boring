@@ -9,8 +9,8 @@
 
 // Event listeners
 // Prevents scrolling while toggling bias
-window.addEventListener('keydown', function(e) {
-  if((e.key == " " || e.code == 32) && e.target == document.body) {
+window.addEventListener('keydown', function (e) {
+  if ((e.key == " " || e.code == 32) && e.target == document.body) {
     e.preventDefault();
   }
 });
@@ -165,7 +165,7 @@ function toggleBias() {
   bias *= -1;
 }
 
-function newGameAction(){
+function newGameAction() {
   currentSeed = getNewSeed();
   playback = undefined;
   updateDivWithLinkToThisSolution(false);
@@ -173,37 +173,37 @@ function newGameAction(){
   startDrill();
 }
 
-function getNewSeed(){
-  return Math.floor(Math.random() * 999998)+1;
+function getNewSeed() {
+  return Math.floor(Math.random() * 999998) + 1;
 }
 
-function startStopUserAction(){
-  if (!playback){
+function startStopUserAction() {
+  if (!playback) {
     startStopAction();
-  }else{
+  } else {
     playback = undefined;
     startDrill();
   }
 }
 
-function updateSideTrackDiv(){
+function updateSideTrackDiv() {
   sideTracksDiv.html(`Sidetracks ${sideTrackCount}/${maxSideTracks}`);
 }
 
-function updateStartDiv(){
+function updateStartDiv() {
   startDiv.html(`Starts ${startCount}/${maxStarts}`);
 }
 
-function updateStuckDiv(){
+function updateStuckDiv() {
   stuckDiv.html(`Bitwear ${stuckCount}/${maxStuckTimes}`);
 }
 
-function startStopAction(){
+function startStopAction() {
   if (state == 'PAUSED' || state == 'STUCK') {
     state = 'DRILLING';
     // actionSequence.push(1);
     let prevPath = undefined;
-    if (oldPaths.length > 0){
+    if (oldPaths.length > 0) {
       prevPath = oldPaths[oldPaths.length - 1];
     }
     let oldPathPoint = undefined;
@@ -213,7 +213,7 @@ function startStopAction(){
     }
     // check if the previous segment drilled is near by and we are 'side-tracking'
     if (oldPathPoint &&
-        dist(pos.x, pos.y, oldPathPoint[0].x, oldPathPoint[0].y) < 1.5){
+      dist(pos.x, pos.y, oldPathPoint[0].x, oldPathPoint[0].y) < 1.5) {
       sideTrackCount++;
       console.log("Side-track count" + sideTrackCount);
       // update side teack div
@@ -233,8 +233,8 @@ function startStopAction(){
   updateStartButtonText();
 }
 
-function pullBackUserAction(){
-  if (!playback){
+function pullBackUserAction() {
+  if (!playback) {
     pullBack();
   }
 }
@@ -258,17 +258,17 @@ function pullBack() {
 
 function touchStarted() {
   // ellipse(mouseX, mouseY, 5, 5);
-  if (mouseY > height || mouseX < 0 || mouseX > width){
+  if (mouseY > height || mouseX < 0 || mouseX > width) {
     return true;
   }
   //todo add click zone in the bottom of the screen
-  else if (mouseX <= machineWidth*ratio &&
-      mouseY <= groundLevel*ratio)
-      // && mouseY >= groundLevel - machineHeight)
-      {
+  else if (mouseX <= machineWidth * ratio &&
+    mouseY <= groundLevel * ratio)
+  // && mouseY >= groundLevel - machineHeight)
+  {
     startStopUserAction();
   }
-  else{
+  else {
     toggleBias();
   }
   // prevent default
@@ -311,7 +311,7 @@ function drawHouse1(hddScene, HouseColor) {
     goal.x + 40, groundLevel - 40,
     goal.x + 60, groundLevel - 80
   )
-  hddScene.rect(goal.x + 40, groundLevel - 40, goal.w + 2, goal.w);
+  hddScene.rect(goal.x + 40, groundLevel - 40, goal.w, goal.w);
 }
 
 
