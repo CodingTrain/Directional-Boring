@@ -16,7 +16,7 @@ window.addEventListener('keydown', function (e) {
 });
 
 const defaultWidth = 1000;
-const defaultHeight = 500;
+const defaultHeight = 660;
 let ratio = 1;
 
 // Vectors for current position and direction

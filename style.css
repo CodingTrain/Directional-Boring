@@ -16,7 +16,7 @@ body {
   font-size: 0.9rem;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: min(420px, 70vw) 1.2rem 3.2rem 5rem 1rem 1rem 5rem 5rem;
+  grid-template-rows: min(680px, 70vw) 1.2rem 3.2rem 5rem 1rem 1rem 5rem 5rem;
   /* grid-template-rows: min(400px, 100vw) 1.2rem 3.2rem 5rem 1rem 1rem 5rem 5rem;  */
   align-items: center;
   justify-items: center;
