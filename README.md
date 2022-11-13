@@ -2,7 +2,7 @@
 
 ## Help wanted!
 
-Dear contributors, please look into [houses-feature](https://github.com/CodingTrain/Directional-Boring/tree/houses-feature) branch where we try to make better more fun graphics and the corresponding issues: [46](https://github.com/CodingTrain/Directional-Boring/issues/46) 
+Dear contributors, please look into [houses-feature](https://github.com/CodingTrain/Directional-Boring/tree/houses-feature) branch where we try to make better more fun graphics and the corresponding issues: [46](https://github.com/CodingTrain/Directional-Boring/issues/46), 
 [41](https://github.com/CodingTrain/Directional-Boring/issues/41). 
 Thanks to [amnindersingh12](https://github.com/amnindersingh12) for starting the work on this feature!
 
