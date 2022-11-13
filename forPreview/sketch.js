@@ -9,8 +9,8 @@
 
 // Event listeners
 // Prevents scrolling while toggling bias
-window.addEventListener('keydown', function(e) {
-  if((e.key == " " || e.code == 32) && e.target == document.body) {
+window.addEventListener('keydown', function (e) {
+  if ((e.key == " " || e.code == 32) && e.target == document.body) {
     e.preventDefault();
   }
 });
@@ -80,7 +80,7 @@ let playbackCountDown = 0;
 
 // simulations constants
 const turnAnglePerPixel = 0.04;
-const startingAngle = 0.2967; // that is 17 degrees 
+const startingAngle = 0.2967; // that is 17 degrees
 const machineWidth = 160;
 const machineHeight = machineWidth * 9 / 16; // proportions according to the image
 const pipeLengthMult = 0.87688219663; // relative to drilling machine width
@@ -89,7 +89,7 @@ const pipeLengthPixels = Math.floor(pipeLengthMult * machineWidth) - 2; // -2 ac
 // constants for machine visualization
 const startingDepth = 4;
 const startingX = 180;
-const pipeOffset = 44; 
+const pipeOffset = 44;
 const verticalPipeMovement = 10; // this is used to initialize the connection time
 const pauseTimePlayback = 25;
 
@@ -120,7 +120,7 @@ let curLevelDiv;
 let nextLevelDiv;
 let globalSpeedDiv;
 let randomnessDiv;
-// todo think of new controll? 
+// todo think of new controll?
 
 // Checkboxes
 let aimingCheckbox;
@@ -159,7 +159,7 @@ function toggleBias() {
   bias *= -1;
 }
 
-function newGameAction(){
+function newGameAction() {
   currentSeed = getNewSeed();
   playback = undefined;
   updateDivWithLinkToThisSolution(false);
@@ -167,37 +167,37 @@ function newGameAction(){
   startDrill();
 }
 
-function getNewSeed(){
-  return Math.floor(Math.random() * 999998)+1;
+function getNewSeed() {
+  return Math.floor(Math.random() * 999998) + 1;
 }
 
-function startStopUserAction(){
-  if (!playback){
+function startStopUserAction() {
+  if (!playback) {
     startStopAction();
-  }else{
+  } else {
     playback = undefined;
     startDrill();
   }
 }
 
-function updateSideTrackDiv(){
+function updateSideTrackDiv() {
   sideTracksDiv.html(`Sidetracks ${sideTrackCount}/${maxSideTracks}`);
 }
 
-function updateStartDiv(){
+function updateStartDiv() {
   startDiv.html(`Starts ${startCount}/${maxStarts}`);
 }
 
-function updateStuckDiv(){
+function updateStuckDiv() {
   stuckDiv.html(`Bitwear ${stuckCount}/${maxStuckTimes}`);
 }
 
-function startStopAction(){
+function startStopAction() {
   if (state == 'PAUSED' || state == 'STUCK') {
     state = 'DRILLING';
     // actionSequence.push(1);
     let prevPath = undefined;
-    if (oldPaths.length > 0){
+    if (oldPaths.length > 0) {
       prevPath = oldPaths[oldPaths.length - 1];
     }
     let oldPathPoint = undefined;
@@ -206,8 +206,8 @@ function startStopAction(){
       oldPathPoint = prevPath[0];
     }
     // check if the previous segment drilled is near by and we are 'side-tracking'
-    if (oldPathPoint && 
-        dist(pos.x, pos.y, oldPathPoint[0].x, oldPathPoint[0].y) < 1.5){
+    if (oldPathPoint &&
+      dist(pos.x, pos.y, oldPathPoint[0].x, oldPathPoint[0].y) < 1.5) {
       sideTrackCount++;
       console.log("Side-track count" + sideTrackCount);
       // update side teack div
@@ -227,8 +227,8 @@ function startStopAction(){
   updateStartButtonText();
 }
 
-function pullBackUserAction(){
-  if (!playback){
+function pullBackUserAction() {
+  if (!playback) {
     pullBack();
   }
 }
@@ -252,17 +252,17 @@ function pullBack() {
 
 function touchStarted() {
   // ellipse(mouseX, mouseY, 5, 5);
-  if (mouseY > height || mouseX < 0 || mouseX > width){
+  if (mouseY > height || mouseX < 0 || mouseX > width) {
     return true;
   }
   //todo add click zone in the bottom of the screen
-  else if (mouseX <= machineWidth*ratio && 
-      mouseY <= groundLevel*ratio) 
-      // && mouseY >= groundLevel - machineHeight)
-      {
+  else if (mouseX <= machineWidth * ratio &&
+    mouseY <= groundLevel * ratio)
+  // && mouseY >= groundLevel - machineHeight)
+  {
     startStopUserAction();
   }
-  else{
+  else {
     toggleBias();
   }
   // prevent default
@@ -356,19 +356,19 @@ function createHddScene() {
   // Add the goal
   hddScene.fill(goalColor);
   hddScene.rect(goal.x - 2, groundLevel - goal.w - 2, goal.w + 4, goal.w + 4);
-  hddScene.triangle(goal.x - 6, groundLevel - goal.w - 2, 
-                    goal.x + goal.w + 6, groundLevel - goal.w - 2,
-                    goal.x + goal.w / 2, groundLevel - goal.w * 1.8);
+  hddScene.triangle(goal.x - 6, groundLevel - goal.w - 2,
+    goal.x + goal.w + 6, groundLevel - goal.w - 2,
+    goal.x + goal.w / 2, groundLevel - goal.w * 1.8);
 }
 
 function createFogOfUncertainty() {
   fogOfUncertinty = createGraphics(defaultWidth, defaultHeight);
   // Draw a new scene
   fogOfUncertinty.background(0, 0);
-  setGradient(fogOfUncertinty, 0, groundLevel, defaultWidth, goal.w*2, color(255), color(0), 1);
+  setGradient(fogOfUncertinty, 0, groundLevel, defaultWidth, goal.w * 2, color(255), color(0), 1);
   fogOfUncertinty.fill(0);
   fogOfUncertinty.noStroke();
-  fogOfUncertinty.rect(0, groundLevel + goal.w*2, defaultWidth, defaultHeight);
+  fogOfUncertinty.rect(0, groundLevel + goal.w * 2, defaultWidth, defaultHeight);
 
   drawRiver(fogOfUncertinty, color(255));
 }
@@ -379,7 +379,7 @@ function createReflections() {
   drawReflection(reflections);
 }
 
-function recomputeDrillingConstants(){
+function recomputeDrillingConstants() {
   // computing speed-related constants
   // curRopMult = -speedSliderP5.value();
   // speedLabel.html("Game speed: 1/" + curRopMult);
@@ -421,20 +421,20 @@ function startDrill() {
   // Related circle size
   const turnCircleLen = (PI * 2) / turnAnglePerPixel;
   turnCircleRadius = turnCircleLen / PI / 2;
-  
+
 
   createHddScene();
   createFogOfUncertainty();
   createReflections();
 }
 
-function generateLink(randomness, seed, speed, replay){
+function generateLink(randomness, seed, speed, replay) {
   let link = `?rnd=${randomness}`;
-  if (seed){
+  if (seed) {
     link += `&seed=${seed}`;
   }
   link += `&ropd=${speed}`;
-  if (replay){
+  if (replay) {
     let sol4 = actionSequenceToCondencedString();
     link += `&s4=${sol4}`;
   }
@@ -448,23 +448,23 @@ function updateDivWithLinkToThisLevel() {
 function updateDivWithLinkToThisSolution(addSolution = false) {
   // let solution = actionSequenceToString();
   // let restoredSequence = stringToActions(solution);
-  if (addSolution){
+  if (addSolution) {
     // let sol4 = actionSequenceToCondencedString();
-    // let restoredSequence4 = condencedStringToActions(sol4); 
+    // let restoredSequence4 = condencedStringToActions(sol4);
     // seedDiv.html('<a href="?seed='+currentSeed+'&sol='+solution+'">Link to THIS level</a>');
     seedDiv.html(`<a href="${generateLink(curRandomFactor6, currentSeed, curRopDevider, true)}">Link to YOUR result</a>`);
-  }else{
+  } else {
     updateDivWithLinkToThisLevel();
   }
 }
 
 // note, this funciton now also updates sharable link
 function updateStartButtonText() {
-  if (playback){
+  if (playback) {
     updateDivWithLinkToThisSolution(false);
     startButton.html("try to beat");
     if (state == 'PAUSED' || state == 'STUCK') {
-      if (maxStarts - startCount <= 0 || maxSideTracks - sideTrackCount <= 0){
+      if (maxStarts - startCount <= 0 || maxSideTracks - sideTrackCount <= 0) {
         state = "LOSE";
       }
     }
@@ -472,14 +472,14 @@ function updateStartButtonText() {
   }
   if (state == 'DRILLING' || state == 'CONNECTION') {
     startButton.html('pause');
-  } 
+  }
   if (state == 'PAUSED' || state == 'STUCK') {
     // startButton.html(`start (${maxStarts - startCount} left)`);
     startButton.html('start');
-    if (maxStarts - startCount <= 0 || maxSideTracks - sideTrackCount <= 0){
+    if (maxStarts - startCount <= 0 || maxSideTracks - sideTrackCount <= 0) {
       state = "LOSE";
     }
-  } 
+  }
   if (state == "WIN" || state == "LOSE") {
     updateDivWithLinkToThisSolution(true);
     startButton.html("try again");
@@ -490,11 +490,11 @@ function setup() {
   // Let's begin!
   // todo there are some canvases in the end of the page that look weird
   const allowedWidth = windowWidth;
-  if (windowWidth > defaultWidth){
+  if (windowWidth > defaultWidth) {
     canvas = createCanvas(defaultWidth, defaultHeight);
-  }else{
+  } else {
     ratio = windowWidth / defaultWidth;
-    canvas = createCanvas(defaultWidth*ratio, defaultHeight*ratio);
+    canvas = createCanvas(defaultWidth * ratio, defaultHeight * ratio);
     // scale(ratio);
   }
   // canvas = createCanvas(375, 400);
@@ -541,7 +541,7 @@ function setup() {
   sideTracksDiv = createDiv('Side tracks: ');
   updateSideTrackDiv();
   stuckDiv = createDiv('Bit damage: ');
-  updateStuckDiv(); 
+  updateStuckDiv();
 
   // Buttons row 1
   // Handle the start and pause button
@@ -575,22 +575,22 @@ function setup() {
   // Links to control game behavior row 4
   createGameControlDivs();
 
-  // Last row 
+  // Last row
 
   createDiv(
-      '<a href="instructions/instructions-slide.png">Visual instructions</a>'
+    '<a href="instructions/instructions-slide.png">Visual instructions</a>'
   ).id("visual-instructions");
   createDiv(
     '<a href="https://github.com/CodingTrain/Directional-Boring">Link to GitHub</a>'
-    );
+  );
   // this one is empty to make room for the last one
   createDiv();
   const copyrightDiv = createDiv(
-      'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
+    'Copyright (c) 2022 Daniel Shiffman; Sergey Alyaev; ArztKlein; Denisovich; tyomka896 <a href="LICENSE.md">MIT License</a>'
   ).id("copyright");
   copyrightDiv.addClass('copyright');
 
-  //TODO fog checkbox to be gone 
+  //TODO fog checkbox to be gone
   // fogCheckbox = createCheckbox("Fog of uncertainty", true).id("fog-box");
 
 
@@ -602,15 +602,15 @@ function setup() {
   // removing an anoying div from LaspPass
   const annoyingDivs = document.querySelectorAll(`div`);
   // [style="position: static !important;]
-  for (const annoying1 of annoyingDivs) { 
+  for (const annoying1 of annoyingDivs) {
     // annoying1.remove();
-    if (annoying1.style[0] === "position"){
+    if (annoying1.style[0] === "position") {
       annoying1.remove();
     }
   }
 }
 
-function createGameControlDivs(){
+function createGameControlDivs() {
   // divs with information
   // TODO remove curLevelDiv
   curLevelDiv = createDiv(`Level`);
@@ -625,50 +625,50 @@ function createGameControlDivs(){
 
   // speed controls
   divText = '';
-  divText += boldOrHyperLink(curRopDevider == 2, 
-          generateLink(curRandomFactor6, currentSeed, 2, false), 'chill');
-  divText += boldOrHyperLink(curRopDevider == 1, 
-          generateLink(curRandomFactor6, currentSeed, 1, false), 'standard');
+  divText += boldOrHyperLink(curRopDevider == 2,
+    generateLink(curRandomFactor6, currentSeed, 2, false), 'chill');
+  divText += boldOrHyperLink(curRopDevider == 1,
+    generateLink(curRandomFactor6, currentSeed, 1, false), 'standard');
   createDiv(divText);
-  
+
   // randomness controls
   divText = '';
-  divText += boldOrHyperLink(curRandomFactor6 == 0, 
-          generateLink(0, currentSeed, curRopDevider, false), 'no');
-  divText += boldOrHyperLink(curRandomFactor6 == 3, 
-          generateLink(3, currentSeed, curRopDevider, false), 'norm');
-  divText += boldOrHyperLink(curRandomFactor6 == 6, 
-          generateLink(6, currentSeed, curRopDevider, false), 'chaos');
-  createDiv(divText);    
+  divText += boldOrHyperLink(curRandomFactor6 == 0,
+    generateLink(0, currentSeed, curRopDevider, false), 'no');
+  divText += boldOrHyperLink(curRandomFactor6 == 3,
+    generateLink(3, currentSeed, curRopDevider, false), 'norm');
+  divText += boldOrHyperLink(curRandomFactor6 == 6,
+    generateLink(6, currentSeed, curRopDevider, false), 'chaos');
+  createDiv(divText);
 }
 
-function boldOrHyperLink(expression, link, text){
-  if (expression){
+function boldOrHyperLink(expression, link, text) {
+  if (expression) {
     return `<b>${text}</b> `;
-  } else{
+  } else {
     return hyperLink(link, text);
   }
 }
 
-function hyperLink(link, text){
+function hyperLink(link, text) {
   return `<a href="${link}">${text}</a> `;
 }
 
-function takeAction(){
-  if (playback){
+function takeAction() {
+  if (playback) {
     let decisionNumber = actionSequence.length;
-    if (decisionNumber < playback.length){
+    if (decisionNumber < playback.length) {
       let action = playback[decisionNumber];
-      if (action == 1){ // pause
+      if (action == 1) { // pause
         startStopAction();
         return;
-      }else if (action == 3){ // pull back
+      } else if (action == 3) { // pull back
         pullBack();
         return;
       } else {
-        if (decisionNumber == 0){
+        if (decisionNumber == 0) {
           startStopAction();
-        }else if (state == "STUCK" || state == "PAUSED"){
+        } else if (state == "STUCK" || state == "PAUSED") {
           startStopAction();
         }
         bias = playback[decisionNumber] - 1;
@@ -679,17 +679,17 @@ function takeAction(){
 
 // One drill step
 function drill() {
-  if (dir.x == 0){
-    if (dir.y*bias < 0){
+  if (dir.x == 0) {
+    if (dir.y * bias < 0) {
       dir.rotate(turnAngleCurSpeed * bias);
     }
   }
   // if (dir.y < 0){
   //   dir.y == 0;
-  // } 
-  if (dir.x < 0){
+  // }
+  if (dir.x < 0) {
     dir.x = 0;
-  } else{
+  } else {
     dir.rotate(turnAngleCurSpeed * bias);
   }
   // dir.rotate(turnAngleCurSpeed * bias);
@@ -709,7 +709,7 @@ function drill() {
   // Drilling mode
   // Save previous position
   path.push([pos.copy(), dir.copy(), bias]);
-  actionSequence.push(bias+1);
+  actionSequence.push(bias + 1);
   pathPosition = path.length - 1;
   if (path.length % pipeLengthSteps == 0) {
     state = "CONNECTION";
@@ -719,9 +719,9 @@ function drill() {
   fogOfUncertinty.noStroke();
   fogOfUncertinty.fill(255);
   //   todo do not reduce uncertainty in playback mode
-  if (!playback){
-    fogOfUncertinty.circle(pos.x, pos.y, goal.w*2);
-  }else{
+  if (!playback) {
+    fogOfUncertinty.circle(pos.x, pos.y, goal.w * 2);
+  } else {
     fogOfUncertinty.circle(pos.x, pos.y, goal.w);
   }
   pos.add(dir);
@@ -748,7 +748,7 @@ function drill() {
     updateStuckDiv();
     if (stuckCount >= maxStuckTimes) {
       state = 'LOSE';
-    }else if (playback){
+    } else if (playback) {
       // state = 'PAUSED';
       playbackCountDown = pauseTimePlayback;
     }
@@ -768,7 +768,7 @@ function drawReflection(reflectionImage) {
   const step = 1;
   const visualRad = 3;
   const errorPercent = 10;
-  for (let x = 0; x < defaultWidth - spacing; x+=step) {
+  for (let x = 0; x < defaultWidth - spacing; x += step) {
     let minTravelDist = computeReflextionTimeSinglePoint(x, x + spacing);
     let distToObjWithNoize = (100 + random(-10, 10)) / 100. * minTravelDist / 2;
     let xMid = x + spacing / 2;
@@ -783,7 +783,7 @@ function computeReflextionTimeSinglePoint(x0, x1) {
   let minArrivalDist = defaultHeight * 2;
   //const maxSteps = defaultHeight * 2;
   for (let j = 0; j < boulders.length; j++) {
-    for (let i = 0; i < 360; i+= 10) {
+    for (let i = 0; i < 360; i += 10) {
       // looping angles on the boulder
       let boulderDir = i * PI / 180;
       let boulderPoint = createVector(boulders[j][0], boulders[j][1]);
@@ -824,7 +824,7 @@ function drawSurfacePipe() {
   strokeWeight(5);
   stroke(surfacePipeColor);
   if (state == "CONNECTION") {
-    // loading the pipe 
+    // loading the pipe
     line(-pipeLengthPixels - pipeOffset, -connectionCountDown, -pipeOffset, -connectionCountDown);
     line(-pipeOffset, 0, 0, 0);
   } else {
@@ -832,25 +832,25 @@ function drawSurfacePipe() {
   }
   noStroke();
   fill('black');
-  rect(-visibleLength-4, -8, 8, 16); // top drive / pusher for the pipe constants are hard coded to look nice
+  rect(-visibleLength - 4, -8, 8, 16); // top drive / pusher for the pipe constants are hard coded to look nice
   pop();
 }
 
-function padNumber(num){
+function padNumber(num) {
   return String(Math.round(num)).padStart(5, ' ')
 }
 
-function pathToString(){
+function pathToString() {
   let sequence = "";
   // go each 8 bit
-  for (let i = 0; i*8<path.length; ++i){
+  for (let i = 0; i * 8 < path.length; ++i) {
     // compute 8-bit number
     let number = 0;
     let mult = 1;
-    for (let j = 0; j<8; ++j){
-      if (i*8+j < path.length){
-        let bias = path[i*8+j][2];
-        if (bias > 0){
+    for (let j = 0; j < 8; ++j) {
+      if (i * 8 + j < path.length) {
+        let bias = path[i * 8 + j][2];
+        if (bias > 0) {
           number += mult * bias;
         }
         mult *= 2;
@@ -863,13 +863,13 @@ function pathToString(){
   return btoa(sequence);
 }
 
-function stringToBias(urlstr){
+function stringToBias(urlstr) {
   // atob decodes from url string
   let arrayFromStr = Array.from(atob(urlstr));
   let biasArray = [];
-  for (let i=0; i<arrayFromStr.length; ++i){
+  for (let i = 0; i < arrayFromStr.length; ++i) {
     let curNumber = arrayFromStr[i].charCodeAt(0);
-    for (let j=0; j<8; ++j){
+    for (let j = 0; j < 8; ++j) {
       biasArray.push(curNumber % 2);
       curNumber = Math.floor(curNumber / 2);
     }
@@ -877,17 +877,17 @@ function stringToBias(urlstr){
   return biasArray;
 }
 
-function actionSequenceToCondencedString(){
+function actionSequenceToCondencedString() {
   let sequence = "";
   const maxLenght = 63;
   let left = 0;
   let right = 0;
-  while (left < actionSequence.length){
+  while (left < actionSequence.length) {
     let command = actionSequence[left];
     right = left + 1;
-    while (right < actionSequence.length 
-            && actionSequence[right] == command
-            && right-left < maxLenght){
+    while (right < actionSequence.length
+      && actionSequence[right] == command
+      && right - left < maxLenght) {
       right++;
     }
     let repeat = right - left;
@@ -898,30 +898,30 @@ function actionSequenceToCondencedString(){
   return btoa(sequence);
 }
 
-function condencedStringToActions(urlstr){
+function condencedStringToActions(urlstr) {
   let arrayFromStr = Array.from(atob(urlstr));
   let actionArray = [];
-  for (let i=0; i<arrayFromStr.length; ++i){
+  for (let i = 0; i < arrayFromStr.length; ++i) {
     let encoded = arrayFromStr[i].charCodeAt(0);
     let command = encoded % 4;
     let repeat = Math.floor(encoded / 4);
-    for (let j=0; j<repeat; ++j){
+    for (let j = 0; j < repeat; ++j) {
       actionArray.push(command);
     }
   }
   return actionArray;
 }
 
-function actionSequenceToString(){
+function actionSequenceToString() {
   let sequence = "";
   // go each 8 bit
-  for (let i = 0; i*4<actionSequence.length; ++i){
+  for (let i = 0; i * 4 < actionSequence.length; ++i) {
     // compute 8-bit number
     let number = 0;
     let mult = 1;
-    for (let j = 0; j<4; ++j){
-      if (i*4+j < actionSequence.length){
-        let action = actionSequence[i*4+j];
+    for (let j = 0; j < 4; ++j) {
+      if (i * 4 + j < actionSequence.length) {
+        let action = actionSequence[i * 4 + j];
         number += mult * action;
         mult *= 4;
       }
@@ -933,13 +933,13 @@ function actionSequenceToString(){
   return btoa(sequence);
 }
 
-function stringToActions(urlstr){
+function stringToActions(urlstr) {
   // atob decodes from url string
   let arrayFromStr = Array.from(atob(urlstr));
   let actionArray = [];
-  for (let i=0; i<arrayFromStr.length; ++i){
+  for (let i = 0; i < arrayFromStr.length; ++i) {
     let curNumber = arrayFromStr[i].charCodeAt(0);
-    for (let j=0; j<4; ++j){
+    for (let j = 0; j < 4; ++j) {
       actionArray.push(curNumber % 4);
       curNumber = Math.floor(curNumber / 4);
     }
@@ -947,7 +947,7 @@ function stringToActions(urlstr){
   return actionArray;
 }
 
-function drawEndGameStatsAtY(textY){
+function drawEndGameStatsAtY(textY) {
   textAlign(RIGHT, TOP);
   noStroke();
   fill(255);
@@ -956,13 +956,13 @@ function drawEndGameStatsAtY(textY){
   const fontSize = 24;
   const textX = defaultWidth - fontSize;
   textSize(fontSize);
-  
-  if (!finalPathLength){
+
+  if (!finalPathLength) {
     finalPathLength = path.length;
   }
 
   let reward = 0;
-  if (state == "WIN"){
+  if (state == "WIN") {
     reward = 5000;
     text(`mission reward = ${padNumber(reward)}+`, textX, textY);
   } else {
@@ -970,12 +970,12 @@ function drawEndGameStatsAtY(textY){
     text(`partial reward = ${padNumber(reward)}+`, textX, textY);
   }
   textY += fontSize;
-  if (state == "WIN"){
-    let drilledPathPixels = finalPathLength*deltaSpeedCurGame;
+  if (state == "WIN") {
+    let drilledPathPixels = finalPathLength * deltaSpeedCurGame;
     text(`final pipe length = ${padNumber(drilledPathPixels)}-`, textX, textY);
     reward -= drilledPathPixels;
-  } else{
-    let remainingDistance = Math.ceil(dist(pos.x, pos.y, goal.x + goal.w/2, groundLevel));
+  } else {
+    let remainingDistance = Math.ceil(dist(pos.x, pos.y, goal.x + goal.w / 2, groundLevel));
     text(`remaining distance = ${padNumber(remainingDistance)}-`, textX, textY);
     reward -= remainingDistance;
   }
@@ -988,21 +988,21 @@ function drawEndGameStatsAtY(textY){
   length *= deltaSpeedCurGame; // accouning for drilling speed
   text(`drilled length = ${padNumber(length)}-`, textX, textY);
   reward -= length;
-  
+
   textY += fontSize;
-  const startMult = Math.ceil(pipeLengthPixels/40) * 10;
+  const startMult = Math.ceil(pipeLengthPixels / 40) * 10;
   let startCost = startCount * startMult;
   text(`starts: ${startCount} *${startMult} = ${padNumber(startCost)}-`, textX, textY);
   reward -= startCost;
 
   textY += fontSize;
-  const sideTrackMult = Math.ceil(pipeLengthPixels/20) * 10;
+  const sideTrackMult = Math.ceil(pipeLengthPixels / 20) * 10;
   let sideTrackCost = sideTrackCount * sideTrackMult;
   text(`side-tracks: ${sideTrackCount} *${sideTrackMult} = ${padNumber(sideTrackCost)}-`, textX, textY);
   reward -= sideTrackCost;
 
   textY += fontSize;
-  const stuckMult = Math.ceil(pipeLengthPixels/10) * 10;
+  const stuckMult = Math.ceil(pipeLengthPixels / 10) * 10;
   let stuckCost = stuckCount * stuckMult;
   text(`stuck count: ${stuckCount} *${stuckMult} = ${padNumber(stuckCost)}-`, textX, textY);
   reward -= stuckCost;
@@ -1020,19 +1020,19 @@ function drawEndGameStatsAtY(textY){
 function draw() {
   //scaling everytging if needed
   scale(ratio);
-  if (playback){
-    if (state == "STUCK" || (state == "PAUSED" && path.length > 0)){
-      if (playbackCountDown > 0){
+  if (playback) {
+    if (state == "STUCK" || (state == "PAUSED" && path.length > 0)) {
+      if (playbackCountDown > 0) {
         playbackCountDown -= deltaSpeedCurGame;
-      }else{
+      } else {
         takeAction();
       }
-    }else{
+    } else {
       takeAction();
     }
   }
   // Dril!
-  if (state == "DRILLING"){ 
+  if (state == "DRILLING") {
     // frameRate(60); for the setting correct frame rate depending on the state in the future
     drill();
   }
@@ -1047,7 +1047,7 @@ function draw() {
   //       startStopAction();
   //     }
   //   }
-  // } 
+  // }
 
 
   // Draw the scene
@@ -1093,8 +1093,8 @@ function draw() {
   endShape();
 
   // the pulled pipe/cable if win
-  
-  if (state == 'WIN'){
+
+  if (state == 'WIN') {
     beginShape();
     noFill();
     stroke(127);
@@ -1104,15 +1104,15 @@ function draw() {
       v = vPair[0]
       vertex(v.x, v.y);
     }
-    endShape();  
+    endShape();
     // draw hole enlarger in black
-    if (v){
+    if (v) {
       stroke(0);
       // todo something weird with circle diameter should be the same as strokeWeight
       circle(v.x, v.y, 3);
     }
     // propogate pipe
-    if (path.length > 0){
+    if (path.length > 0) {
       reversePath.push(path.pop());
     }
   }
@@ -1174,7 +1174,7 @@ function draw() {
   }
 
   // Draw the drill bit
-  if (state != 'WIN'){
+  if (state != 'WIN') {
     push();
     stroke(252, 238, 33);
     strokeWeight(10);
@@ -1195,7 +1195,7 @@ function draw() {
   // debug information for location
   // circle(xTouch, yTouch, 10);
 
-  if (state == "CONNECTION"){
+  if (state == "CONNECTION") {
     // textAlign(CENTER, TOP);
     // noStroke();
     // fill(255);
@@ -1214,10 +1214,10 @@ function draw() {
     fill(255);
     textSize(24);
     textFont('courier');
-    text('STUCK! ('+stuckCount+'/'+maxStuckTimes+' times)', defaultWidth / 2, groundLevel / 2);
+    text('STUCK! (' + stuckCount + '/' + maxStuckTimes + ' times)', defaultWidth / 2, groundLevel / 2);
   }
 
-  if (false){
+  if (false) {
     noStroke();
     fill(255);
     textSize(16);
@@ -1226,7 +1226,7 @@ function draw() {
     textAlign(LEFT, TOP);
     text('Click the machine\nto start/pause [⏎]', 5, 5);
     textAlign(CENTER, TOP);
-    text('Click anywehere else\nto toggle bias [⎵]', defaultWidth/2 + 10, 5)
+    text('Click anywehere else\nto toggle bias [⎵]', defaultWidth / 2 + 10, 5)
     textAlign(RIGHT, TOP);
     text('Use the button\nto pull back [⌫]', defaultWidth - 5, 5)
     // text('Click anywehere else\nto toggle bias', defaultWidth/2, 3)
@@ -1240,9 +1240,9 @@ function draw() {
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    if (playback){
+    if (playback) {
       text('THEY LOSE', defaultWidth / 2, groundLevel);
-    }else{
+    } else {
       text('YOU LOSE', defaultWidth / 2, groundLevel);
     }
     drawEndGameStatsAtY(groundLevel + 96);
@@ -1254,9 +1254,9 @@ function draw() {
     fill(255);
     textSize(96);
     textFont('courier-bold');
-    if (playback){
+    if (playback) {
       text('THEY WIN', defaultWidth / 2, groundLevel);
-    }else{
+    } else {
       text('YOU WIN', defaultWidth / 2, groundLevel);
     }
     // Starting idea for a score
